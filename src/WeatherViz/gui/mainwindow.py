@@ -1,5 +1,10 @@
 from PyQt5.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, QWidget
 from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+import folium
+from folium import plugins
+import sys
+import io
 
 #NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -55,5 +60,14 @@ class MainWindow(QMainWindow):
 
     def createMap(self):
         # Right part of main page (MAP PLACEHOLDER)
-        self.map = Color('blue')
+        m = folium.Map(location=[27.75, -83.25], tiles="CartoDB Positron", min_zoom=7, zoom_start=7)
+        p = folium.Marker(
+            [27.994402, -81.760254], popup="FL", icon=folium.Icon(color='darkpurple', icon='')
+        ).add_to(m)
+        data = io.BytesIO()
+        #  m = folium.Map(location=[27.994402, -81.760254], tiles="CartoDB Positron", min_zoom=7, zoom_start=7)
+        m.save(data, close_file=False)
+        web_map = QWebEngineView()
+        web_map.setHtml(data.getvalue().decode())
+        self.map = web_map
 
