@@ -23,6 +23,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setWindowTitle("WeatherViz")
+        self.setStyleSheet("background-color: gainsboro;")  # Change as needed
 
         self.createOptionsArea()
         self.createMap()
@@ -36,19 +37,21 @@ class MainWindow(QMainWindow):
 
     #Option selection area on left side
     def createOptionsArea(self):
-        calendar = QCalendarWidget()
-        calendar.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
-        start_date = QDateEdit(calendarPopup = True)
+        calendar_start = QCalendarWidget()
+        calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
+        start_date = QDateEdit(calendarPopup=True)
         start_date.setDate(QDate.currentDate())
-        start_date.setMinimumDate(QDate(1980, 1, 1)) #Change to correct minimum date
+        start_date.setMinimumDate(QDate(1980, 1, 1)) # Change to correct minimum date
         start_date.setMaximumDate(QDate.currentDate())
-        start_date.setCalendarWidget(calendar)
+        start_date.setCalendarWidget(calendar_start)
 
+        calendar_end = QCalendarWidget()
+        calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
         end_date = QDateEdit(calendarPopup=True)
         end_date.setDate(QDate.currentDate())
         end_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
         end_date.setMaximumDate(QDate.currentDate())
-        end_date.setCalendarWidget(calendar)
+        end_date.setCalendarWidget(calendar_end)
 
         date_selection = QGroupBox("Date")
         date_layout = QVBoxLayout()
@@ -77,8 +80,10 @@ class MainWindow(QMainWindow):
         p = folium.Marker(
             [27.994402, -81.760254], popup="FL", icon=folium.Icon(color='darkpurple', icon='')
         ).add_to(m)
-        data = io.BytesIO()
+        # folium.LayerControl(collapsed=False).add_to(m)
         #  m = folium.Map(location=[27.994402, -81.760254], tiles="CartoDB Positron", min_zoom=7, zoom_start=7)
+
+        data = io.BytesIO()
         m.save(data, close_file=False)
         web_map = QWebEngineView()
         web_map.setHtml(data.getvalue().decode())
