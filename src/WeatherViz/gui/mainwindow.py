@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, QWidget
+from PyQt5.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, QWidget, QDateEdit, QCalendarWidget
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtCore import QDate
 import folium
 from folium import plugins
 import sys
@@ -35,12 +36,24 @@ class MainWindow(QMainWindow):
 
     #Option selection area on left side
     def createOptionsArea(self):
+        calendar = QCalendarWidget()
+        calendar.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
+        start_date = QDateEdit(calendarPopup = True)
+        start_date.setDate(QDate.currentDate())
+        start_date.setMinimumDate(QDate(1980, 1, 1)) #Change to correct minimum date
+        start_date.setMaximumDate(QDate.currentDate())
+        start_date.setCalendarWidget(calendar)
+
+        end_date = QDateEdit(calendarPopup=True)
+        end_date.setDate(QDate.currentDate())
+        end_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
+        end_date.setMaximumDate(QDate.currentDate())
+        end_date.setCalendarWidget(calendar)
+
         date_selection = QGroupBox("Date")
-        date1 = QPushButton("Date 1")
-        date2 = QPushButton("Date 2")
         date_layout = QVBoxLayout()
-        date_layout.addWidget(date1)
-        date_layout.addWidget(date2)
+        date_layout.addWidget(start_date)
+        date_layout.addWidget(end_date)
         date_selection.setLayout(date_layout)
 
         random_selection = QGroupBox("Random")
