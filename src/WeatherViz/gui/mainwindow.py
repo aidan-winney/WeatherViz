@@ -1,13 +1,14 @@
 from PyQt5.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, QWidget, QDateEdit, QCalendarWidget
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QDate
+from PyQt5.QtCore import QDate, QUrl
 import folium
 from folium import plugins
 import sys
 import io
 import pandas as pd
 import plotly.express as px
+import plotly
 
 #NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -80,18 +81,20 @@ class MainWindow(QMainWindow):
 
         #fl_counties = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/florida_county_data.geojson")
 
-        fig = px.choropleth_mapbox([], geojson = "https://raw.githubusercontent.com/plotly/datasets/master/florida_county_data.geojson",
-                                color_discrete_sequence=["fuchsia"], zoom=3, height=300)
-        #fig.update_geos(fitbounds="locations", visible=False)
-        fig.update_geos(
-            center=dict(lon=27.75, lat=-83.25),
-            projection_rotation=dict(lon=30, lat=30, roll=30),
-            lataxis_range=[-90, -40], lonaxis_range=[0, 50]
-        )
+        fig = px.choropleth_mapbox([], featureidkey = "name",
+                geojson = "https://raw.githubusercontent.com/plotly/datasets/master/florida_county_data.geojson",
+                center={"lat": 27.75, "lon": -81},
+                zoom=3, height=800)
+        fig.update_geos(fitbounds="geojson", visible=True)
+        # fig.update_geos(
+        #     center=dict(lon=27.75, lat=-81.25),
+        #     projection_rotation=dict(lon=30, lat=30, roll=30),
+        #     lataxis_range=[-90, -40], lonaxis_range=[0, 50]
+        # )
         fig.update_layout(mapbox_style="open-street-map")
         fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-        fig.show()
-
+        #fig.show()
+        #plotly.offline.plot(fig, filename="plotly_map", include_plotlyjs=True)
 
         # fig = px.choropleth_mapbox(
         #     soybean,  # soybean database
@@ -110,16 +113,7 @@ class MainWindow(QMainWindow):
 
 
         #Right part of main page (MAP PLACEHOLDER)
-        m = folium.Map(location=[27.75, -83.25], tiles="CartoDB Positron", min_zoom=7, zoom_start=7)
-        p = folium.Marker(
-            [27.994402, -81.760254], popup="FL", icon=folium.Icon(color='darkpurple', icon='')
-        ).add_to(m)
-        # folium.LayerControl(collapsed=False).add_to(m)
-        #  m = folium.Map(location=[27.994402, -81.760254], tiles="CartoDB Positron", min_zoom=7, zoom_start=7)
-
-        data = io.BytesIO()
-        m.save(data, close_file=False)
         web_map = QWebEngineView()
-        web_map.setHtml(data.getvalue().decode())
+        web_map.setHtml(fig.to_html(include_plotlyjs='cdn'))
         self.map = web_map
 
