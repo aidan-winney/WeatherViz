@@ -6,6 +6,8 @@ import folium
 from folium import plugins
 import sys
 import io
+import pandas as pd
+import plotly.express as px
 
 #NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -75,7 +77,39 @@ class MainWindow(QMainWindow):
         self.options_area.setLayout(options_layout)
 
     def createMap(self):
-        # Right part of main page (MAP PLACEHOLDER)
+
+        #fl_counties = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/florida_county_data.geojson")
+
+        fig = px.choropleth_mapbox([], geojson = "https://raw.githubusercontent.com/plotly/datasets/master/florida_county_data.geojson",
+                                color_discrete_sequence=["fuchsia"], zoom=3, height=300)
+        #fig.update_geos(fitbounds="locations", visible=False)
+        fig.update_geos(
+            center=dict(lon=27.75, lat=-83.25),
+            projection_rotation=dict(lon=30, lat=30, roll=30),
+            lataxis_range=[-90, -40], lonaxis_range=[0, 50]
+        )
+        fig.update_layout(mapbox_style="open-street-map")
+        fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+        fig.show()
+
+
+        # fig = px.choropleth_mapbox(
+        #     soybean,  # soybean database
+        #     locations= “Estado”,  # define the limits on the map/geography
+        # geojson = "https://raw.githubusercontent.com/plotly/datasets/master/florida_county_data.geojson",
+        # color = "Produção",  # defining the color of the scale through the database
+        # hover_name = “Estado”,  # the information in the box
+        # hover_data = ["Produção", "Longitude", "Latitude"],
+        # title = "Produtivida da soja (Toneladas)",  # title of the map
+        # mapbox_style = "carto-positron",  # defining a new map style
+        # center = {"lat": -14, "lon": -55},  # define the limits that will be plotted
+        # zoom = 3,  # map view size
+        # opacity = 0.5,  # opacity of the map color, to appear the background
+        # animation_frame = “ano”  # creating the application based on the year
+        # fig.show()
+
+
+        #Right part of main page (MAP PLACEHOLDER)
         m = folium.Map(location=[27.75, -83.25], tiles="CartoDB Positron", min_zoom=7, zoom_start=7)
         p = folium.Marker(
             [27.994402, -81.760254], popup="FL", icon=folium.Icon(color='darkpurple', icon='')
