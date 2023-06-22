@@ -88,16 +88,16 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == 87:  # W
-            self.location[0] += 1.0
+            self.location[0] += 1 / (2 ** (self.zoom - 8))
         elif event.key() == 83:  # S
-            self.location[0] -= 1.0
+            self.location[0] -= 1 / (2 ** (self.zoom - 8))
         elif event.key() == 65:  # A
-            self.location[1] -= 1.0
+            self.location[1] -= 1 / (2 ** (self.zoom - 8))
         elif event.key() == 68:  # D
-            self.location[1] += 1.0
-        elif event.key() == 69:  # E
+            self.location[1] += 1 / (2 ** (self.zoom - 8))
+        elif self.zoom > 0 and event.key() == 69:  # E
             self.zoom -= 1
-        elif event.key() == 82:  # R
+        elif self.zoom < 18 and event.key() == 81:  # Q
             self.zoom += 1
         else:
             return
@@ -106,7 +106,8 @@ class MainWindow(QMainWindow):
 
     def refresh(self):
         self.map = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
-                              zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False)
+                              zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False,
+                              boxZoom=False, scrollWheelZoom=False)
         roundnum = "function(num) {return L.Util.formatNum(num, 5);};"
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(self.map)
@@ -118,13 +119,14 @@ class MainWindow(QMainWindow):
     def createMap(self):
         # Right part of main page (MAP PLACEHOLDER)
         m = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
-                       zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False)
+                       zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False,
+                       boxZoom=False, scrollWheelZoom=False)
         # p = folium.Marker(
         # [27.994402, -81.760254], popup="FL", icon=folium.Icon(color='darkpurple', icon='')
         # ).add_to(m)
         # folium.LayerControl(collapsed=False).add_to(m)
         # m = folium.Map(location=[27.994402, -81.760254], tiles="CartoDB Positron", min_zoom=7, zoom_start=7)
-        roundnum = "function(num) {return L.Util.formatNum(num, 5);};"
+        roundnum = "function(num) {return L.Util.formatNum(num, 6);};"
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(m)
         data = io.BytesIO()
