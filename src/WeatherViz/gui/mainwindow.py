@@ -3,7 +3,6 @@ from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBo
 from PySide2.QtGui import QPalette, QColor
 from PySide2.QtWebEngineWidgets import QWebEngineView
 from PySide2.QtCore import QDate
-from PySide2.Qt import Qt
 import folium
 from folium import plugins
 import sys
