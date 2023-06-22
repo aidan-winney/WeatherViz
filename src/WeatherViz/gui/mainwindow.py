@@ -58,9 +58,12 @@ class MainWindow(QMainWindow):
         calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
         end_date = QDateEdit(calendarPopup=True)
         end_date.setDate(QDate.currentDate())
-        end_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
+        end_date.setMinimumDate(QDate.currentDate())  # Change to correct minimum date
         end_date.setMaximumDate(QDate.currentDate())
         end_date.setCalendarWidget(calendar_end)
+
+        start_date.dateChanged.connect(lambda: self.updateEndDate(start_date.date(), end_date))
+
 
         date_selection = QGroupBox("Date")
         date_layout = QVBoxLayout()
@@ -85,6 +88,11 @@ class MainWindow(QMainWindow):
         options_layout.addWidget(random_selection)
         self.options_area = QGroupBox("Options")
         self.options_area.setLayout(options_layout)
+
+
+    def updateEndDate(self, start_date, end_date):
+        end_date.setMinimumDate(start_date)
+
 
     def keyPressEvent(self, event):
         if event.key() == 87:  # W
