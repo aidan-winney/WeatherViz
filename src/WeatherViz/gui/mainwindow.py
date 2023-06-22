@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
 
     def refresh(self):
         self.map = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
-                              zoom_control=False, keyboard=False)
+                              zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False)
         roundnum = "function(num) {return L.Util.formatNum(num, 5);};"
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(self.map)
@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
     def createMap(self):
         # Right part of main page (MAP PLACEHOLDER)
         m = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
-                       zoom_control=False, keyboard=False)
+                       zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False)
         # p = folium.Marker(
         # [27.994402, -81.760254], popup="FL", icon=folium.Icon(color='darkpurple', icon='')
         # ).add_to(m)
