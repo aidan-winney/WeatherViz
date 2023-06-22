@@ -11,3 +11,9 @@
 	cd WeatherViz
 	pip install -r requirements.txt
 	```
+
+3. Run the application:
+
+	```
+	python python/WeatherViz/main.py
+	```
