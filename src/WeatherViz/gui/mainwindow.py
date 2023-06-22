@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
+from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
     QWidget, QDateEdit, QCalendarWidget
-from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QDate
+from PySide2.QtGui import QPalette, QColor
+from PySide2.QtWebEngineWidgets import QWebEngineView
+from PySide2.QtCore import QDate
 from PyQt5.Qt import Qt
 import folium
 from folium import plugins
@@ -129,7 +129,7 @@ class MainWindow(QMainWindow):
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(m)
 
-        data = io.BesIO()
+        data = io.BytesIO()
         m.save(data, close_file=False)
         web_map = QWebEngineView()
         web_map.setHtml(data.getvalue().decode())
