@@ -128,9 +128,7 @@ class MainWindow(QMainWindow):
         roundnum = "function(num) {return L.Util.formatNum(num, 5);};"
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(m)
-
         data = io.BytesIO()
         m.save(data, close_file=False)
-        web_map = QWebEngineView()
-        web_map.setHtml(data.getvalue().decode())
-        self.web_map = web_map
+        self.web_map = QWebEngineView()
+        self.web_map.setHtml(data.getvalue().decode())
