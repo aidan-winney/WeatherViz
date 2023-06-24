@@ -4,16 +4,11 @@
 
 1. Create a Python 3.8 virtual environment.
 
-2. Activate the environment, clone the repository, and install the requirements:
+2. Activate the environment, clone the repository, and install the package:
 
 	```
 	git clone https://github.com/SplatMudkip/WeatherViz
-	cd WeatherViz
-	pip install -r requirements.txt
+	pip install ./WeatherViz
 	```
 
-3. Run the application:
-
-	```
-	python python/WeatherViz/main.py
-	```
+Now the application can be run as `weatherviz`.

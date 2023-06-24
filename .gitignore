@@ -1,2 +1,6 @@
+logs/
+build/
+target/
+Cargo.lock
+*.egg-info
 __pycache__
-logs
