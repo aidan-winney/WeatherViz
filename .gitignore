@@ -1,4 +1,6 @@
-__pycache__
-logs
-target
+logs/
+build/
+target/
 Cargo.lock
+*.egg-info
+__pycache__
