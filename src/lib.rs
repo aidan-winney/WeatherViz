@@ -1,14 +1,13 @@
-pub fn add(left: usize, right: usize) -> usize {
+use pyo3::prelude::*;
+
+#[pyfunction]
+fn add(left: usize, right: usize) -> usize {
     left + right
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+#[pymodule]
+#[pyo3(name="renderer")]
+fn renderer(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(add, m)?)?;
+    Ok(())
 }
