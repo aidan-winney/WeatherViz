@@ -1,3 +1,16 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.1,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "WeatherViz"
+requires-python = "~=3.8"
+dependencies = ["folium==0.14.0", "PySide2==5.15.2.1"]
+
+[project.scripts]
+weatherviz = "WeatherViz.main:main"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "WeatherViz.renderer"
