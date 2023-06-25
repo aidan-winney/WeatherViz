@@ -1,6 +1,5 @@
 logs/
-build/
 target/
 Cargo.lock
-*.egg-info
+*.pyd
 __pycache__

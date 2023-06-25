@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import QApplication, QLabel
-from gui.mainwindow import MainWindow
+from .gui.mainwindow import MainWindow
 import PySide2.QtWidgets
 
 
