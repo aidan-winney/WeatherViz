@@ -1,4 +1,6 @@
 use pyo3::prelude::*;
+use pyo3::exceptions::PyRuntimeError;
+use reqwest;
 
 const PI: f64 = std::f64::consts::PI;
 const DEG_TO_RAD: f64 = PI / 180.0;
@@ -39,9 +41,33 @@ fn geocoords(width: i32, height: i32, res: i32, lat: f64, lon: f64, zoom: i32) -
     coords
 }
 
+#[pyfunction]
+fn get_data(lat: f64, lon: f64, start_date: &str, end_date: &str, daily: bool, variable: &str,
+            temp: &str, windspeed: &str, precipitation: &str, tz: &str) -> PyResult<String> {
+    let mut url = format!("https://archive-api.open-meteo.com/v1/archive\
+        ?latitude={lat}&longitude={lon}&start_date={start_date}&end_date={end_date}\
+        &temperature_unit={temp}&windspeed_unit={windspeed}&precipitation_unit={precipitation}\
+        &timezone={tz}&models=best_match&cell_selection=nearest");
+    if daily {
+        url = format!("{url}&daily={variable}");
+    } else {
+        url = format!("{url}&hourly={variable}");
+    }
+    let client = reqwest::blocking::Client::new();
+    let res = client.get(&url).send().map_err(|err| PyRuntimeError::new_err(format!("{err}")))?;
+    let status = res.status();
+    let text = res.text().map_err(|err| PyRuntimeError::new_err(format!("{err}")))?;
+    if status.is_success() {    
+        Ok(text)
+    } else {
+        Err(PyRuntimeError::new_err(format!("The request failed w/ code {status}, text {text}")))
+    }
+}
+
 #[pymodule]
 #[pyo3(name="renderer")]
 fn renderer(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(geocoords, m)?)?;
+    m.add_function(wrap_pyfunction!(get_data, m)?)?;
     Ok(())
 }

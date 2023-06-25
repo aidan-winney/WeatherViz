@@ -9,7 +9,7 @@ import folium
 from folium import plugins
 import sys
 import io
-
+from WeatherViz import renderer
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -161,10 +161,14 @@ class MainWindow(QMainWindow):
         web_map.setHtml(data.getvalue().decode())
         self.web_map = web_map
 
-
     def get_data(self):
-        from WeatherViz import renderer
         start_date = self.start_date.date().toString("yyyy-MM-dd")
         end_date = self.end_date.date().toString("yyyy-MM-dd")
-        response = renderer.get_data(start_date, end_date)
+        # this code gets the data for the center of the map. TODO (for y'all): wrap
+        # renderer.geocoords and get the data for all the points in a lattice based on a
+        # user-specified resolution--and other user-specified values, such as:
+        # renderer.get_data(lat, long, start date, end date, daily?, variable, temperature unit,
+        # windspeed unit, precipitation unit, timezone)
+        response = renderer.get_data(self.location[0], self.location[1], start_date, end_date,
+                False, "temperature_2m", "fahrenheit", "mph", "inch", "EST")
         print(response)
