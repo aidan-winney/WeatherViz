@@ -67,11 +67,18 @@ class MainWindow(QMainWindow):
         date_selection.setLayout(date_layout)
 
         random_selection = QGroupBox("Random")
+        # button1 = QPushButton("Zoom In")
+        # button1.clicked.connect(self.zoom_in)
+        # button1.setGeometry(0, 0, 100, 100)
+        # button2 = QPushButton("Zoom Out")
+        # button2.clicked.connect(self.zoom_out)
         button = QPushButton("Get Data")
         button.clicked.connect(self.get_data)
 
         layout = QVBoxLayout()
         layout.addWidget(button)
+        # layout.addWidget(button1)
+        # layout.addWidget(button2)
         random_selection.setLayout(layout)
 
         options_layout = QVBoxLayout()
