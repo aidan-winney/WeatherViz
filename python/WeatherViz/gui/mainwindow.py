@@ -130,4 +130,5 @@ class MainWindow(QMainWindow):
 @Slot()
 def get_data():
     from WeatherViz import renderer
-    renderer.get_data()
+    response = renderer.get_data()
+    print(response)
