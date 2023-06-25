@@ -2,7 +2,7 @@ import sys
 import requests
 from PySide2.QtGui import QPixmap, QPainter, QColor, QBrush, QIcon, Qt, QPainterPath
 from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QWidget, QVBoxLayout, QPushButton, QSlider, \
-    QCalendarWidget, QApplication, QHBoxLayout, QLabel, QFrame
+    QCalendarWidget, QApplication, QHBoxLayout, QLabel, QFrame, QRadioButton
 
 from gui.ArrowPad import ArrowPad
 from gui.CollapsiblePanel import CollapsiblePanel
@@ -32,9 +32,9 @@ class MainWindow(QWidget):
         self.play_button = QPushButton('▶', self)
         self.play_button.setGeometry(1150, 42, 35, 35)
         interval = [
-            QLabel("Day"),
-            QLabel("Week"),
-            QLabel("Month"),
+            QRadioButton("Day"),
+            QRadioButton("Week"),
+            QRadioButton("Month")
         ]
         self.panel = CollapsiblePanel("Interval", interval, self)
         self.panel.setGeometry(30, 110, 450, 300)
