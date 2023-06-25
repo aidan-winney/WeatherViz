@@ -44,31 +44,31 @@ class MainWindow(QMainWindow):
     def createOptionsArea(self):
         calendar_start = QCalendarWidget()
         calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
-        start_date = QDateEdit(calendarPopup=True)
-        start_date.setDate(QDate.currentDate())
-        start_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
-        start_date.setMaximumDate(QDate.currentDate())
-        start_date.setCalendarWidget(calendar_start)
+        self.start_date = QDateEdit(calendarPopup=True)
+        self.start_date.setDate(QDate.currentDate())
+        self.start_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
+        self.start_date.setMaximumDate(QDate.currentDate())
+        self.start_date.setCalendarWidget(calendar_start)
 
         calendar_end = QCalendarWidget()
         calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
-        end_date = QDateEdit(calendarPopup=True)
-        end_date.setDate(QDate.currentDate())
-        end_date.setMinimumDate(QDate.currentDate())  # Change to correct minimum date
-        end_date.setMaximumDate(QDate.currentDate())
-        end_date.setCalendarWidget(calendar_end)
+        self.end_date = QDateEdit(calendarPopup=True)
+        self.end_date.setDate(QDate.currentDate())
+        self.end_date.setMinimumDate(QDate.currentDate())  # Change to correct minimum date
+        self.end_date.setMaximumDate(QDate.currentDate())
+        self.end_date.setCalendarWidget(calendar_end)
 
-        start_date.dateChanged.connect(lambda: self.updateEndDate(start_date.date(), end_date))
+        self.start_date.dateChanged.connect(lambda: self.updateEndDate(self.start_date.date(), self.end_date))
 
         date_selection = QGroupBox("Date")
         date_layout = QVBoxLayout()
-        date_layout.addWidget(start_date)
-        date_layout.addWidget(end_date)
+        date_layout.addWidget(self.start_date)
+        date_layout.addWidget(self.end_date)
         date_selection.setLayout(date_layout)
 
         random_selection = QGroupBox("Random")
         button = QPushButton("Get Data")
-        button.clicked.connect(get_data)
+        button.clicked.connect(self.get_data)
 
         layout = QVBoxLayout()
         layout.addWidget(button)
@@ -127,8 +127,9 @@ class MainWindow(QMainWindow):
         self.web_map.setHtml(data.getvalue().decode())
 
 
-@Slot()
-def get_data():
-    from WeatherViz import renderer
-    response = renderer.get_data()
-    print(response)
+    def get_data(self):
+        from WeatherViz import renderer
+        start_date = self.start_date.date().toString("yyyy-MM-dd")
+        end_date = self.end_date.date().toString("yyyy-MM-dd")
+        response = renderer.get_data(start_date, end_date)
+        print(response)
