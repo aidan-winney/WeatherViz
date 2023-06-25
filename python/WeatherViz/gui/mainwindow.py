@@ -1,8 +1,10 @@
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
-    QWidget, QDateEdit, QCalendarWidget
-from PySide2.QtGui import QPalette, QColor
+    QWidget, QDateEdit, QCalendarWidget, QGridLayout
+from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter
 from PySide2.QtWebEngineWidgets import QWebEngineView
-from PySide2.QtCore import QDate, Slot
+from PySide2.QtCore import QDate, Slot, QPoint
+from PySide2 import QtCore
+import PySide2
 import folium
 from folium import plugins
 import sys
@@ -32,13 +34,38 @@ class MainWindow(QMainWindow):
         self.createOptionsArea()
         self.createMap()
 
-        main_layout = QHBoxLayout()
-        main_layout.addWidget(self.options_area, 1)
-        main_layout.addWidget(self.web_map, 4)
         main_widget = QWidget()
+        main_widget.setWindowFlag(QtCore.Qt.WindowStaysOnBottomHint)
+
+        temp = QPixmap("gui\\Donpeng.jpg")
+        donpeng_pix = QPixmap(temp.size())
+        donpeng_pix.fill(QtCore.Qt.transparent)
+        painter = QPainter(donpeng_pix)
+        painter.setOpacity(0.2)
+        painter.drawPixmap(QtCore.QPoint(), temp)
+        painter.end()
+
+        img_widget = QWidget(parent=main_widget)
+        img_widget.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
+        self.donpeng_img = QLabel(img_widget)
+        self.donpeng_img.setPixmap(donpeng_pix)
+        self.donpeng_img.setFixedSize(donpeng_pix.size())
+        point = self.geometry().bottomRight() - self.donpeng_img.geometry().bottomRight() - QPoint(100, 100)
+        self.donpeng_img.move(point)
+
+        main_layout = QGridLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(self.options_area, 0, 0, 1, 1)
+        main_layout.addWidget(self.web_map, 0, 1, 1, 3)
+        main_layout.setRowStretch(0, 3)
+
+        img_widget.show()
+        img_widget.raise_()
+        # img_widget.activateWindow()
+
         main_widget.setLayout(main_layout)
-        self.setCentralWidget(main_widget)
         self.main_widget = main_widget
+        self.setCentralWidget(main_widget)
 
     # Option selection area on left side
     def createOptionsArea(self):
@@ -130,8 +157,9 @@ class MainWindow(QMainWindow):
                                       lng_formatter=roundnum).add_to(m)
         data = io.BytesIO()
         m.save(data, close_file=False)
-        self.web_map = QWebEngineView()
-        self.web_map.setHtml(data.getvalue().decode())
+        web_map = QWebEngineView()
+        web_map.setHtml(data.getvalue().decode())
+        self.web_map = web_map
 
 
     def get_data(self):
