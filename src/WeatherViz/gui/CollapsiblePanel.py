@@ -1,7 +1,8 @@
 from PySide2.QtCore import QPropertyAnimation, QEasingCurve, QRect
+from PySide2.QtGui import Qt
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
 
-from gui.TransparentRectangle import TransparentRectangle
+from src.WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
 
 class CollapsiblePanel(QWidget):
@@ -15,6 +16,7 @@ class CollapsiblePanel(QWidget):
     def initUI(self, title, content):
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         self.header = QWidget()
         header_layout = QHBoxLayout()
         self.header.setMaximumHeight(40)
@@ -35,16 +37,17 @@ class CollapsiblePanel(QWidget):
 
         self.header.setLayout(header_layout)
 
-        layout.addWidget(self.header)
+        layout.addWidget(self.header, 0, Qt.AlignTop)
         self.content = QWidget()
         self.content.setContentsMargins(0, 0, 0, 0)
         self.content.setStyleSheet("background-color: rgba(90, 90, 90, 210); border-radius: 5px; font-weight: bold; color: white")
         self.content.setMaximumHeight(0)
-        layout.addWidget(self.content)
-        layout.addStretch(1)
+        layout.addWidget(self.content, 0, Qt.AlignLeft)
 
         content_layout = QVBoxLayout()
+        content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(16)
+        content_layout.setMargin(20)
         for item in content:
             content_layout.addWidget(item)
         self.content.setLayout(content_layout)
