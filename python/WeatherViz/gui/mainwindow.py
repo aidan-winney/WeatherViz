@@ -2,7 +2,7 @@ from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBo
     QWidget, QDateEdit, QCalendarWidget
 from PySide2.QtGui import QPalette, QColor
 from PySide2.QtWebEngineWidgets import QWebEngineView
-from PySide2.QtCore import QDate
+from PySide2.QtCore import QDate, Slot
 import folium
 from folium import plugins
 import sys
@@ -11,18 +11,15 @@ import io
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
-
     def __init__(self, color):
         super(Color, self).__init__()
         self.setAutoFillBackground(True)
-
         palette = self.palette()
         palette.setColor(QPalette.Window, QColor(color))
         self.setPalette(palette)
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self):
         super(MainWindow, self).__init__()
         self.map = None
@@ -40,7 +37,6 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.web_map, 4)
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
-        # main_widget.show()
         self.setCentralWidget(main_widget)
         self.main_widget = main_widget
 
@@ -64,7 +60,6 @@ class MainWindow(QMainWindow):
 
         start_date.dateChanged.connect(lambda: self.updateEndDate(start_date.date(), end_date))
 
-
         date_selection = QGroupBox("Date")
         date_layout = QVBoxLayout()
         date_layout.addWidget(start_date)
@@ -72,15 +67,11 @@ class MainWindow(QMainWindow):
         date_selection.setLayout(date_layout)
 
         random_selection = QGroupBox("Random")
-        button1 = QPushButton("Zoom In")
-        # button1.clicked.connect(self.zoom_in)
-        button1.setGeometry(0, 0, 100, 100)
-        button2 = QPushButton("Zoom Out")
-        # button2.clicked.connect(self.zoom_out)
+        button = QPushButton("Get Data")
+        button.clicked.connect(get_data)
 
         layout = QVBoxLayout()
-        layout.addWidget(button1)
-        layout.addWidget(button2)
+        layout.addWidget(button)
         random_selection.setLayout(layout)
 
         options_layout = QVBoxLayout()
@@ -89,10 +80,8 @@ class MainWindow(QMainWindow):
         self.options_area = QGroupBox("Options")
         self.options_area.setLayout(options_layout)
 
-
     def updateEndDate(self, start_date, end_date):
         end_date.setMinimumDate(start_date)
-
 
     def keyPressEvent(self, event):
         if event.key() == 87:  # W
@@ -129,11 +118,6 @@ class MainWindow(QMainWindow):
         m = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
                        zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False,
                        boxZoom=False, scrollWheelZoom=False)
-        # p = folium.Marker(
-        # [27.994402, -81.760254], popup="FL", icon=folium.Icon(color='darkpurple', icon='')
-        # ).add_to(m)
-        # folium.LayerControl(collapsed=False).add_to(m)
-        # m = folium.Map(location=[27.994402, -81.760254], tiles="CartoDB Positron", min_zoom=7, zoom_start=7)
         roundnum = "function(num) {return L.Util.formatNum(num, 6);};"
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(m)
@@ -141,3 +125,9 @@ class MainWindow(QMainWindow):
         m.save(data, close_file=False)
         self.web_map = QWebEngineView()
         self.web_map.setHtml(data.getvalue().decode())
+
+
+@Slot()
+def get_data():
+    from WeatherViz import renderer
+    renderer.get_data()
