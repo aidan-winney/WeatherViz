@@ -12,10 +12,11 @@ import sys
 import io
 from PIL import Image
 
-from python.WeatherViz.gui.ArrowPad import ArrowPad
-from python.WeatherViz.gui.CollapsiblePanel import CollapsiblePanel
-from python.WeatherViz.gui.Map import MapWidget
-from python.WeatherViz.gui.TransparentRectangle import TransparentRectangle
+from UIRescale import UIRescale
+from gui.ArrowPad import ArrowPad
+from gui.CollapsiblePanel import CollapsiblePanel
+from gui.Map import MapWidget
+from gui.TransparentRectangle import TransparentRectangle
 
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
@@ -40,7 +41,7 @@ class MainWindow(QWidget):
         self.layout.addWidget(self.map_widget.web_map)
         self.setLayout(self.layout)
         self.rect_item = TransparentRectangle(self)
-        self.rect_item.setGeometry(30, 30, 1200, 60)
+        self.rect_item.setGeometry(30 * UIRescale.Scale, 30 * UIRescale.Scale, 1200 * UIRescale.Scale, 60 * UIRescale.Scale)
 
         self.date_selector = QWidget(self)
         self.date_select_layout = QHBoxLayout(self)
@@ -70,23 +71,26 @@ class MainWindow(QWidget):
         self.start_date.dateChanged.connect(lambda: self.updateEndDate(self.start_date.date(), self.end_date))
 
         self.date_selector.setLayout(self.date_select_layout)
-        self.date_selector.setGeometry(45, 15, 425, 90)
+        self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
         self.date_selector.show()
 
+        self.submit_button = QPushButton('✓', self)
+        self.submit_button.setGeometry(470 * UIRescale.Scale, 42 * UIRescale.Scale, 35 * UIRescale.Scale, 35 * UIRescale.Scale)
+
         self.slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.slider.setGeometry(500, 35, 600, 50)
+        self.slider.setGeometry(570 * UIRescale.Scale, 35 * UIRescale.Scale, 500 * UIRescale.Scale, 50 * UIRescale.Scale)
         self.play_button = QPushButton('▶', self)
-        self.play_button.setGeometry(1150, 42, 35, 35)
+        self.play_button.setGeometry(1150 * UIRescale.Scale, 42 * UIRescale.Scale, 35 * UIRescale.Scale, 35 * UIRescale.Scale)
         interval = [
             QRadioButton("Day"),
             QRadioButton("Week"),
             QRadioButton("Month"),
         ]
         self.panel = CollapsiblePanel("Interval", interval, self)
-        self.panel.setGeometry(30, 110, 450, 300)
+        self.panel.setGeometry(30 * UIRescale.Scale, 110 * UIRescale.Scale, 450 * UIRescale.Scale, 300 * UIRescale.Scale)
         self.panel.show()
         self.arrow_pad = ArrowPad(self)
-        self.arrow_pad.setGeometry(1070, 600, 150, 150)  # Set the position and size of the arrow pad
+        self.arrow_pad.setGeometry(1070 * UIRescale.Scale, 600 * UIRescale.Scale, 150 * UIRescale.Scale, 150 * UIRescale.Scale)  # Set the position and size of the arrow pad
         self.arrow_pad.up_button.clicked.connect(self.map_widget.move_up)
         self.arrow_pad.down_button.clicked.connect(self.map_widget.move_down)
         self.arrow_pad.left_button.clicked.connect(self.map_widget.move_left)

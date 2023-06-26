@@ -1,14 +1,17 @@
 from PySide2.QtWidgets import QApplication, QLabel
 import PySide2.QtWidgets
+from screeninfo import get_monitors
 
-from python.WeatherViz.gui.mainwindow import MainWindow
+from UIRescale import UIRescale
+from gui.mainwindow import MainWindow
 
 
 def main():
+
     app = QApplication([])
     app.setStyle('Fusion')
     window = MainWindow()
-    window.resize(1270, 850)
+    window.resize(1270 * UIRescale.Scale, 850 * UIRescale.Scale)
     window.setContentsMargins(0, 0, 0, 0)
     window.show()
     app.exec_()

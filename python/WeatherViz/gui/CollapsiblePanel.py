@@ -1,7 +1,8 @@
 from PySide2.QtCore import QPropertyAnimation, QEasingCurve, QRect
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
 
-from python.WeatherViz.gui.TransparentRectangle import TransparentRectangle
+from UIRescale import UIRescale
+from gui.TransparentRectangle import TransparentRectangle
 
 
 class CollapsiblePanel(QWidget):
@@ -17,7 +18,7 @@ class CollapsiblePanel(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.header = QWidget()
         header_layout = QHBoxLayout()
-        self.header.setMaximumHeight(40)
+        self.header.setMaximumHeight(40 * UIRescale.Scale)
         self.header_background = TransparentRectangle(self)
         self.header_background.setGeometry(self.header.rect().x(), self.header.rect().y(), self.header.rect().width()*2, self.header.rect().height())
 
@@ -25,7 +26,7 @@ class CollapsiblePanel(QWidget):
         self.titleLabel.setStyleSheet("font-weight: bold; color: white")
 
         self.toggleButton = QPushButton("▼")
-        self.toggleButton.setFixedSize(20, 20)
+        self.toggleButton.setFixedSize(20 * UIRescale.Scale, 20 * UIRescale.Scale)
         self.toggleButton.setCheckable(True)
         self.toggleButton.clicked.connect(self.toggleContent)
 
