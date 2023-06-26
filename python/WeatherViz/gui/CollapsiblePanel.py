@@ -4,7 +4,6 @@ from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBu
 from WeatherViz.UIRescale import UIRescale
 from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
-
 class CollapsiblePanel(QWidget):
     def __init__(self, title, content, parent=None):
         super(CollapsiblePanel, self).__init__(parent)
