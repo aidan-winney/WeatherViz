@@ -1,4 +1,3 @@
-import renderer
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
     QWidget, QDateEdit, QCalendarWidget, QGridLayout, QSlider, QRadioButton
 from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter, QIcon, Qt
@@ -13,12 +12,13 @@ import io
 from PIL import Image
 
 from WeatherViz.UIRescale import UIRescale
-
 from WeatherViz.gui.ArrowPad import ArrowPad
 from WeatherViz.gui.CollapsiblePanel import CollapsiblePanel
 from WeatherViz.gui.Map import MapWidget
 from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
+import json
+from WeatherViz import renderer
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -173,19 +173,24 @@ class MainWindow(QWidget):
         blended.save(image_path, 'PNG')
 
     def get_data(self):
+        # TODO: allow user to change these (i used all caps to mark this lol)
+        RESOLUTION = 2
+        DAILY = False
+        VARIABLE = "temperature_2m"
+        TEMPERATURE_UNIT = "fahrenheit"
+        WINDSPEED_UNIT = "mph"
+        PRECIPITATION_UNIT = "inch"
+        TIMEZONE = "EST"
 
         start_date = self.start_date.date().toString("yyyy-MM-dd")
         end_date = self.end_date.date().toString("yyyy-MM-dd")
-        # this code gets the data for the center of the map. TODO (for y'all): wrap
-        # renderer.geocoords and get the data for all the points in a lattice based on a
-        # user-specified resolution--and other user-specified values, such as:
-        # renderer.get_data(lat, long, start date, end date, daily?, variable, temperature unit,
-        # windspeed unit, precipitation unit, timezone)
         responses = {}
-        #change "2" to whatever render value
-        geocoords = renderer.geocoords(self.web_map.height(), self.web_map.width(), 2, self.location[0], self.location[1], self.zoom)
+        geocoords = renderer.geocoords(self.web_map.height(), self.web_map.width(), RESOLUTION,
+                self.location[0], self.location[1], self.zoom)
         for lat, long in geocoords:
-            responses[(lat, long)] = renderer.get_data(self.location[0], self.location[1], start_date, end_date,
-                False, "temperature_2m", "fahrenheit", "mph", "inch", "EST")
-            print(responses[(lat, long)])
+             data = json.loads(renderer.get_data(lat, long, start_date, end_date, DAILY, VARIABLE,
+                 TEMPERATURE_UNIT, WINDSPEED_UNIT, PRECIPITATION_UNIT, TIMEZONE))
+             key = (str(data["latitude"]), str(data["longitude"]))
+             responses[key] = data["daily" if DAILY else "hourly"][VARIABLE]
+        print(responses)
 
