@@ -114,6 +114,7 @@ class MainWindow(QWidget):
         blended.save(image_path, 'PNG')
 
     def get_data(self):
+
         start_date = self.start_date.date().toString("yyyy-MM-dd")
         end_date = self.end_date.date().toString("yyyy-MM-dd")
         # this code gets the data for the center of the map. TODO (for y'all): wrap
@@ -121,7 +122,11 @@ class MainWindow(QWidget):
         # user-specified resolution--and other user-specified values, such as:
         # renderer.get_data(lat, long, start date, end date, daily?, variable, temperature unit,
         # windspeed unit, precipitation unit, timezone)
-        response = renderer.get_data(self.location[0], self.location[1], start_date, end_date,
+        responses = {}
+        #change "2" to whatever render value
+        geocoords = renderer.geocoords(self.web_map.height(), self.web_map.width(), 2, self.location[0], self.location[1], self.zoom)
+        for lat, long in geocoords:
+            responses[(lat, long)] = renderer.get_data(self.location[0], self.location[1], start_date, end_date,
                 False, "temperature_2m", "fahrenheit", "mph", "inch", "EST")
-        print(response)
+            print(responses[(lat, long)])
 
