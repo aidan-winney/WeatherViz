@@ -1,4 +1,3 @@
-import renderer
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
     QWidget, QDateEdit, QCalendarWidget, QGridLayout, QSlider, QRadioButton
 from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter, QIcon, Qt
@@ -12,10 +11,12 @@ import sys
 import io
 from PIL import Image
 
-from python.WeatherViz.gui.ArrowPad import ArrowPad
-from python.WeatherViz.gui.CollapsiblePanel import CollapsiblePanel
-from python.WeatherViz.gui.Map import MapWidget
-from python.WeatherViz.gui.TransparentRectangle import TransparentRectangle
+from WeatherViz import renderer
+
+from .ArrowPad import ArrowPad
+from .CollapsiblePanel import CollapsiblePanel
+from .Map import MapWidget
+from .TransparentRectangle import TransparentRectangle
 
 
 # NOT NEEDED, JUST FOR INITIAL TESTING

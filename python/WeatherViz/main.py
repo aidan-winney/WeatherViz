@@ -1,7 +1,7 @@
 from PySide2.QtWidgets import QApplication, QLabel
 import PySide2.QtWidgets
 
-from python.WeatherViz.gui.mainwindow import MainWindow
+from .gui.mainwindow import MainWindow
 
 
 def main():
