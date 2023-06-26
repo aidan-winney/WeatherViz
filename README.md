@@ -1,4 +1,11 @@
 # WeatherViz
+A desktop application for displaying historical weather data on an interactive map.
+
+# Repository Link
+https://github.com/SplatMudkip/WeatherViz
+
+# Package Name for PIP Installation
+WeatherViz
 
 ## Setup
 
