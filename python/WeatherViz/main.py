@@ -1,14 +1,15 @@
 from PySide2.QtWidgets import QApplication, QLabel
-from .gui.mainwindow import MainWindow
 import PySide2.QtWidgets
+
+from python.WeatherViz.gui.mainwindow import MainWindow
 
 
 def main():
     app = QApplication([])
     app.setStyle('Fusion')
     window = MainWindow()
-    #window.display()
-    window.resize(1250, 750)
+    window.resize(1270*2, 850*2)
+    window.setContentsMargins(0, 0, 0, 0)
     window.show()
     app.exec_()
 
