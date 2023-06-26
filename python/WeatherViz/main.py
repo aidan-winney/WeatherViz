@@ -4,11 +4,11 @@ from screeninfo import get_monitors
 
 from UIRescale import UIRescale
 from gui.mainwindow import MainWindow
-
+import sys
 
 def main():
 
-    app = QApplication([])
+    app = QApplication(sys.argv + ['--no-sandbox'])
     app.setStyle('Fusion')
     window = MainWindow()
     window.resize(1270 * UIRescale.Scale, 850 * UIRescale.Scale)
