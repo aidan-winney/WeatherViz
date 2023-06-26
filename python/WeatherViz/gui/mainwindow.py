@@ -6,10 +6,11 @@ from PySide2.QtCore import QDate, Slot, QPoint
 from PySide2 import QtCore
 import PySide2
 import folium
-from folium import plugins
+from folium import plugins, features
 import sys
 import io
 from WeatherViz import renderer
+from PIL import Image
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -19,7 +20,6 @@ class Color(QWidget):
         palette = self.palette()
         palette.setColor(QPalette.Window, QColor(color))
         self.setPalette(palette)
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -37,21 +37,21 @@ class MainWindow(QMainWindow):
         main_widget = QWidget()
         main_widget.setWindowFlag(QtCore.Qt.WindowStaysOnBottomHint)
 
-        temp = QPixmap("gui\\Donpeng.jpg")
-        donpeng_pix = QPixmap(temp.size())
-        donpeng_pix.fill(QtCore.Qt.transparent)
-        painter = QPainter(donpeng_pix)
-        painter.setOpacity(0.2)
-        painter.drawPixmap(QtCore.QPoint(), temp)
-        painter.end()
+        #temp = QPixmap("gui\\Donpeng.jpg")
+        #donpeng_pix = QPixmap(temp.size())
+        #donpeng_pix.fill(QtCore.Qt.transparent)
+        #painter = QPainter(donpeng_pix)
+        #painter.setOpacity(0.2)
+        #painter.drawPixmap(QtCore.QPoint(), temp)
+        #painter.end()
 
-        img_widget = QWidget(parent=main_widget)
-        img_widget.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
-        self.donpeng_img = QLabel(img_widget)
-        self.donpeng_img.setPixmap(donpeng_pix)
-        self.donpeng_img.setFixedSize(donpeng_pix.size())
-        point = self.geometry().bottomRight() - self.donpeng_img.geometry().bottomRight() - QPoint(100, 100)
-        self.donpeng_img.move(point)
+        #img_widget = QWidget(parent=main_widget)
+        #img_widget.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
+        #self.donpeng_img = QLabel(img_widget)
+        #self.donpeng_img.setPixmap(donpeng_pix)
+        #self.donpeng_img.setFixedSize(donpeng_pix.size())
+        #point = self.geometry().bottomRight() - self.donpeng_img.geometry().bottomRight() - QPoint(100, 100)
+        #self.donpeng_img.move(point)
 
         main_layout = QGridLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -59,9 +59,8 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.web_map, 0, 1, 1, 3)
         main_layout.setRowStretch(0, 3)
 
-        img_widget.show()
-        img_widget.raise_()
-        # img_widget.activateWindow()
+        #img_widget.show()
+        #img_widget.raise_()
 
         main_widget.setLayout(main_layout)
         self.main_widget = main_widget
@@ -101,7 +100,6 @@ class MainWindow(QMainWindow):
         # button2.clicked.connect(self.zoom_out)
         button = QPushButton("Get Data")
         button.clicked.connect(self.get_data)
-
         layout = QVBoxLayout()
         layout.addWidget(button)
         # layout.addWidget(button1)
@@ -135,6 +133,24 @@ class MainWindow(QMainWindow):
 
         self.refresh()
 
+    
+    def change_opacity(self, image_path, opacity_level):
+        img = Image.open(image_path).convert("RGBA")
+
+        for x in range(img.width):
+            for y in range(img.height):
+                r, g, b, a = img.getpixel((x, y))
+                img.putpixel((x, y), (r, g, b, int(a * opacity_level)))
+
+        img.save(image_path)
+    
+    def color_overlay(self, image_path, color, opacity_level):
+        img = Image.open(image_path).convert("RGBA")
+        overlay = Image.new('RGBA', img.size, color)
+        blended = Image.blend(img, overlay, opacity_level)  
+        blended.save(image_path, 'PNG')
+
+
     def refresh(self):
         self.map = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
                               zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False,
@@ -142,10 +158,16 @@ class MainWindow(QMainWindow):
         roundnum = "function(num) {return L.Util.formatNum(num, 5);};"
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(self.map)
+
+        icon = features.CustomIcon('gui\\Donpeng.png', icon_size=(50, 50))
+        marker = folium.Marker(location=[29.651634, -82.324829], icon=icon)
+        marker.add_to(self.map)
+
         data = io.BytesIO()
         self.map.save(data, close_file=False)
         self.web_map.setHtml(data.getvalue().decode())
         self.web_map.update()
+
 
     def createMap(self):
         # Right part of main page (MAP PLACEHOLDER)
@@ -155,6 +177,11 @@ class MainWindow(QMainWindow):
         roundnum = "function(num) {return L.Util.formatNum(num, 6);};"
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(m)
+
+        icon = features.CustomIcon('gui\\Donpeng.png', icon_size=(50, 50))
+        marker = folium.Marker(location=[29.651634, -82.324829], icon=icon)
+        marker.add_to(m)
+
         data = io.BytesIO()
         m.save(data, close_file=False)
         web_map = QWebEngineView()
@@ -172,3 +199,4 @@ class MainWindow(QMainWindow):
         response = renderer.get_data(self.location[0], self.location[1], start_date, end_date,
                 False, "temperature_2m", "fahrenheit", "mph", "inch", "EST")
         print(response)
+
