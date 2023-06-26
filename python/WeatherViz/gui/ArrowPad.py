@@ -1,7 +1,7 @@
 from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 
-from UIRescale import UIRescale
+from WeatherViz.UIRescale import UIRescale
 
 
 class ArrowPad(QWidget):

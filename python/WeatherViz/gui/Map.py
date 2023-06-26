@@ -6,7 +6,7 @@ from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QWidget, QVBoxLayou
 from folium import folium, plugins, features
 import io
 
-from UIRescale import UIRescale
+from WeatherViz.UIRescale import UIRescale
 
 
 class MapWidget(QGraphicsView):

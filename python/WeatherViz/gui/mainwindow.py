@@ -12,11 +12,12 @@ import sys
 import io
 from PIL import Image
 
-from UIRescale import UIRescale
-from gui.ArrowPad import ArrowPad
-from gui.CollapsiblePanel import CollapsiblePanel
-from gui.Map import MapWidget
-from gui.TransparentRectangle import TransparentRectangle
+from WeatherViz.UIRescale import UIRescale
+
+from WeatherViz.gui.ArrowPad import ArrowPad
+from WeatherViz.gui.CollapsiblePanel import CollapsiblePanel
+from WeatherViz.gui.Map import MapWidget
+from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
