@@ -6,7 +6,7 @@ build-backend = "maturin"
 name = "WeatherViz"
 version = "0.1.0"
 requires-python = "~=3.8"
-dependencies = ["folium==0.14.0", "PySide2==5.15.2.1", "pillow==9.5.0", "screeninfo==0.8.1"]
+dependencies = ["folium==0.14.0", "PySide2==5.15.2.1", "Pillow==9.5.0", "screeninfo==0.8.1"]
 
 [project.scripts]
 weatherviz = "WeatherViz.main:main"

@@ -3,7 +3,7 @@ import PySide2.QtWidgets
 from screeninfo import get_monitors
 
 from UIRescale import UIRescale
-from gui.mainwindow import MainWindow
+from WeatherViz.gui.mainwindow import MainWindow
 import sys
 
 def main():

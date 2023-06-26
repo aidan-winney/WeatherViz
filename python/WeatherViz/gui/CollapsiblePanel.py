@@ -2,8 +2,7 @@ from PySide2.QtCore import QPropertyAnimation, QEasingCurve, QRect
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
 
 from UIRescale import UIRescale
-from gui.TransparentRectangle import TransparentRectangle
-
+from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
 class CollapsiblePanel(QWidget):
     def __init__(self, title, content, parent=None):
