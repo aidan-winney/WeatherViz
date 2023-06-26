@@ -17,7 +17,7 @@ class CollapsiblePanel(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.header = QWidget()
         header_layout = QHBoxLayout()
-        self.header.setMaximumHeight(40*2)
+        self.header.setMaximumHeight(40)
         self.header_background = TransparentRectangle(self)
         self.header_background.setGeometry(self.header.rect().x(), self.header.rect().y(), self.header.rect().width()*2, self.header.rect().height())
 
@@ -25,7 +25,7 @@ class CollapsiblePanel(QWidget):
         self.titleLabel.setStyleSheet("font-weight: bold; color: white")
 
         self.toggleButton = QPushButton("▼")
-        self.toggleButton.setFixedSize(20*2, 20*2)
+        self.toggleButton.setFixedSize(20, 20)
         self.toggleButton.setCheckable(True)
         self.toggleButton.clicked.connect(self.toggleContent)
 
@@ -44,25 +44,26 @@ class CollapsiblePanel(QWidget):
         layout.addStretch(1)
 
         content_layout = QVBoxLayout()
-        content_layout.setSpacing(16*2)
+        content_layout.setSpacing(16)
         for item in content:
             content_layout.addWidget(item)
         self.content.setLayout(content_layout)
-
         self.setLayout(layout)
 
     def toggleContent(self):
         self.expanded = not self.expanded
-        if self.expanded:
-            self.toggleButton.setText("▼")
-            self.collapseAnimation()
-        else:
-            self.toggleButton.setText("▲")
-            self.expandAnimation()
         animation = QPropertyAnimation(self.content, b"maximumHeight")
-        animation.setDuration(300)
-        animation.setStartValue(0 if self.expanded else self.content.layout().sizeHint().height())
-        animation.setEndValue(self.content.layout().sizeHint().height() if self.expanded else 0)
+        animation.setDuration(900)
+        if self.expanded:
+            # self.toggleButton.setText("▼")
+            # self.collapseAnimation()
+            animation.setStartValue(self.content.layout().sizeHint().height())
+            animation.setEndValue(0)
+        else:
+            # self.toggleButton.setText("▲")
+            animation.setStartValue(0)
+            animation.setEndValue(self.content.layout().sizeHint().height())
+            # self.expandAnimation()
         animation.setEasingCurve(QEasingCurve.InOutQuad)
         animation.start()
 

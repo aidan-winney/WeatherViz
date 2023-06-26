@@ -8,7 +8,7 @@ def main():
     app = QApplication([])
     app.setStyle('Fusion')
     window = MainWindow()
-    window.resize(1270*2, 850*2)
+    window.resize(1270, 850)
     window.setContentsMargins(0, 0, 0, 0)
     window.show()
     app.exec_()

@@ -11,7 +11,7 @@ class ArrowPad(QWidget):
         self.left_button = QPushButton(QIcon("assets/left_icon.png"), "")
         self.right_button = QPushButton(QIcon("assets/right_icon.png"), "")
 
-        button_size = 40*2
+        button_size = 40
         self.up_button.setFixedSize(button_size, button_size)
         self.down_button.setFixedSize(button_size, button_size)
         self.left_button.setFixedSize(button_size, button_size)

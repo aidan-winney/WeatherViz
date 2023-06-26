@@ -40,32 +40,86 @@ class MainWindow(QWidget):
         self.layout.addWidget(self.map_widget.web_map)
         self.setLayout(self.layout)
         self.rect_item = TransparentRectangle(self)
-        self.rect_item.setGeometry(30*2, 30*2, 1200*2, 60*2)
-        self.start_date = QPushButton(QIcon("assets/Calendar.png"), '  Start Date', self)
-        self.start_date.setGeometry(60*2, 42*2, 190*2, 35*2)
-        self.start_date.clicked.connect(self.show_calendar)
-        self.end_date = QPushButton(QIcon("assets/Calendar.png"), '  End Date', self)
-        self.end_date.setGeometry(270*2, 42*2, 190*2, 35*2)
-        self.end_date.clicked.connect(self.show_calendar)
+        self.rect_item.setGeometry(30, 30, 1200, 60)
+
+        self.date_selector = QWidget(self)
+        self.date_select_layout = QHBoxLayout(self)
+
+        calendar_start = QCalendarWidget(self)
+        calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
+        # calendar_start.setGeometry(60, 42, 190, 35)
+        self.start_date = QDateEdit(self, calendarPopup=True)
+        self.start_date.setDate(QDate.currentDate())
+        self.start_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
+        self.start_date.setMaximumDate(QDate.currentDate())
+        self.start_date.setCalendarWidget(calendar_start)
+
+        calendar_end = QCalendarWidget(self)
+        calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
+        # calendar_end.setGeometry(270, 42, 190, 35)
+        self.end_date = QDateEdit(self, calendarPopup=True)
+        self.end_date.setDate(QDate.currentDate())
+        self.end_date.setMinimumDate(QDate.currentDate())  # Change to correct minimum date
+        self.end_date.setMaximumDate(QDate.currentDate())
+        self.end_date.setCalendarWidget(calendar_end)
+
+        self.date_select_layout.addWidget(self.start_date)
+        self.date_select_layout.stretch(1)
+        self.date_select_layout.addWidget(self.end_date)
+
+        self.start_date.dateChanged.connect(lambda: self.updateEndDate(self.start_date.date(), self.end_date))
+
+        self.date_selector.setLayout(self.date_select_layout)
+        self.date_selector.setGeometry(45, 15, 425, 90)
+        self.date_selector.show()
+
         self.slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.slider.setGeometry(500*2, 35*2, 600*2, 50*2)
+        self.slider.setGeometry(500, 35, 600, 50)
         self.play_button = QPushButton('▶', self)
-        self.play_button.setGeometry(1150*2, 42*2, 35*2, 35*2)
+        self.play_button.setGeometry(1150, 42, 35, 35)
         interval = [
             QRadioButton("Day"),
             QRadioButton("Week"),
             QRadioButton("Month"),
         ]
         self.panel = CollapsiblePanel("Interval", interval, self)
-        self.panel.setGeometry(30*2, 110*2, 450*2, 300*2)
+        self.panel.setGeometry(30, 110, 450, 300)
         self.panel.show()
         self.arrow_pad = ArrowPad(self)
-        self.arrow_pad.setGeometry(1070*2, 600*2, 150*2, 150*2)  # Set the position and size of the arrow pad
+        self.arrow_pad.setGeometry(1070, 600, 150, 150)  # Set the position and size of the arrow pad
         self.arrow_pad.up_button.clicked.connect(self.map_widget.move_up)
         self.arrow_pad.down_button.clicked.connect(self.map_widget.move_down)
         self.arrow_pad.left_button.clicked.connect(self.map_widget.move_left)
         self.arrow_pad.right_button.clicked.connect(self.map_widget.move_right)
         self.arrow_pad.show()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_W:  # W
+            self.map_widget.move_up()
+        elif event.key() == Qt.Key_S:  # S
+            self.map_widget.move_down()
+        elif event.key() == Qt.Key_A:  # A
+            self.map_widget.move_left()
+        elif event.key() == Qt.Key_D:  # D
+            self.map_widget.move_right()
+        elif self.map_widget.zoom > 0 and event.key() == Qt.Key_E:  # E
+            self.map_widget.zoom -= 1
+        elif self.map_widget.zoom < 18 and event.key() == Qt.Key_Q:  # Q
+            self.map_widget.zoom += 1
+        else:
+            return
+
+        self.map_widget.refresh()
+
+    # def mousePressEvent(self, event):
+    #     if event.button() == Qt.LeftButton:
+    #         self.map_widget.last_pos = event.pos()
+    # #
+    # def mouseMoveEvent(self, event):
+    #     if event.buttons() == Qt.LeftButton:
+    #         diff = event.pos() - self.map_widget.last_pos
+    #         self.map_widget.pan_map(diff.x(), diff.y())
+    #         self.map_widget.last_pos = event.pos()
 
     def show_calendar(self):
         calendar_widget = QCalendarWidget(self)

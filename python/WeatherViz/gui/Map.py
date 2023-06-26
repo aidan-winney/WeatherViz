@@ -59,7 +59,7 @@ class MapWidget(QGraphicsView):
         web_map.setHtml(data.getvalue().decode())
         self.web_map = web_map
         self.web_map.setContentsMargins(0, 0, 0, 0)
-        self.web_map.setFixedSize(1270*2, 850*2)
+        self.web_map.setFixedSize(1270, 850)
         print(self.web_map.width())
         print(self.web_map.height())
         self.scene.clear()
@@ -112,8 +112,8 @@ class MapWidget(QGraphicsView):
             self.last_pos = event.pos()
 
     def pan_map(self, dx, dy):
-        self.location[0] -= dx
-        self.location[1] += dy
+        self.location[1] -= dx
+        self.location[0] += dy
         self.refresh()
     #
     # def wheelEvent(self, event):
@@ -140,21 +140,3 @@ class MapWidget(QGraphicsView):
     #     elif event.key() == Qt.Key_Minus:
     #         self.zoom -= 1
     #     self.set_map()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_W:  # W
-            self.move_up()
-        elif event.key() == Qt.Key_S:  # S
-            self.move_down()
-        elif event.key() == Qt.Key_A:  # A
-            self.move_left()
-        elif event.key() == Qt.Key_D:  # D
-            self.move_right()
-        elif self.zoom > 0 and event.key() == Qt.Key_E:  # E
-            self.zoom -= 1
-        elif self.zoom < 18 and event.key() == Qt.Key_Q:  # Q
-            self.zoom += 1
-        else:
-            return
-
-        self.refresh()
