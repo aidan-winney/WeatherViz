@@ -2,7 +2,7 @@ from PySide2.QtWidgets import QApplication, QLabel
 import PySide2.QtWidgets
 from screeninfo import get_monitors
 
-from UIRescale import UIRescale
+from WeatherViz.UIRescale import UIRescale
 from WeatherViz.gui.mainwindow import MainWindow
 import sys
 
