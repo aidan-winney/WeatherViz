@@ -7,7 +7,7 @@ https://github.com/SplatMudkip/WeatherViz
 # Package Name for PIP Installation
 WeatherViz
 
-## Setup
+# Setup
 
 1. Create a Python 3.8 virtual environment.
 
