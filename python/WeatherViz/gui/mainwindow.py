@@ -48,6 +48,7 @@ class MainWindow(QWidget):
         self.setWindowTitle("WeatherViz")
         # self.setStyleSheet("background-color: gainsboro;")  # Change as needed
         self.image = None
+        self.apicalled = False
         self.map_widget = MapWidget([27.75, -83.25], 7)
 
         self.setContentsMargins(0, 0, 0, 0)
@@ -208,11 +209,12 @@ class MainWindow(QWidget):
         end_date.setMinimumDate(start_date)
 
     def update_overlay(self):
-        byte_array = self.ren.render(self.slider.get_slider().value(), self.map_widget.location[0], self.map_widget.location[1],
-                                     self.map_widget.zoom, self.map_widget.web_map.width(),
-                                     self.map_widget.web_map.height())
-        image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
-        self.map_widget.refresh(image)
+        if self.apicalled:
+            byte_array = self.ren.render(self.slider.get_slider().value(), self.map_widget.location[0], self.map_widget.location[1],
+                                         self.map_widget.zoom, self.map_widget.web_map.width(),
+                                         self.map_widget.web_map.height())
+            image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
+            self.map_widget.refresh(image)
 
 
 
@@ -306,6 +308,7 @@ class MainWindow(QWidget):
             #     x = (self.start_date.date().daysTo(self.end_date.date()))+1
 
                 # self.pixmaps.append(QPixmap.fromImage(ImageQt(image)))
+            self.apicalled = True
             self.update_overlay()
             self.submit_button.setText("✓")
             # self.progress.hide()
