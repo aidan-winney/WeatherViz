@@ -7,10 +7,9 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="added heatmap resolution panel and beginnings of progress bar">
-      <change afterPath="$PROJECT_DIR$/python/WeatherViz/Worker.py" afterDir="false" />
+    <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="added progress bar">
+      <change afterPath="$PROJECT_DIR$/python/WeatherViz/gui/NonCollapsiblePanel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/ProgressBar.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/ProgressBar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -39,21 +38,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;//wsl$/Ubuntu/home/matthew/.virtualenvs/pythonProj/WeatherViz/WeatherViz&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;language.rust&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "//wsl$/Ubuntu/home/matthew/.virtualenvs/pythonProj/WeatherViz/WeatherViz",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
+    "settings.editor.selected.configurable": "language.rust.cargo.check",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$PROJECT_DIR$/../../../../../../usr/bin" />
   </component>
@@ -71,7 +70,8 @@
       <workItem from="1687833469361" duration="10066000" />
       <workItem from="1687845438262" duration="227000" />
       <workItem from="1687847037565" duration="2005000" />
-      <workItem from="1687849084635" duration="11041000" />
+      <workItem from="1687849084635" duration="11528000" />
+      <workItem from="1687861459352" duration="1851000" />
     </task>
     <task id="LOCAL-00001" summary="made imports absolute">
       <created>1687782278308</created>
@@ -94,7 +94,14 @@
       <option name="project" value="LOCAL" />
       <updated>1687852046001</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="added progress bar">
+      <created>1687860977109</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1687860977109</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -115,7 +122,8 @@
     <MESSAGE value="made imports absolute" />
     <MESSAGE value="Connected slider and play/pause button to date selector" />
     <MESSAGE value="added heatmap resolution panel and beginnings of progress bar" />
-    <option name="LAST_COMMIT_MESSAGE" value="added heatmap resolution panel and beginnings of progress bar" />
+    <MESSAGE value="added progress bar" />
+    <option name="LAST_COMMIT_MESSAGE" value="added progress bar" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/WeatherViz$main.coverage" NAME="main Coverage Results" MODIFIED="1687780390087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python/WeatherViz" />

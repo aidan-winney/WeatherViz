@@ -30,6 +30,8 @@ from WeatherViz.gui.PlayButton import PlayButton
 from WeatherViz.gui.ProgressBar import ProgressBar
 from WeatherViz.Worker import Worker
 
+from WeatherViz.gui.NonCollapsiblePanel import NonCollapsiblePanel
+
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -101,12 +103,39 @@ class MainWindow(QWidget):
         self.slider.get_slider().valueChanged.connect(self.update_overlay)
         self.play_button = PlayButton(self.slider.get_slider(), self)
         self.play_button.setGeometry(1140 * UIRescale.Scale, 30 * UIRescale.Scale, 40 * UIRescale.Scale, 60 * UIRescale.Scale)
+        # pane = QWidget(self)
+        # pane_layout = QVBoxLayout(self)
+        # self.hourly = QRadioButton("Hourly")
+        # self.daily = QRadioButton("Daily")
+        # # pane_layout.setSpacing(2)
+        # self.interval_panel = CollapsiblePanel("Interval", [
+        #     self.hourly,
+        #     self.daily
+        # ], self)
+        # # self.interval_panel.setGeometry(30 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
+        # self.interval_panel.show()
+        #
+        # self.twobytwo = QRadioButton("2x2")
+        # self.fourbyfour = QRadioButton("4x4")
+        # self.sixteenbysixteen = QRadioButton("16x16")
+        #
+        # self.resolution_panel = CollapsiblePanel("Heatmap Resolution",
+        #                                          [self.twobytwo, self.fourbyfour, self.sixteenbysixteen], self)
+        # # self.resolution_panel.setGeometry(30 * UIRescale.Scale, 270 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
+        # self.resolution_panel.show()
+        #
+        # pane_layout.addWidget(self.interval_panel)
+        # pane_layout.addWidget(self.resolution_panel)
+        # pane_layout.setAlignment(Qt.AlignTop)
+        # pane.setLayout(pane_layout)
+        # pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 350 * UIRescale.Scale)
+
         pane = QWidget(self)
         pane_layout = QVBoxLayout(self)
         self.hourly = QRadioButton("Hourly")
         self.daily = QRadioButton("Daily")
         # pane_layout.setSpacing(2)
-        self.interval_panel = CollapsiblePanel("Interval", [
+        self.interval_panel = NonCollapsiblePanel("Interval", [
             self.hourly,
             self.daily
         ], self)
@@ -117,7 +146,7 @@ class MainWindow(QWidget):
         self.fourbyfour = QRadioButton("4x4")
         self.sixteenbysixteen = QRadioButton("16x16")
 
-        self.resolution_panel = CollapsiblePanel("Heatmap Resolution",
+        self.resolution_panel = NonCollapsiblePanel("Heatmap Resolution",
                                                  [self.twobytwo, self.fourbyfour, self.sixteenbysixteen], self)
         # self.resolution_panel.setGeometry(30 * UIRescale.Scale, 270 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
         self.resolution_panel.show()
@@ -126,7 +155,7 @@ class MainWindow(QWidget):
         pane_layout.addWidget(self.resolution_panel)
         pane_layout.setAlignment(Qt.AlignTop)
         pane.setLayout(pane_layout)
-        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 350 * UIRescale.Scale)
+        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 275 * UIRescale.Scale)
 
         self.arrow_pad = ArrowPad(self)
         self.arrow_pad.setGeometry(1070 * UIRescale.Scale, 550 * UIRescale.Scale, 150 * UIRescale.Scale, 150 * UIRescale.Scale)  # Set the position and size of the arrow pad
@@ -253,7 +282,7 @@ class MainWindow(QWidget):
 
         start_date = self.start_date.date().toString("yyyy-MM-dd")
         end_date = self.end_date.date().toString("yyyy-MM-dd")
-        geocoords = renderer.geocoords(self.map_widget.web_map.height(), self.map_widget.web_map.width(), RESOLUTION,
+        geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
                 self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
         def api_call_thread():
             # self.progress.show()
