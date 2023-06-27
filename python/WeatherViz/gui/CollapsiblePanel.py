@@ -19,7 +19,7 @@ class CollapsiblePanel(QWidget):
         header_layout = QHBoxLayout()
         self.header.setMaximumHeight(40 * UIRescale.Scale)
         self.header_background = TransparentRectangle(self)
-        self.header_background.setGeometry(self.header.rect().x(), self.header.rect().y(), self.header.rect().width()*2, self.header.rect().height())
+        self.header_background.setGeometry(self.header.rect().x(), self.header.rect().y(), self.header.rect().width(), self.header.rect().height())
 
         self.titleLabel = QLabel(self.title)
         self.titleLabel.setStyleSheet("font-weight: bold; color: white")
@@ -38,7 +38,7 @@ class CollapsiblePanel(QWidget):
         layout.addWidget(self.header)
         self.content = QWidget()
         self.content.setContentsMargins(0, 0, 0, 0)
-        self.content.setStyleSheet("background-color: rgba(90, 90, 90, 210); border-radius: 5px; font-weight: bold; color: white")
+        self.content.setStyleSheet("background-color: rgba(90, 90, 90, 255); border-radius: 5px; font-weight: bold; color: white")
         self.content.setMaximumHeight(0)
         layout.addWidget(self.content)
         layout.addStretch(1)

@@ -13,5 +13,5 @@ class TransparentRectangle(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(Qt.NoPen)
-        painter.setBrush(QBrush(QColor(90, 90, 90, 210)))
+        painter.setBrush(QBrush(QColor(90, 90, 90, 255)))
         painter.drawRoundedRect(self.rect(), 5, 5)

@@ -8,10 +8,10 @@ class ArrowPad(QWidget):
     def __init__(self, parent=None):
         super(ArrowPad, self).__init__(parent)
         # Create arrow buttons
-        self.up_button = QPushButton(QIcon("assets/up_icon.png"), "")
-        self.down_button = QPushButton(QIcon("assets/down_icon.png"), "")
-        self.left_button = QPushButton(QIcon("assets/left_icon.png"), "")
-        self.right_button = QPushButton(QIcon("assets/right_icon.png"), "")
+        self.up_button = QPushButton("↑")
+        self.down_button = QPushButton("↓")
+        self.left_button = QPushButton("←")
+        self.right_button = QPushButton("→")
 
         button_size = 40 * UIRescale.Scale
         self.up_button.setFixedSize(button_size, button_size)
