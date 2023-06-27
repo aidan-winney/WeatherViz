@@ -38,7 +38,7 @@ class NonCollapsiblePanel(QWidget):
         layout.addStretch(1)
 
         content_layout = QVBoxLayout()
-        content_layout.setSpacing(16)
+        content_layout.setSpacing(16 * UIRescale.Scale)
         for item in content:
             content_layout.addWidget(item)
         self.content.setLayout(content_layout)

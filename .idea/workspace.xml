@@ -7,10 +7,9 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="added progress bar">
-      <change afterPath="$PROJECT_DIR$/python/WeatherViz/gui/NonCollapsiblePanel.py" afterDir="false" />
+    <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="corrected the order of width and height parameters for the heatmap query and made the panels non-collapsible">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/NonCollapsiblePanel.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/NonCollapsiblePanel.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +70,7 @@
       <workItem from="1687845438262" duration="227000" />
       <workItem from="1687847037565" duration="2005000" />
       <workItem from="1687849084635" duration="11528000" />
-      <workItem from="1687861459352" duration="1851000" />
+      <workItem from="1687861459352" duration="2109000" />
     </task>
     <task id="LOCAL-00001" summary="made imports absolute">
       <created>1687782278308</created>
@@ -101,7 +100,14 @@
       <option name="project" value="LOCAL" />
       <updated>1687860977109</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="corrected the order of width and height parameters for the heatmap query and made the panels non-collapsible">
+      <created>1687863399779</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1687863399779</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -123,7 +129,8 @@
     <MESSAGE value="Connected slider and play/pause button to date selector" />
     <MESSAGE value="added heatmap resolution panel and beginnings of progress bar" />
     <MESSAGE value="added progress bar" />
-    <option name="LAST_COMMIT_MESSAGE" value="added progress bar" />
+    <MESSAGE value="corrected the order of width and height parameters for the heatmap query and made the panels non-collapsible" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected the order of width and height parameters for the heatmap query and made the panels non-collapsible" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/WeatherViz$main.coverage" NAME="main Coverage Results" MODIFIED="1687780390087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python/WeatherViz" />
