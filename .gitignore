@@ -1,4 +1,5 @@
 logs/
+.idea/
 target/
 Cargo.lock
 *.pyd
