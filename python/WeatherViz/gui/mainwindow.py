@@ -27,6 +27,8 @@ from WeatherViz.gui.DateRangeSlider import DateRangeSlider
 
 from WeatherViz.gui.PlayButton import PlayButton
 
+from WeatherViz.gui.ProgressBar import ProgressBar
+
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -96,21 +98,42 @@ class MainWindow(QWidget):
         self.slider.setGeometry(550 * UIRescale.Scale, 27 * UIRescale.Scale, 550 * UIRescale.Scale, 65 * UIRescale.Scale)
         self.play_button = PlayButton(self.slider.get_slider(), self)
         self.play_button.setGeometry(1140 * UIRescale.Scale, 30 * UIRescale.Scale, 40 * UIRescale.Scale, 60 * UIRescale.Scale)
+        pane = QWidget(self)
+        pane_layout = QVBoxLayout(self)
+        # pane_layout.setSpacing(2)
         interval = [
-            QRadioButton("Day"),
-            QRadioButton("Week"),
-            QRadioButton("Month"),
+            QRadioButton("Hourly"),
+            QRadioButton("Daily")
         ]
-        self.panel = CollapsiblePanel("Interval", interval, self)
-        self.panel.setGeometry(30 * UIRescale.Scale, 110 * UIRescale.Scale, 450 * UIRescale.Scale, 300 * UIRescale.Scale)
-        self.panel.show()
+        self.interval_panel = CollapsiblePanel("Interval", interval, self)
+        # self.interval_panel.setGeometry(30 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
+        self.interval_panel.show()
+
+        self.twobytwo = QRadioButton("2x2")
+        self.fourbyfour = QRadioButton("4x4")
+        self.sixteenbysixteen = QRadioButton("16x16")
+
+        self.resolution_panel = CollapsiblePanel("Heatmap Resolution",
+                                                 [self.twobytwo, self.fourbyfour, self.sixteenbysixteen], self)
+        # self.resolution_panel.setGeometry(30 * UIRescale.Scale, 270 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
+        self.resolution_panel.show()
+
+        pane_layout.addWidget(self.interval_panel)
+        pane_layout.addWidget(self.resolution_panel)
+        pane_layout.setAlignment(Qt.AlignTop)
+        pane.setLayout(pane_layout)
+        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
+
         self.arrow_pad = ArrowPad(self)
-        self.arrow_pad.setGeometry(1070 * UIRescale.Scale, 600 * UIRescale.Scale, 150 * UIRescale.Scale, 150 * UIRescale.Scale)  # Set the position and size of the arrow pad
+        self.arrow_pad.setGeometry(1070 * UIRescale.Scale, 550 * UIRescale.Scale, 150 * UIRescale.Scale, 150 * UIRescale.Scale)  # Set the position and size of the arrow pad
         self.arrow_pad.up_button.clicked.connect(self.map_widget.move_up)
         self.arrow_pad.down_button.clicked.connect(self.map_widget.move_down)
         self.arrow_pad.left_button.clicked.connect(self.map_widget.move_left)
         self.arrow_pad.right_button.clicked.connect(self.map_widget.move_right)
         self.arrow_pad.show()
+
+        self.progress = ProgressBar(self)
+        self.progress.setGeometry(850 * UIRescale.Scale, 750 * UIRescale.Scale, 350 * UIRescale.Scale, 75 * UIRescale.Scale)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_W:  # W
@@ -194,7 +217,14 @@ class MainWindow(QWidget):
 
     def get_data(self):
         # TODO: allow user to change these (i used all caps to mark this lol)
-        RESOLUTION = 3
+        if self.twobytwo.isChecked():
+            RESOLUTION = 2
+        elif self.fourbyfour.isChecked():
+            RESOLUTION = 4
+        elif self.sixteenbysixteen.isChecked():
+            RESOLUTION = 16
+        else:
+            RESOLUTION = 2
         DAILY = False
         VARIABLE = "temperature_2m"
         TEMPERATURE_UNIT = "fahrenheit"
@@ -208,11 +238,14 @@ class MainWindow(QWidget):
                 self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
         def api_call_thread():
             responses = {}
+            call_num = 0
             for lat, long in geocoords:
                 data = json.loads(renderer.get_data(lat, long, start_date, end_date, DAILY, VARIABLE,
                     TEMPERATURE_UNIT, WINDSPEED_UNIT, PRECIPITATION_UNIT, TIMEZONE))
                 key = (str(data["latitude"]), str(data["longitude"]))
                 responses[key] = data["daily" if DAILY else "hourly"][VARIABLE]
+                call_num = call_num + 1
+                # self.progress.set_progress(call_num, RESOLUTION*RESOLUTION)
                 print(responses[key])
             ren = Renderer()
             ren.set_data(responses)
