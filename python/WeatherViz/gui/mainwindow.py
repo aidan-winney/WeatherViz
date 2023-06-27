@@ -49,15 +49,11 @@ class MainWindow(QWidget):
         # self.setStyleSheet("background-color: gainsboro;")  # Change as needed
         self.image = None
         self.map_widget = MapWidget([27.75, -83.25], 7)
-        self.pixmaps = []
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.map_widget.web_map)
         self.setLayout(self.layout)
-
-        # pil_image = Image.open('WeatherViz/assets/Sprinting Man.png')
-        self.image_label = QLabel(self)
 
         self.rect_item = TransparentRectangle(self)
         self.rect_item.setGeometry(30 * UIRescale.Scale, 30 * UIRescale.Scale, 1200 * UIRescale.Scale, 60 * UIRescale.Scale)
@@ -155,7 +151,7 @@ class MainWindow(QWidget):
         pane_layout.addWidget(self.resolution_panel)
         pane_layout.setAlignment(Qt.AlignTop)
         pane.setLayout(pane_layout)
-        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 275 * UIRescale.Scale)
+        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 350 * UIRescale.Scale)
 
         self.arrow_pad = ArrowPad(self)
         self.arrow_pad.setGeometry(1070 * UIRescale.Scale, 550 * UIRescale.Scale, 150 * UIRescale.Scale, 150 * UIRescale.Scale)  # Set the position and size of the arrow pad
@@ -185,9 +181,9 @@ class MainWindow(QWidget):
             self.map_widget.zoom += 1
         else:
             return
+        # self.ren.render()
+        self.update_overlay()
 
-        self.image_label.clear()
-        self.map_widget.refresh()
 
     # def mousePressEvent(self, event):
     #     if event.button() == Qt.LeftButton:
@@ -212,9 +208,13 @@ class MainWindow(QWidget):
         end_date.setMinimumDate(start_date)
 
     def update_overlay(self):
-        self.image_label.setPixmap(self.pixmaps[self.slider.get_slider().value()])
-        self.image_label.setGeometry(0, 0, self.map_widget.web_map.width(), self.map_widget.web_map.height())
-        self.image_label.show()
+        byte_array = self.ren.render(self.slider.get_slider().value(), self.map_widget.location[0], self.map_widget.location[1],
+                                     self.map_widget.zoom, self.map_widget.web_map.width(),
+                                     self.map_widget.web_map.height())
+        image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
+        self.map_widget.refresh(image)
+
+
 
     # def keyPressEvent(self, event):
     #     if event.key() == 87:  # W
@@ -297,22 +297,16 @@ class MainWindow(QWidget):
                 self.progress.set_progress(call_num, RESOLUTION*RESOLUTION)
                 # self.progress.progress.setValue(50)
                 print(responses[key])
-            ren = Renderer()
-            ren.set_data(responses)
+            self.ren = Renderer()
+            self.ren.set_data(responses)
 
-            if(self.is_hourly()):
-                x = ((self.start_date.date().daysTo(self.end_date.date()))+1)*24
-            else:
-                x = (self.start_date.date().daysTo(self.end_date.date()))+1
-            self.pixmaps = []
-            print(x)
-            for i in range(x):
-                byte_array = ren.render(i, self.map_widget.location[0], self.map_widget.location[1],
-                                self.map_widget.zoom, self.map_widget.web_map.width(), self.map_widget.web_map.height())
-                image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
-                self.pixmaps.append(QPixmap.fromImage(ImageQt(image)))
+            # if(self.is_hourly()):
+            #     x = ((self.start_date.date().daysTo(self.end_date.date()))+1)*24
+            # else:
+            #     x = (self.start_date.date().daysTo(self.end_date.date()))+1
+
+                # self.pixmaps.append(QPixmap.fromImage(ImageQt(image)))
             self.update_overlay()
-            # self.map_widget.refresh(image)
             self.submit_button.setText("✓")
             # self.progress.hide()
 

@@ -33,12 +33,12 @@ class NonCollapsiblePanel(QWidget):
         self.content = QWidget()
         self.content.setContentsMargins(0, 0, 0, 0)
         self.content.setStyleSheet("background-color: rgba(90, 90, 90, 255); border-radius: 5px; font-weight: bold; color: white")
-        self.content.setMaximumHeight(100)
+        self.content.setMaximumHeight(150 * UIRescale.Scale)
         layout.addWidget(self.content)
         layout.addStretch(1)
 
         content_layout = QVBoxLayout()
-        content_layout.setSpacing(16 * UIRescale.Scale)
+        content_layout.setSpacing(20 * UIRescale.Scale)
         for item in content:
             content_layout.addWidget(item)
         self.content.setLayout(content_layout)

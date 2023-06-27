@@ -7,7 +7,7 @@ from PySide2.QtCore import QRect
 from PySide2.QtGui import Qt, QPixmap
 from PySide2.QtWebEngineWidgets import QWebEngineView
 from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QWidget, QVBoxLayout
-from folium import folium, plugins, features
+from folium import folium, plugins, features, Marker
 import io
 
 from WeatherViz.UIRescale import UIRescale
@@ -87,9 +87,9 @@ class MapWidget(QGraphicsView):
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(self.map)
         if image != None:
-            icon = features.CustomIcon(image, icon_size=(50, 50))
-            # json_marker = json.loads(json.dumps(icon, default=lambda o: o.__dict__))
-            marker = folium.Marker(location=[29.651634, -82.324829], icon=icon)
+            image.save('output.png')
+            icon = features.CustomIcon('output.png', icon_size=(self.web_map.width(), self.web_map.height()))
+            marker = Marker(location=self.location, icon=icon)
             marker.add_to(self.map)
 
         data = io.BytesIO()

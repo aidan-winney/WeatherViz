@@ -7,9 +7,11 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="corrected the order of width and height parameters for the heatmap query and made the panels non-collapsible">
+    <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="attempt to fix layout scaling for the non-collapsing button panel">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/Map.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/Map.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/NonCollapsiblePanel.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/NonCollapsiblePanel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +43,7 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "//wsl$/Ubuntu/home/matthew/.virtualenvs/pythonProj/WeatherViz/WeatherViz",
+    "last_opened_file_path": "//wsl$/Ubuntu/home/matthew/.virtualenvs/pythonProj/WeatherViz/WeatherViz/python/WeatherViz",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -52,6 +54,14 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="\\wsl$\Ubuntu\home\matthew\.virtualenvs\pythonProj\WeatherViz\WeatherViz\python\WeatherViz" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="\\wsl$\Ubuntu\home\matthew\.virtualenvs\pythonProj\WeatherViz\WeatherViz" />
+    </key>
+  </component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$PROJECT_DIR$/../../../../../../usr/bin" />
   </component>
@@ -70,7 +80,7 @@
       <workItem from="1687845438262" duration="227000" />
       <workItem from="1687847037565" duration="2005000" />
       <workItem from="1687849084635" duration="11528000" />
-      <workItem from="1687861459352" duration="2109000" />
+      <workItem from="1687861459352" duration="7790000" />
     </task>
     <task id="LOCAL-00001" summary="made imports absolute">
       <created>1687782278308</created>
@@ -107,7 +117,14 @@
       <option name="project" value="LOCAL" />
       <updated>1687863399779</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="attempt to fix layout scaling for the non-collapsing button panel">
+      <created>1687863626901</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1687863626901</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -130,7 +147,8 @@
     <MESSAGE value="added heatmap resolution panel and beginnings of progress bar" />
     <MESSAGE value="added progress bar" />
     <MESSAGE value="corrected the order of width and height parameters for the heatmap query and made the panels non-collapsible" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected the order of width and height parameters for the heatmap query and made the panels non-collapsible" />
+    <MESSAGE value="attempt to fix layout scaling for the non-collapsing button panel" />
+    <option name="LAST_COMMIT_MESSAGE" value="attempt to fix layout scaling for the non-collapsing button panel" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/WeatherViz$main.coverage" NAME="main Coverage Results" MODIFIED="1687780390087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python/WeatherViz" />
