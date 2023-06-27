@@ -66,7 +66,7 @@ class MapWidget(QGraphicsView):
         web_map.setHtml(data.getvalue().decode())
         self.web_map = web_map
         self.web_map.setContentsMargins(0, 0, 0, 0)
-        # self.web_map.setFixedSize(1270 * UIRescale.Scale, 850 * UIRescale.Scale)
+        self.web_map.setFixedSize(1270 * UIRescale.Scale, 850 * UIRescale.Scale)
         # print(self.web_map.width())
         # print(self.web_map.height())
         self.scene.clear()
