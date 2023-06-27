@@ -12,6 +12,7 @@ from folium import plugins, features
 import sys
 import io
 from PIL import Image
+from threading import Thread
 
 from WeatherViz.UIRescale import UIRescale
 from WeatherViz.gui.ArrowPad import ArrowPad
@@ -189,22 +190,11 @@ class MainWindow(QWidget):
     def query(self):
         self.submit_button.setChecked(True)
         self.submit_button.setText("◷")
-        ren = Renderer()
-        ren.set_data(self.get_data())
-        byte_array = ren.render(0, self.map_widget.location[0], self.map_widget.location[1],
-                                self.map_widget.zoom, self.map_widget.web_map.width(), self.map_widget.web_map.height())
-        self.image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
-        self.image.save('output.png', format='PNG')
-        pixmap = QPixmap.fromImage(ImageQt(self.image))
-        self.image_label.setPixmap(pixmap)
-        self.image_label.setGeometry(0, 0, self.map_widget.web_map.width(), self.map_widget.web_map.height())
-        self.image_label.show()
-        # self.map_widget.refresh(image)
-        self.submit_button.setText("✓")
+        self.get_data()
 
     def get_data(self):
         # TODO: allow user to change these (i used all caps to mark this lol)
-        RESOLUTION = 2
+        RESOLUTION = 3
         DAILY = False
         VARIABLE = "temperature_2m"
         TEMPERATURE_UNIT = "fahrenheit"
@@ -214,16 +204,29 @@ class MainWindow(QWidget):
 
         start_date = self.start_date.date().toString("yyyy-MM-dd")
         end_date = self.end_date.date().toString("yyyy-MM-dd")
-        responses = {}
         geocoords = renderer.geocoords(self.map_widget.web_map.height(), self.map_widget.web_map.width(), RESOLUTION,
                 self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
-        for lat, long in geocoords:
-             data = json.loads(renderer.get_data(lat, long, start_date, end_date, DAILY, VARIABLE,
-                 TEMPERATURE_UNIT, WINDSPEED_UNIT, PRECIPITATION_UNIT, TIMEZONE))
-             key = (str(data["latitude"]), str(data["longitude"]))
-             responses[key] = data["daily" if DAILY else "hourly"][VARIABLE]
+        def api_call_thread():
+            responses = {}
+            for lat, long in geocoords:
+                data = json.loads(renderer.get_data(lat, long, start_date, end_date, DAILY, VARIABLE,
+                    TEMPERATURE_UNIT, WINDSPEED_UNIT, PRECIPITATION_UNIT, TIMEZONE))
+                key = (str(data["latitude"]), str(data["longitude"]))
+                responses[key] = data["daily" if DAILY else "hourly"][VARIABLE]
+                print(responses[key])
+            ren = Renderer()
+            ren.set_data(responses)
+            byte_array = ren.render(0, self.map_widget.location[0], self.map_widget.location[1],
+                                self.map_widget.zoom, self.map_widget.web_map.width(), self.map_widget.web_map.height())
+            self.image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
+            self.image.save('output.png', format='PNG')
+            pixmap = QPixmap.fromImage(ImageQt(self.image))
+            self.image_label.setPixmap(pixmap)
+            self.image_label.setGeometry(0, 0, self.map_widget.web_map.width(), self.map_widget.web_map.height())
+            self.image_label.show()
+            # self.map_widget.refresh(image)
+            self.submit_button.setText("✓")
+        thread = Thread(target=api_call_thread)
+        thread.start()
 
-
-        print(responses)
-        return responses
 
