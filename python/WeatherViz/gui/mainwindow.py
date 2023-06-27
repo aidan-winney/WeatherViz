@@ -4,7 +4,7 @@ from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBo
     QWidget, QDateEdit, QCalendarWidget, QGridLayout, QSlider, QRadioButton
 from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter, QIcon, Qt
 from PySide2.QtWebEngineWidgets import QWebEngineView
-from PySide2.QtCore import QDate, Slot, QPoint
+from PySide2.QtCore import QDate, Slot, QPoint, QThread
 from PySide2 import QtCore
 import PySide2
 import folium
@@ -28,6 +28,7 @@ from WeatherViz.gui.DateRangeSlider import DateRangeSlider
 from WeatherViz.gui.PlayButton import PlayButton
 
 from WeatherViz.gui.ProgressBar import ProgressBar
+from WeatherViz.Worker import Worker
 
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
@@ -122,7 +123,7 @@ class MainWindow(QWidget):
         pane_layout.addWidget(self.resolution_panel)
         pane_layout.setAlignment(Qt.AlignTop)
         pane.setLayout(pane_layout)
-        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
+        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 350 * UIRescale.Scale)
 
         self.arrow_pad = ArrowPad(self)
         self.arrow_pad.setGeometry(1070 * UIRescale.Scale, 550 * UIRescale.Scale, 150 * UIRescale.Scale, 150 * UIRescale.Scale)  # Set the position and size of the arrow pad
@@ -133,7 +134,9 @@ class MainWindow(QWidget):
         self.arrow_pad.show()
 
         self.progress = ProgressBar(self)
-        self.progress.setGeometry(850 * UIRescale.Scale, 750 * UIRescale.Scale, 350 * UIRescale.Scale, 75 * UIRescale.Scale)
+        self.progress.set_progress(4,4)
+        self.progress.setGeometry(875 * UIRescale.Scale, 750 * UIRescale.Scale, 350 * UIRescale.Scale, 50 * UIRescale.Scale)
+        # self.progress.hide()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_W:  # W
@@ -151,6 +154,7 @@ class MainWindow(QWidget):
         else:
             return
 
+        self.image_label.clear()
         self.map_widget.refresh()
 
     # def mousePressEvent(self, event):
@@ -237,6 +241,7 @@ class MainWindow(QWidget):
         geocoords = renderer.geocoords(self.map_widget.web_map.height(), self.map_widget.web_map.width(), RESOLUTION,
                 self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
         def api_call_thread():
+            # self.progress.show()
             responses = {}
             call_num = 0
             for lat, long in geocoords:
@@ -245,7 +250,8 @@ class MainWindow(QWidget):
                 key = (str(data["latitude"]), str(data["longitude"]))
                 responses[key] = data["daily" if DAILY else "hourly"][VARIABLE]
                 call_num = call_num + 1
-                # self.progress.set_progress(call_num, RESOLUTION*RESOLUTION)
+                self.progress.set_progress(call_num, RESOLUTION*RESOLUTION)
+                # self.progress.progress.setValue(50)
                 print(responses[key])
             ren = Renderer()
             ren.set_data(responses)
@@ -259,7 +265,11 @@ class MainWindow(QWidget):
             self.image_label.show()
             # self.map_widget.refresh(image)
             self.submit_button.setText("✓")
-        thread = Thread(target=api_call_thread)
-        thread.start()
+            # self.progress.hide()
+
+        api_call_thread()
+        # thread = QThread(target=api_call_thread)
+        # thread.
+        # thread.start()
 
 
