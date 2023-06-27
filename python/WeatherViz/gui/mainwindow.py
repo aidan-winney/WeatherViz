@@ -48,6 +48,7 @@ class MainWindow(QWidget):
         self.setWindowTitle("WeatherViz")
         # self.setStyleSheet("background-color: gainsboro;")  # Change as needed
         self.image = None
+        self.apicalled = False
         self.map_widget = MapWidget([27.75, -83.25], 7)
         self.pixmaps = []
 
@@ -155,7 +156,7 @@ class MainWindow(QWidget):
         pane_layout.addWidget(self.resolution_panel)
         pane_layout.setAlignment(Qt.AlignTop)
         pane.setLayout(pane_layout)
-        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 275 * UIRescale.Scale)
+        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 500 * UIRescale.Scale)
 
         self.arrow_pad = ArrowPad(self)
         self.arrow_pad.setGeometry(1070 * UIRescale.Scale, 550 * UIRescale.Scale, 150 * UIRescale.Scale, 150 * UIRescale.Scale)  # Set the position and size of the arrow pad
@@ -212,10 +213,10 @@ class MainWindow(QWidget):
         end_date.setMinimumDate(start_date)
 
     def update_overlay(self):
-        self.image_label.setPixmap(self.pixmaps[self.slider.get_slider().value()])
-        self.image_label.setGeometry(0, 0, self.map_widget.web_map.width(), self.map_widget.web_map.height())
-        self.image_label.show()
-
+        if self.apicalled:
+            self.image_label.setPixmap(self.pixmaps[self.slider.get_slider().value()])
+            self.image_label.setGeometry(0, 0, self.map_widget.web_map.width(), self.map_widget.web_map.height())
+            self.image_label.show()
     # def keyPressEvent(self, event):
     #     if event.key() == 87:  # W
     #         self.location[0] += 1 / (2 ** (self.zoom - 8))
@@ -311,6 +312,7 @@ class MainWindow(QWidget):
                                 self.map_widget.zoom, self.map_widget.web_map.width(), self.map_widget.web_map.height())
                 image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
                 self.pixmaps.append(QPixmap.fromImage(ImageQt(image)))
+            self.apicalled = True
             self.update_overlay()
             # self.map_widget.refresh(image)
             self.submit_button.setText("✓")
