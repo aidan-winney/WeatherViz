@@ -47,6 +47,7 @@ class MainWindow(QWidget):
         # self.setStyleSheet("background-color: gainsboro;")  # Change as needed
         self.image = None
         self.map_widget = MapWidget([27.75, -83.25], 7)
+        self.pixmaps = []
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -63,21 +64,21 @@ class MainWindow(QWidget):
         self.date_select_layout = QHBoxLayout(self)
 
         calendar_start = QCalendarWidget(self)
-        calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
+        calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-8))
         # calendar_start.setGeometry(60, 42, 190, 35)
         self.start_date = QDateEdit(self, calendarPopup=True)
         self.start_date.setDate(QDate.currentDate())
         self.start_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
-        self.start_date.setMaximumDate(QDate.currentDate())
+        self.start_date.setMaximumDate(QDate.currentDate().addDays(-8))
         self.start_date.setCalendarWidget(calendar_start)
 
         calendar_end = QCalendarWidget(self)
-        calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate())
+        calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-8))
         # calendar_end.setGeometry(270, 42, 190, 35)
         self.end_date = QDateEdit(self, calendarPopup=True)
         self.end_date.setDate(QDate.currentDate())
         self.end_date.setMinimumDate(QDate.currentDate())  # Change to correct minimum date
-        self.end_date.setMaximumDate(QDate.currentDate())
+        self.end_date.setMaximumDate(QDate.currentDate().addDays(-8))
         self.end_date.setCalendarWidget(calendar_end)
 
         self.date_select_layout.addWidget(self.start_date)
@@ -97,16 +98,18 @@ class MainWindow(QWidget):
 
         self.slider = DateRangeSlider(self.start_date, self.end_date, self)
         self.slider.setGeometry(550 * UIRescale.Scale, 27 * UIRescale.Scale, 550 * UIRescale.Scale, 65 * UIRescale.Scale)
+        self.slider.get_slider().valueChanged.connect(self.update_overlay)
         self.play_button = PlayButton(self.slider.get_slider(), self)
         self.play_button.setGeometry(1140 * UIRescale.Scale, 30 * UIRescale.Scale, 40 * UIRescale.Scale, 60 * UIRescale.Scale)
         pane = QWidget(self)
         pane_layout = QVBoxLayout(self)
+        self.hourly = QRadioButton("Hourly")
+        self.daily = QRadioButton("Daily")
         # pane_layout.setSpacing(2)
-        interval = [
-            QRadioButton("Hourly"),
-            QRadioButton("Daily")
-        ]
-        self.interval_panel = CollapsiblePanel("Interval", interval, self)
+        self.interval_panel = CollapsiblePanel("Interval", [
+            self.hourly,
+            self.daily
+        ], self)
         # self.interval_panel.setGeometry(30 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
         self.interval_panel.show()
 
@@ -179,6 +182,11 @@ class MainWindow(QWidget):
         self.slider.update_range(self.start_date, self.end_date)
         end_date.setMinimumDate(start_date)
 
+    def update_overlay(self):
+        self.image_label.setPixmap(self.pixmaps[self.slider.get_slider().value()])
+        self.image_label.setGeometry(0, 0, self.map_widget.web_map.width(), self.map_widget.web_map.height())
+        self.image_label.show()
+
     # def keyPressEvent(self, event):
     #     if event.key() == 87:  # W
     #         self.location[0] += 1 / (2 ** (self.zoom - 8))
@@ -214,6 +222,12 @@ class MainWindow(QWidget):
         blended = Image.blend(img, overlay, opacity_level)  
         blended.save(image_path, 'PNG')
 
+    def is_hourly(self):
+        return self.hourly.isChecked()
+    
+    def is_daily(self):
+        return self.daily.isChecked()
+
     def query(self):
         self.submit_button.setChecked(True)
         self.submit_button.setText("◷")
@@ -221,6 +235,7 @@ class MainWindow(QWidget):
 
     def get_data(self):
         # TODO: allow user to change these (i used all caps to mark this lol)
+        self.is_hourly()
         if self.twobytwo.isChecked():
             RESOLUTION = 2
         elif self.fourbyfour.isChecked():
@@ -255,14 +270,19 @@ class MainWindow(QWidget):
                 print(responses[key])
             ren = Renderer()
             ren.set_data(responses)
-            byte_array = ren.render(0, self.map_widget.location[0], self.map_widget.location[1],
+
+            if(self.is_hourly()):
+                x = ((self.start_date.date().daysTo(self.end_date.date()))+1)*24
+            else:
+                x = (self.start_date.date().daysTo(self.end_date.date()))+1
+            self.pixmaps = []
+            print(x)
+            for i in range(x):
+                byte_array = ren.render(i, self.map_widget.location[0], self.map_widget.location[1],
                                 self.map_widget.zoom, self.map_widget.web_map.width(), self.map_widget.web_map.height())
-            self.image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
-            self.image.save('output.png', format='PNG')
-            pixmap = QPixmap.fromImage(ImageQt(self.image))
-            self.image_label.setPixmap(pixmap)
-            self.image_label.setGeometry(0, 0, self.map_widget.web_map.width(), self.map_widget.web_map.height())
-            self.image_label.show()
+                image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
+                self.pixmaps.append(QPixmap.fromImage(ImageQt(image)))
+            self.update_overlay()
             # self.map_widget.refresh(image)
             self.submit_button.setText("✓")
             # self.progress.hide()
