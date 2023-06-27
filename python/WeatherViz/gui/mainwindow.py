@@ -1,3 +1,5 @@
+from PIL.ImageQt import ImageQt
+from WeatherViz import renderer
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
     QWidget, QDateEdit, QCalendarWidget, QGridLayout, QSlider, QRadioButton
 from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter, QIcon, Qt
@@ -18,7 +20,12 @@ from WeatherViz.gui.Map import MapWidget
 from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
 import json
-from WeatherViz import renderer
+from WeatherViz.renderer import Renderer
+
+from WeatherViz.gui.DateRangeSlider import DateRangeSlider
+
+from WeatherViz.gui.PlayButton import PlayButton
+
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -34,13 +41,17 @@ class MainWindow(QWidget):
         super().__init__()
         self.setWindowTitle("WeatherViz")
         # self.setStyleSheet("background-color: gainsboro;")  # Change as needed
-
+        self.image = None
         self.map_widget = MapWidget([27.75, -83.25], 7)
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.map_widget.web_map)
         self.setLayout(self.layout)
+
+        # pil_image = Image.open('WeatherViz/assets/Sprinting Man.png')
+        self.image_label = QLabel(self)
+
         self.rect_item = TransparentRectangle(self)
         self.rect_item.setGeometry(30 * UIRescale.Scale, 30 * UIRescale.Scale, 1200 * UIRescale.Scale, 60 * UIRescale.Scale)
 
@@ -70,6 +81,7 @@ class MainWindow(QWidget):
         self.date_select_layout.addWidget(self.end_date)
 
         self.start_date.dateChanged.connect(lambda: self.updateEndDate(self.start_date.date(), self.end_date))
+        self.end_date.dateChanged.connect(lambda: self.slider.update_range(self.start_date, self.end_date))
 
         self.date_selector.setLayout(self.date_select_layout)
         self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
@@ -77,11 +89,12 @@ class MainWindow(QWidget):
 
         self.submit_button = QPushButton('✓', self)
         self.submit_button.setGeometry(470 * UIRescale.Scale, 42 * UIRescale.Scale, 35 * UIRescale.Scale, 35 * UIRescale.Scale)
+        self.submit_button.clicked.connect(self.query)
 
-        self.slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.slider.setGeometry(570 * UIRescale.Scale, 35 * UIRescale.Scale, 500 * UIRescale.Scale, 50 * UIRescale.Scale)
-        self.play_button = QPushButton('▶', self)
-        self.play_button.setGeometry(1150 * UIRescale.Scale, 42 * UIRescale.Scale, 35 * UIRescale.Scale, 35 * UIRescale.Scale)
+        self.slider = DateRangeSlider(self.start_date, self.end_date, self)
+        self.slider.setGeometry(550 * UIRescale.Scale, 27 * UIRescale.Scale, 550 * UIRescale.Scale, 65 * UIRescale.Scale)
+        self.play_button = PlayButton(self.slider.get_slider(), self)
+        self.play_button.setGeometry(1140 * UIRescale.Scale, 30 * UIRescale.Scale, 40 * UIRescale.Scale, 60 * UIRescale.Scale)
         interval = [
             QRadioButton("Day"),
             QRadioButton("Week"),
@@ -135,6 +148,7 @@ class MainWindow(QWidget):
         calendar_widget.show()
 
     def updateEndDate(self, start_date, end_date):
+        self.slider.update_range(self.start_date, self.end_date)
         end_date.setMinimumDate(start_date)
 
     # def keyPressEvent(self, event):
@@ -172,6 +186,22 @@ class MainWindow(QWidget):
         blended = Image.blend(img, overlay, opacity_level)  
         blended.save(image_path, 'PNG')
 
+    def query(self):
+        self.submit_button.setChecked(True)
+        self.submit_button.setText("◷")
+        ren = Renderer()
+        ren.set_data(self.get_data())
+        byte_array = ren.render(0, self.map_widget.location[0], self.map_widget.location[1],
+                                self.map_widget.zoom, self.map_widget.web_map.width(), self.map_widget.web_map.height())
+        self.image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
+        self.image.save('output.png', format='PNG')
+        pixmap = QPixmap.fromImage(ImageQt(self.image))
+        self.image_label.setPixmap(pixmap)
+        self.image_label.setGeometry(0, 0, self.map_widget.web_map.width(), self.map_widget.web_map.height())
+        self.image_label.show()
+        # self.map_widget.refresh(image)
+        self.submit_button.setText("✓")
+
     def get_data(self):
         # TODO: allow user to change these (i used all caps to mark this lol)
         RESOLUTION = 2
@@ -185,12 +215,15 @@ class MainWindow(QWidget):
         start_date = self.start_date.date().toString("yyyy-MM-dd")
         end_date = self.end_date.date().toString("yyyy-MM-dd")
         responses = {}
-        geocoords = renderer.geocoords(self.web_map.height(), self.web_map.width(), RESOLUTION,
-                self.location[0], self.location[1], self.zoom)
+        geocoords = renderer.geocoords(self.map_widget.web_map.height(), self.map_widget.web_map.width(), RESOLUTION,
+                self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
         for lat, long in geocoords:
              data = json.loads(renderer.get_data(lat, long, start_date, end_date, DAILY, VARIABLE,
                  TEMPERATURE_UNIT, WINDSPEED_UNIT, PRECIPITATION_UNIT, TIMEZONE))
              key = (str(data["latitude"]), str(data["longitude"]))
              responses[key] = data["daily" if DAILY else "hourly"][VARIABLE]
+
+
         print(responses)
+        return responses
 

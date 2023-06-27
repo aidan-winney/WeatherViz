@@ -1,4 +1,8 @@
+import base64
+import json
+
 import requests
+from PIL.Image import Image
 from PySide2.QtCore import QRect
 from PySide2.QtGui import Qt, QPixmap
 from PySide2.QtWebEngineWidgets import QWebEngineView
@@ -62,9 +66,9 @@ class MapWidget(QGraphicsView):
         web_map.setHtml(data.getvalue().decode())
         self.web_map = web_map
         self.web_map.setContentsMargins(0, 0, 0, 0)
-        self.web_map.setFixedSize(1270 * UIRescale.Scale, 850 * UIRescale.Scale)
-        print(self.web_map.width())
-        print(self.web_map.height())
+        # self.web_map.setFixedSize(1270 * UIRescale.Scale, 850 * UIRescale.Scale)
+        # print(self.web_map.width())
+        # print(self.web_map.height())
         self.scene.clear()
         # html = QWidget()
         # layout = QVBoxLayout()
@@ -75,17 +79,18 @@ class MapWidget(QGraphicsView):
         self.scene.addWidget(web_map)
         self.fitInView(self.scene.sceneRect(), Qt.KeepAspectRatio)
 
-    def refresh(self):
+    def refresh(self, image=None):
         self.map = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
                               zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False,
                               boxZoom=False, scrollWheelZoom=False)
         roundnum = "function(num) {return L.Util.formatNum(num, 5);};"
         mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
                                       lng_formatter=roundnum).add_to(self.map)
-
-        # icon = features.CustomIcon('gui/', icon_size=(50, 50))
-        # marker = folium.Marker(location=[29.651634, -82.324829], icon=icon)
-        # marker.add_to(self.map)
+        if image != None:
+            icon = features.CustomIcon(image, icon_size=(50, 50))
+            # json_marker = json.loads(json.dumps(icon, default=lambda o: o.__dict__))
+            marker = folium.Marker(location=[29.651634, -82.324829], icon=icon)
+            marker.add_to(self.map)
 
         data = io.BytesIO()
         self.map.save(data, close_file=False)
