@@ -32,20 +32,6 @@ class MapWidget(QGraphicsView):
         self.setInteractive(True)
         self.createMap()
 
-    def move_up(self):
-        self.location[0] += 1 / (2 ** (self.zoom - 8))
-        self.refresh()
-
-    def move_down(self):
-        self.location[0] -= 1 / (2 ** (self.zoom - 8))
-        self.refresh()
-    def move_left(self):
-        self.location[1] -= 1 / (2 ** (self.zoom - 8))
-        self.refresh()
-    def move_right(self):
-        self.location[1] += 1 / (2 ** (self.zoom - 8))
-        self.refresh()
-
 
     def createMap(self):
         # Right part of main page (MAP PLACEHOLDER)
