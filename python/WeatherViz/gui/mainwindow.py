@@ -271,7 +271,6 @@ class MainWindow(QWidget):
         threading.Thread(target=self.get_data).start()
 
     def update_progress(self):
-        print('progress')
         self.progress.increment_progress()
 
     def get_data(self):
@@ -323,16 +322,10 @@ class MainWindow(QWidget):
             responses[key] = result["daily" if DAILY else "hourly"][VARIABLE]
             print(responses[key])
 
-        print("one")
         self.ren = Renderer()
-        print("two")
         self.ren.set_data(responses)
-        print("three")
         self.apicalled = True
-        print("four")
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
-        print("five")
         self.submit_button.setText("✓")
-        print("six")
 
 

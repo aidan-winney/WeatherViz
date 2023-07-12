@@ -35,7 +35,6 @@ class ProgressBar(QWidget):
 
     def increment_progress(self):
         self.progress_value+=1
-        print(self.progress_value)
         self.progress.setValue((self.progress_value / self.total) * 100)
 
     def paintEvent(self, event):
