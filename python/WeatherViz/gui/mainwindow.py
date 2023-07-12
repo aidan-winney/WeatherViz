@@ -13,6 +13,9 @@ import sys
 import io
 from PIL import Image
 from threading import Thread
+import requests
+import concurrent.futures
+
 
 from WeatherViz.UIRescale import UIRescale
 from WeatherViz.gui.ArrowPad import ArrowPad
@@ -43,6 +46,7 @@ class Color(QWidget):
         self.setPalette(palette)
 
 class MainWindow(QWidget):
+    progress_updated = QtCore.Signal() 
     def __init__(self):
         super().__init__()
         self.setWindowTitle("WeatherViz")
@@ -50,6 +54,7 @@ class MainWindow(QWidget):
         self.image = None
         self.apicalled = False
         self.map_widget = MapWidget([27.75, -83.25], 7)
+        self.progress_updated.connect(self.update_progress)
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -264,8 +269,11 @@ class MainWindow(QWidget):
         self.submit_button.setText("◷")
         self.get_data()
 
+    def update_progress(self):
+        print('progress')
+        self.progress.increment_progress()
+
     def get_data(self):
-        # TODO: allow user to change these (i used all caps to mark this lol)
         self.is_hourly()
         if self.twobytwo.isChecked():
             RESOLUTION = 2
@@ -281,41 +289,43 @@ class MainWindow(QWidget):
         WINDSPEED_UNIT = "mph"
         PRECIPITATION_UNIT = "inch"
         TIMEZONE = "EST"
+        self.progress.set_total(RESOLUTION*RESOLUTION)
+        self.progress.set_progress(0, RESOLUTION*RESOLUTION)
 
         start_date = self.start_date.date().toString("yyyy-MM-dd")
         end_date = self.end_date.date().toString("yyyy-MM-dd")
         geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
-                self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
-        def api_call_thread():
-            # self.progress.show()
-            responses = {}
-            call_num = 0
-            for lat, long in geocoords:
-                data = json.loads(renderer.get_data(lat, long, start_date, end_date, DAILY, VARIABLE,
-                    TEMPERATURE_UNIT, WINDSPEED_UNIT, PRECIPITATION_UNIT, TIMEZONE))
-                key = (str(data["latitude"]), str(data["longitude"]))
-                responses[key] = data["daily" if DAILY else "hourly"][VARIABLE]
-                call_num = call_num + 1
-                self.progress.set_progress(call_num, RESOLUTION*RESOLUTION)
-                # self.progress.progress.setValue(50)
-                print(responses[key])
-            self.ren = Renderer()
-            self.ren.set_data(responses)
+                                   self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
 
-            # if(self.is_hourly()):
-            #     x = ((self.start_date.date().daysTo(self.end_date.date()))+1)*24
-            # else:
-            #     x = (self.start_date.date().daysTo(self.end_date.date()))+1
+        def api_call(lat, lon):
+            url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_date}&end_date={end_date}&temperature_unit={TEMPERATURE_UNIT}&windspeed_unit={WINDSPEED_UNIT}&precipitation_unit={PRECIPITATION_UNIT}&timezone={TIMEZONE}&models=best_match&cell_selection=nearest"
 
-                # self.pixmaps.append(QPixmap.fromImage(ImageQt(image)))
-            self.apicalled = True
-            self.update_overlay()
-            self.submit_button.setText("✓")
-            # self.progress.hide()
+            if DAILY:
+                url += f"&daily={VARIABLE}"
+            else:
+                url += f"&hourly={VARIABLE}"
 
-        api_call_thread()
-        # thread = QThread(target=api_call_thread)
-        # thread.
-        # thread.start()
+            res = requests.get(url)
+
+            if res.status_code == requests.codes.ok:
+                self.progress_updated.emit()
+                return res.json()
+            else:
+                raise RuntimeError(f"The request failed w/ code {res.status_code}, text {res.text}")
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = executor.map(lambda coords: api_call(*coords), geocoords)
+
+        responses = {}
+        for result, (lat, lon) in zip(results, geocoords):
+            key = (str(lat), str(lon))
+            responses[key] = result["daily" if DAILY else "hourly"][VARIABLE]
+            print(responses[key])
+
+        self.ren = Renderer()
+        self.ren.set_data(responses)
+        self.apicalled = True
+        self.update_overlay()
+        self.submit_button.setText("✓")
 
 
