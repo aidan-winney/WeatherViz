@@ -10,7 +10,6 @@
     <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="attempt to fix layout scaling for the non-collapsing button panel">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/Map.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/Map.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/NonCollapsiblePanel.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/NonCollapsiblePanel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -41,9 +40,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "//wsl$/Ubuntu/home/matthew/.virtualenvs/pythonProj/WeatherViz/WeatherViz/python/WeatherViz",
+    "last_opened_file_path": "//wsl$/Ubuntu/home/aidanwinney/projects/WeatherViz",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -81,6 +81,7 @@
       <workItem from="1687847037565" duration="2005000" />
       <workItem from="1687849084635" duration="11528000" />
       <workItem from="1687861459352" duration="7790000" />
+      <workItem from="1689166275720" duration="2794000" />
     </task>
     <task id="LOCAL-00001" summary="made imports absolute">
       <created>1687782278308</created>

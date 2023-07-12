@@ -156,10 +156,10 @@ class MainWindow(QWidget):
 
         self.arrow_pad = ArrowPad(self)
         self.arrow_pad.setGeometry(1070 * UIRescale.Scale, 550 * UIRescale.Scale, 150 * UIRescale.Scale, 150 * UIRescale.Scale)  # Set the position and size of the arrow pad
-        self.arrow_pad.up_button.clicked.connect(self.map_widget.move_up)
-        self.arrow_pad.down_button.clicked.connect(self.map_widget.move_down)
-        self.arrow_pad.left_button.clicked.connect(self.map_widget.move_left)
-        self.arrow_pad.right_button.clicked.connect(self.map_widget.move_right)
+        self.arrow_pad.up_button.clicked.connect(self.move_up)
+        self.arrow_pad.down_button.clicked.connect(self.move_down)
+        self.arrow_pad.left_button.clicked.connect(self.move_left)
+        self.arrow_pad.right_button.clicked.connect(self.move_right)
         self.arrow_pad.show()
 
         self.progress = ProgressBar(self)
@@ -167,24 +167,49 @@ class MainWindow(QWidget):
         self.progress.setGeometry(875 * UIRescale.Scale, 750 * UIRescale.Scale, 350 * UIRescale.Scale, 50 * UIRescale.Scale)
         # self.progress.hide()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_W:  # W
-            self.map_widget.move_up()
-        elif event.key() == Qt.Key_S:  # S
-            self.map_widget.move_down()
-        elif event.key() == Qt.Key_A:  # A
-            self.map_widget.move_left()
-        elif event.key() == Qt.Key_D:  # D
-            self.map_widget.move_right()
-        elif self.map_widget.zoom > 0 and event.key() == Qt.Key_E:  # E
-            self.map_widget.zoom -= 1
-        elif self.map_widget.zoom < 18 and event.key() == Qt.Key_Q:  # Q
-            self.map_widget.zoom += 1
-        else:
-            return
+    def move_up(self):
+        self.map_widget.location[0] += 1 / (2 ** (self.map_widget.zoom - 8))
+        self.map_widget.refresh()
         # self.ren.render()
         self.update_overlay()
 
+    def move_down(self):
+        self.map_widget.location[0] -= 1 / (2 ** (self.map_widget.zoom - 8))
+        self.map_widget.refresh()
+        # self.ren.render()
+        self.update_overlay()
+
+    def move_left(self):
+        self.map_widget.location[1] -= 1 / (2 ** (self.map_widget.zoom - 8))
+        self.map_widget.refresh()
+        # self.ren.render()
+        self.update_overlay()
+
+    def move_right(self):
+        self.map_widget.location[1] += 1 / (2 ** (self.map_widget.zoom - 8))
+        self.map_widget.refresh()
+        # self.ren.render()
+        self.update_overlay()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_W:  # W
+            self.move_up()
+        elif event.key() == Qt.Key_S:  # S
+            self.move_down()
+        elif event.key() == Qt.Key_A:  # A
+            self.move_left()
+        elif event.key() == Qt.Key_D:  # D
+            self.move_right()
+        elif self.map_widget.zoom > 0 and event.key() == Qt.Key_E:  # E
+            self.map_widget.zoom -= 1
+            self.map_widget.refresh()
+            # self.ren.render()
+            self.update_overlay()
+        elif self.map_widget.zoom < 18 and event.key() == Qt.Key_Q:  # Q
+            self.map_widget.zoom += 1
+            self.map_widget.refresh()
+            # self.ren.render()
+            self.update_overlay()
 
     # def mousePressEvent(self, event):
     #     if event.button() == Qt.LeftButton:
