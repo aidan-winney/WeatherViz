@@ -1,10 +1,11 @@
+import threading
 from PIL.ImageQt import ImageQt
 from WeatherViz import renderer
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
     QWidget, QDateEdit, QCalendarWidget, QGridLayout, QSlider, QRadioButton
 from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter, QIcon, Qt
 from PySide2.QtWebEngineWidgets import QWebEngineView
-from PySide2.QtCore import QDate, Slot, QPoint, QThread
+from PySide2.QtCore import QDate, Slot, QPoint, QThread, QMetaObject
 from PySide2 import QtCore
 import PySide2
 import folium
@@ -54,7 +55,7 @@ class MainWindow(QWidget):
         self.image = None
         self.apicalled = False
         self.map_widget = MapWidget([27.75, -83.25], 7)
-        self.progress_updated.connect(self.update_progress)
+        self.progress_updated.connect(self.update_progress, QtCore.Qt.QueuedConnection)
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -267,7 +268,7 @@ class MainWindow(QWidget):
     def query(self):
         self.submit_button.setChecked(True)
         self.submit_button.setText("◷")
-        self.get_data()
+        threading.Thread(target=self.get_data).start()
 
     def update_progress(self):
         print('progress')
@@ -305,10 +306,10 @@ class MainWindow(QWidget):
             else:
                 url += f"&hourly={VARIABLE}"
 
+            self.progress_updated.emit()
             res = requests.get(url)
 
             if res.status_code == requests.codes.ok:
-                self.progress_updated.emit()
                 return res.json()
             else:
                 raise RuntimeError(f"The request failed w/ code {res.status_code}, text {res.text}")
@@ -322,10 +323,16 @@ class MainWindow(QWidget):
             responses[key] = result["daily" if DAILY else "hourly"][VARIABLE]
             print(responses[key])
 
+        print("one")
         self.ren = Renderer()
+        print("two")
         self.ren.set_data(responses)
+        print("three")
         self.apicalled = True
-        self.update_overlay()
+        print("four")
+        QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
+        print("five")
         self.submit_button.setText("✓")
+        print("six")
 
 

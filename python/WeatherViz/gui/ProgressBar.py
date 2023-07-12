@@ -6,9 +6,9 @@ from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
 class ProgressBar(QWidget):
     progress_value = 0
+    total = 1
     def __init__(self, parent=None):
         super(ProgressBar, self).__init__(parent)
-        self.total = 1
 
         layout = QVBoxLayout()
         # layout.setSpacing(5)
@@ -27,6 +27,7 @@ class ProgressBar(QWidget):
         # self.progress.show()
     def set_progress(self, progress, total):
         self.progress_value = progress
+        self.total = total
         self.progress.setValue((progress / total) * 100)
 
     def set_total(self, total):
