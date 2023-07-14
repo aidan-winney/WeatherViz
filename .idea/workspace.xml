@@ -8,7 +8,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="Fixed bug with button controls not displaying heatmap properly">
+      <change afterPath="$PROJECT_DIR$/python/WeatherViz/assets/tooltip.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/WeatherViz/gui/DateRangeChooser.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/WeatherViz/gui/Panel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/WeatherViz/gui/QueryPane.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/WeatherViz/gui/Toolbar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/ArrowPad.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/ArrowPad.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/DateRangeSlider.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/DateRangeSlider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/Map.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/Map.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/PlayButton.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/PlayButton.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/ProgressBar.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/ProgressBar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/TransparentRectangle.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/TransparentRectangle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/WeatherViz/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +54,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "//wsl$/Ubuntu/home/aidanwinney/projects/WeatherViz",
+    "last_opened_file_path": "//wsl$/Ubuntu/home/matthew/.virtualenvs/pythonProj/WeatherViz/WeatherViz/python/WeatherViz/assets",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -54,6 +67,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="\\wsl$\Ubuntu\home\matthew\.virtualenvs\pythonProj\WeatherViz\WeatherViz\python\WeatherViz\assets" />
       <recent name="\\wsl$\Ubuntu\home\matthew\.virtualenvs\pythonProj\WeatherViz\WeatherViz\python\WeatherViz" />
     </key>
     <key name="MoveFile.RECENT_KEYS">

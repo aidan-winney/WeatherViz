@@ -36,6 +36,13 @@ from WeatherViz.Worker import Worker
 
 from WeatherViz.gui.NonCollapsiblePanel import NonCollapsiblePanel
 
+from WeatherViz.gui.DateRangeChooser import DateRangeChooser
+from WeatherViz.gui.QueryPane import QueryPane
+
+from WeatherViz.gui.Panel import Panel
+
+from WeatherViz.gui.Toolbar import Toolbar
+
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -51,150 +58,98 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("WeatherViz")
-        # self.setStyleSheet("background-color: gainsboro;")  # Change as needed
+        self.setStyleSheet("background-color: rgba(32, 32, 32, 255); border-radius: 5px;")  # Change as needed
+        self.setContentsMargins(0, 0, 0, 0)
+        self.layout = QHBoxLayout(self)
+
         self.image = None
         self.apicalled = False
         self.map_widget = MapWidget([27.75, -83.25], 7)
         self.progress_updated.connect(self.update_progress, QtCore.Qt.QueuedConnection)
 
-        self.setContentsMargins(0, 0, 0, 0)
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.map_widget.web_map)
-        self.setLayout(self.layout)
 
-        self.rect_item = TransparentRectangle(self)
-        self.rect_item.setGeometry(30 * UIRescale.Scale, 30 * UIRescale.Scale, 1200 * UIRescale.Scale, 60 * UIRescale.Scale)
-
-        self.date_selector = QWidget(self)
-        self.date_select_layout = QHBoxLayout(self)
-
-        calendar_start = QCalendarWidget(self)
-        calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-8))
-        # calendar_start.setGeometry(60, 42, 190, 35)
-        self.start_date = QDateEdit(self, calendarPopup=True)
+        self.start_date = QDateEdit(calendarPopup=True)
         self.start_date.setDate(QDate.currentDate())
-        self.start_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
-        self.start_date.setMaximumDate(QDate.currentDate().addDays(-8))
-        self.start_date.setCalendarWidget(calendar_start)
-
-        calendar_end = QCalendarWidget(self)
-        calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-8))
-        # calendar_end.setGeometry(270, 42, 190, 35)
-        self.end_date = QDateEdit(self, calendarPopup=True)
-        self.end_date.setDate(QDate.currentDate())
-        self.end_date.setMinimumDate(QDate.currentDate())  # Change to correct minimum date
-        self.end_date.setMaximumDate(QDate.currentDate().addDays(-8))
-        self.end_date.setCalendarWidget(calendar_end)
-
-        self.date_select_layout.addWidget(self.start_date)
-        self.date_select_layout.stretch(1)
-        self.date_select_layout.addWidget(self.end_date)
-
-        self.start_date.dateChanged.connect(lambda: self.updateEndDate(self.start_date.date(), self.end_date))
-        self.end_date.dateChanged.connect(lambda: self.slider.update_range(self.start_date, self.end_date))
-
-        self.date_selector.setLayout(self.date_select_layout)
-        self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
-        self.date_selector.show()
-
-        self.submit_button = QPushButton('✓', self)
-        self.submit_button.setGeometry(470 * UIRescale.Scale, 42 * UIRescale.Scale, 35 * UIRescale.Scale, 35 * UIRescale.Scale)
-        self.submit_button.clicked.connect(self.query)
-
+        self.end_date = QDateEdit(calendarPopup=True)
         self.slider = DateRangeSlider(self.start_date, self.end_date, self)
-        self.slider.setGeometry(550 * UIRescale.Scale, 27 * UIRescale.Scale, 550 * UIRescale.Scale, 65 * UIRescale.Scale)
         self.slider.get_slider().valueChanged.connect(self.update_overlay)
-        self.play_button = PlayButton(self.slider.get_slider(), self)
-        self.play_button.setGeometry(1140 * UIRescale.Scale, 30 * UIRescale.Scale, 40 * UIRescale.Scale, 60 * UIRescale.Scale)
-        # pane = QWidget(self)
-        # pane_layout = QVBoxLayout(self)
-        # self.hourly = QRadioButton("Hourly")
-        # self.daily = QRadioButton("Daily")
-        # # pane_layout.setSpacing(2)
-        # self.interval_panel = CollapsiblePanel("Interval", [
-        #     self.hourly,
-        #     self.daily
-        # ], self)
-        # # self.interval_panel.setGeometry(30 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
-        # self.interval_panel.show()
-        #
-        # self.twobytwo = QRadioButton("2x2")
-        # self.fourbyfour = QRadioButton("4x4")
-        # self.sixteenbysixteen = QRadioButton("16x16")
-        #
-        # self.resolution_panel = CollapsiblePanel("Heatmap Resolution",
-        #                                          [self.twobytwo, self.fourbyfour, self.sixteenbysixteen], self)
-        # # self.resolution_panel.setGeometry(30 * UIRescale.Scale, 270 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
-        # self.resolution_panel.show()
-        #
-        # pane_layout.addWidget(self.interval_panel)
-        # pane_layout.addWidget(self.resolution_panel)
-        # pane_layout.setAlignment(Qt.AlignTop)
-        # pane.setLayout(pane_layout)
-        # pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 350 * UIRescale.Scale)
-
-        pane = QWidget(self)
-        pane_layout = QVBoxLayout(self)
+        self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
+        self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
         self.hourly = QRadioButton("Hourly")
         self.daily = QRadioButton("Daily")
-        # pane_layout.setSpacing(2)
-        self.interval_panel = NonCollapsiblePanel("Interval", [
-            self.hourly,
-            self.daily
-        ], self)
-        # self.interval_panel.setGeometry(30 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
-        self.interval_panel.show()
-
+        self.daily.setChecked(True)
         self.twobytwo = QRadioButton("2x2")
         self.fourbyfour = QRadioButton("4x4")
+        self.fourbyfour.setChecked(True)
         self.sixteenbysixteen = QRadioButton("16x16")
+        self.precipitation = QRadioButton("Precipitation")
+        self.temperature = QRadioButton("Temperature")
+        self.temperature.setChecked(True)
+        self.wind = QRadioButton("Wind")
+        self.progress = ProgressBar(self)
+        self.progress.set_progress(4, 4)
+        self.submit_button = QPushButton('Query', self)
+        self.submit_button.setFixedHeight(50)
+        self.submit_button.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
 
-        self.resolution_panel = NonCollapsiblePanel("Heatmap Resolution",
-                                                 [self.twobytwo, self.fourbyfour, self.sixteenbysixteen], self)
-        # self.resolution_panel.setGeometry(30 * UIRescale.Scale, 270 * UIRescale.Scale, 400 * UIRescale.Scale, 300 * UIRescale.Scale)
-        self.resolution_panel.show()
+        self.submit_button.clicked.connect(self.query)
+        content = [QLabel("Date Range", self), self.date_selector,
+                   Panel("Timeline Interval", "Tooltip", [self.hourly, self.daily], self),
+                   Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen], self),
+                   Panel("Weather Type", "Tooltip", [self.temperature, self.precipitation, self.wind]),
+                   self.submit_button, self.progress]
+        self.queryPane = QueryPane(content, self)
+        self.layout.addWidget(self.queryPane)
+        self.layout.addWidget(self.map_widget)
+        self.setLayout(self.layout)
 
-        pane_layout.addWidget(self.interval_panel)
-        pane_layout.addWidget(self.resolution_panel)
-        pane_layout.setAlignment(Qt.AlignTop)
-        pane.setLayout(pane_layout)
-        pane.setGeometry(20 * UIRescale.Scale, 110 * UIRescale.Scale, 400 * UIRescale.Scale, 350 * UIRescale.Scale)
+        self.play_button = PlayButton(self.slider.get_slider(), self)
+        self.toolbar = Toolbar([self.slider, self.play_button], self)
+        self.toolbar.setGeometry(450 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
 
         self.arrow_pad = ArrowPad(self)
-        self.arrow_pad.setGeometry(1070 * UIRescale.Scale, 550 * UIRescale.Scale, 150 * UIRescale.Scale, 150 * UIRescale.Scale)  # Set the position and size of the arrow pad
+        self.arrow_pad.setGeometry(1300 * UIRescale.Scale, 550 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)  # Set the position and size of the arrow pad
         self.arrow_pad.up_button.clicked.connect(self.move_up)
         self.arrow_pad.down_button.clicked.connect(self.move_down)
         self.arrow_pad.left_button.clicked.connect(self.move_left)
         self.arrow_pad.right_button.clicked.connect(self.move_right)
+        self.arrow_pad.zoom_in.clicked.connect(self.zoom_in)
+        self.arrow_pad.zoom_out.clicked.connect(self.zoom_out)
         self.arrow_pad.show()
 
-        self.progress = ProgressBar(self)
-        self.progress.set_progress(4,4)
-        self.progress.setGeometry(875 * UIRescale.Scale, 750 * UIRescale.Scale, 350 * UIRescale.Scale, 50 * UIRescale.Scale)
-        # self.progress.hide()
+    def resizeEvent(self, event):
+        self.toolbar.setGeometry(450 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
+        self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
+        super().resizeEvent(event)
 
     def move_up(self):
         self.map_widget.location[0] += 1 / (2 ** (self.map_widget.zoom - 8))
         self.map_widget.refresh()
-        # self.ren.render()
         self.update_overlay()
 
     def move_down(self):
         self.map_widget.location[0] -= 1 / (2 ** (self.map_widget.zoom - 8))
         self.map_widget.refresh()
-        # self.ren.render()
         self.update_overlay()
 
     def move_left(self):
         self.map_widget.location[1] -= 1 / (2 ** (self.map_widget.zoom - 8))
         self.map_widget.refresh()
-        # self.ren.render()
         self.update_overlay()
 
     def move_right(self):
         self.map_widget.location[1] += 1 / (2 ** (self.map_widget.zoom - 8))
         self.map_widget.refresh()
-        # self.ren.render()
+        self.update_overlay()
+
+    def zoom_in(self):
+        self.map_widget.zoom += 1
+        self.map_widget.refresh()
+        self.update_overlay()
+
+    def zoom_out(self):
+        self.map_widget.zoom -= 1
+        self.map_widget.refresh()
         self.update_overlay()
 
     def keyPressEvent(self, event):
@@ -207,37 +162,9 @@ class MainWindow(QWidget):
         elif event.key() == Qt.Key_D:  # D
             self.move_right()
         elif self.map_widget.zoom > 0 and event.key() == Qt.Key_E:  # E
-            self.map_widget.zoom -= 1
-            self.map_widget.refresh()
-            # self.ren.render()
-            self.update_overlay()
+            self.zoom_out()
         elif self.map_widget.zoom < 18 and event.key() == Qt.Key_Q:  # Q
-            self.map_widget.zoom += 1
-            self.map_widget.refresh()
-            # self.ren.render()
-            self.update_overlay()
-
-    # def mousePressEvent(self, event):
-    #     if event.button() == Qt.LeftButton:
-    #         self.map_widget.last_pos = event.pos()
-    # #
-    # def mouseMoveEvent(self, event):
-    #     if event.buttons() == Qt.LeftButton:
-    #         diff = event.pos() - self.map_widget.last_pos
-    #         self.map_widget.pan_map(diff.x(), diff.y())
-    #         self.map_widget.last_pos = event.pos()
-
-    def show_calendar(self):
-        calendar_widget = QCalendarWidget(self)
-        calendar_widget.setWindowFlags(calendar_widget.windowFlags() | Qt.Popup)
-        calendar_button = self.sender()
-        button_pos = calendar_button.mapToGlobal(calendar_button.rect().bottomLeft())
-        calendar_widget.move(button_pos)
-        calendar_widget.show()
-
-    def updateEndDate(self, start_date, end_date):
-        self.slider.update_range(self.start_date, self.end_date)
-        end_date.setMinimumDate(start_date)
+            self.zoom_in()
 
     def update_overlay(self):
         if self.apicalled:
@@ -246,27 +173,6 @@ class MainWindow(QWidget):
                                          self.map_widget.web_map.height())
             image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
             self.map_widget.refresh(image)
-
-
-
-    # def keyPressEvent(self, event):
-    #     if event.key() == 87:  # W
-    #         self.location[0] += 1 / (2 ** (self.zoom - 8))
-    #     elif event.key() == 83:  # S
-    #         self.location[0] -= 1 / (2 ** (self.zoom - 8))
-    #     elif event.key() == 65:  # A
-    #         self.location[1] -= 1 / (2 ** (self.zoom - 8))
-    #     elif event.key() == 68:  # D
-    #         self.location[1] += 1 / (2 ** (self.zoom - 8))
-    #     elif self.zoom > 0 and event.key() == 69:  # E
-    #         self.zoom -= 1
-    #     elif self.zoom < 18 and event.key() == 81:  # Q
-    #         self.zoom += 1
-    #     else:
-    #         return
-    #
-    #     self.refresh()
-
     
     def change_opacity(self, image_path, opacity_level):
         img = Image.open(image_path).convert("RGBA")
@@ -292,7 +198,8 @@ class MainWindow(QWidget):
 
     def query(self):
         self.submit_button.setChecked(True)
-        self.submit_button.setText("◷")
+        # self.submit_button.setText("◷")
+        self.submit_button.setText("Query...")
         threading.Thread(target=self.get_data).start()
 
     def update_progress(self):
@@ -317,8 +224,8 @@ class MainWindow(QWidget):
         self.progress.set_total(RESOLUTION*RESOLUTION)
         self.progress.set_progress(0, RESOLUTION*RESOLUTION)
 
-        start_date = self.start_date.date().toString("yyyy-MM-dd")
-        end_date = self.end_date.date().toString("yyyy-MM-dd")
+        start_date = self.date_selector.start_date.date().toString("yyyy-MM-dd")
+        end_date = self.date_selector.end_date.date().toString("yyyy-MM-dd")
         geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
                                    self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
 
@@ -351,6 +258,6 @@ class MainWindow(QWidget):
         self.ren.set_data(responses)
         self.apicalled = True
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
-        self.submit_button.setText("✓")
+        self.submit_button.setText("Query")
 
 

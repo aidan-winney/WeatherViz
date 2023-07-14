@@ -13,9 +13,9 @@ class PlayButton(QWidget):
         layout.setContentsMargins(0,0,0,0)
         layout.setMargin(0)
         self.playButton = QPushButton("▶")
+        self.playButton.setStyleSheet("background-color: rgba(90, 90, 90, 255); font-weight: bold; color: white; border-radius: 3px;")
         self.playButton.setCheckable(True)
-        button_size = 35 * UIRescale.Scale
-        self.playButton.setFixedSize(button_size, button_size)
+        self.playButton.setFixedSize(35 * UIRescale.Scale, 35 * UIRescale.Scale)
         self.playButton.toggled.connect(self.togglePlay)
         layout.addWidget(self.playButton)
         self.setLayout(layout)
@@ -33,4 +33,8 @@ class PlayButton(QWidget):
 
     def incrementSlider(self):
         current_value = self.slider.value()
-        self.slider.setValue(current_value + 1)
+        max_value = self.slider.maximum()
+        if current_value == max_value:
+            self.slider.setValue(self.slider.minimum())
+        else:
+            self.slider.setValue(current_value + 1)

@@ -11,7 +11,7 @@ def main():
     app = QApplication(sys.argv + ['--no-sandbox'])
     app.setStyle('Fusion')
     window = MainWindow()
-    window.resize(1270 * UIRescale.Scale, 850 * UIRescale.Scale)
+    window.resize(1500 * UIRescale.Scale, 850 * UIRescale.Scale)
     window.setContentsMargins(0, 0, 0, 0)
     window.show()
     app.exec_()

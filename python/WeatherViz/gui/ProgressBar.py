@@ -15,6 +15,7 @@ class ProgressBar(QWidget):
         # layout.setMargin(5)
         # layout.setContentsMargins(5,5,5,5)
         self.progress = QProgressBar(self)
+        self.progress.setStyleSheet("text-align: center;")
         self.setContentsMargins(0,0,0,0)
         self.setStyleSheet("font-weight: bold")
 
