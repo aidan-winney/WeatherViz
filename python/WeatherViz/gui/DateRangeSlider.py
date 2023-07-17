@@ -8,7 +8,7 @@ class DateRangeSlider(QWidget):
 
         self.start_date = start_date.date()
         self.end_date = end_date.date()
-
+        self.daily = True
         date_range = self.end_date.toJulianDay() - self.start_date.toJulianDay()
 
         layout = QVBoxLayout()
@@ -77,16 +77,25 @@ class DateRangeSlider(QWidget):
     def update(self):
         self.repaint()
 
-    def update_range(self, start_date, end_date):
-        self.start_date = start_date.date()
-        self.end_date = end_date.date()
+    def update_range(self, start_date, end_date, daily):
+        self.start_date = start_date
+        self.end_date = end_date
+        self.daily = daily
         date_range = self.end_date.toJulianDay() - self.start_date.toJulianDay()
+        if self.daily is False:
+            date_range = (date_range + 1) * 24 - 1
         self.slider.setRange(0, date_range)
-        self.date_label.setText(f"Date: {self.start_date.toString('yyyy-MM-dd')}")
+        self.slider.setValue(0)
+        self.update_date_label()
 
     def get_slider(self):
         return self.slider
 
     def update_date_label(self):
-        current_date = self.start_date.addDays(self.slider.value())
-        self.date_label.setText(f"Date: {current_date.toString('yyyy-MM-dd')}")
+        if self.daily:
+            current_date = self.start_date.addDays(self.slider.value())
+            self.date_label.setText(f"Date: {current_date.toString('yyyy-MM-dd')}")
+        else:
+            current_date = self.start_date.addDays(self.slider.value()//24)
+            current_time = self.slider.value() % 24
+            self.date_label.setText(f"Date: {current_date.toString('yyyy-MM-dd')} {current_time}:00 EST")

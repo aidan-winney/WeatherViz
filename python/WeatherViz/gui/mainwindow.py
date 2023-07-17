@@ -4,12 +4,8 @@ from WeatherViz import renderer
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
     QWidget, QDateEdit, QCalendarWidget, QGridLayout, QSlider, QRadioButton
 from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter, QIcon, Qt
-from PySide2.QtWebEngineWidgets import QWebEngineView
 from PySide2.QtCore import QDate, Slot, QPoint, QThread, QMetaObject
 from PySide2 import QtCore
-import PySide2
-import folium
-from folium import plugins, features
 import sys
 import io
 from PIL import Image
@@ -20,7 +16,6 @@ import concurrent.futures
 
 from WeatherViz.UIRescale import UIRescale
 from WeatherViz.gui.ArrowPad import ArrowPad
-from WeatherViz.gui.CollapsiblePanel import CollapsiblePanel
 from WeatherViz.gui.Map import MapWidget
 from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
@@ -44,15 +39,6 @@ from WeatherViz.gui.Panel import Panel
 from WeatherViz.gui.Toolbar import Toolbar
 
 
-# NOT NEEDED, JUST FOR INITIAL TESTING
-class Color(QWidget):
-    def __init__(self, color):
-        super(Color, self).__init__()
-        self.setAutoFillBackground(True)
-        palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(color))
-        self.setPalette(palette)
-
 class MainWindow(QWidget):
     progress_updated = QtCore.Signal() 
     def __init__(self):
@@ -64,9 +50,11 @@ class MainWindow(QWidget):
 
         self.image = None
         self.apicalled = False
+        self.query_daily = True
+        self.query_start_date = QDate.currentDate()
+        self.query_end_date = QDate.currentDate()
         self.map_widget = MapWidget([27.75, -83.25], 7)
         self.progress_updated.connect(self.update_progress, QtCore.Qt.QueuedConnection)
-
 
         self.start_date = QDateEdit(calendarPopup=True)
         self.start_date.setDate(QDate.currentDate())
@@ -82,7 +70,7 @@ class MainWindow(QWidget):
         self.fourbyfour = QRadioButton("4x4")
         self.fourbyfour.setChecked(True)
         self.sixteenbysixteen = QRadioButton("16x16")
-        self.precipitation = QRadioButton("Precipitation")
+        self.rain = QRadioButton("Rain")
         self.temperature = QRadioButton("Temperature")
         self.temperature.setChecked(True)
         self.wind = QRadioButton("Wind")
@@ -96,7 +84,7 @@ class MainWindow(QWidget):
         content = [QLabel("Date Range", self), self.date_selector,
                    Panel("Timeline Interval", "Tooltip", [self.hourly, self.daily], self),
                    Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen], self),
-                   Panel("Weather Type", "Tooltip", [self.temperature, self.precipitation, self.wind]),
+                   Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind]),
                    self.submit_button, self.progress]
         self.queryPane = QueryPane(content, self)
         self.layout.addWidget(self.queryPane)
@@ -198,15 +186,20 @@ class MainWindow(QWidget):
 
     def query(self):
         self.submit_button.setChecked(True)
-        # self.submit_button.setText("◷")
-        self.submit_button.setText("Query...")
+        self.submit_button.setText("Querying...")
         threading.Thread(target=self.get_data).start()
 
     def update_progress(self):
         self.progress.increment_progress()
 
+    @QtCore.Slot()
+    def update_slider_range(self):
+        self.play_button.togglePlay(False)
+        self.slider.update_range(self.query_start_date, self.query_end_date, self.query_daily)
+
+
     def get_data(self):
-        self.is_hourly()
+        #Resolution
         if self.twobytwo.isChecked():
             RESOLUTION = 2
         elif self.fourbyfour.isChecked():
@@ -215,8 +208,30 @@ class MainWindow(QWidget):
             RESOLUTION = 16
         else:
             RESOLUTION = 2
-        DAILY = False
-        VARIABLE = "temperature_2m"
+
+        #Time interval
+        if self.daily.isChecked():
+            DAILY = True
+        else:
+            DAILY = False
+        self.query_daily = DAILY
+
+        #Weather event
+        if self.temperature.isChecked():
+            if DAILY:
+                VARIABLE = "temperature_2m_mean"
+            else:
+                VARIABLE = "temperature_2m"
+        elif self.wind.isChecked(): #TODO: Edit this for actual wind speed data
+            if DAILY:
+                VARIABLE = "windspeed_10m_max"
+            else:
+                VARIABLE = "windspeed_10m"
+        elif self.rain.isChecked():
+            if DAILY:
+                VARIABLE = "rain_sum"
+            else:
+                VARIABLE = "rain"
         TEMPERATURE_UNIT = "fahrenheit"
         WINDSPEED_UNIT = "mph"
         PRECIPITATION_UNIT = "inch"
@@ -224,8 +239,11 @@ class MainWindow(QWidget):
         self.progress.set_total(RESOLUTION*RESOLUTION)
         self.progress.set_progress(0, RESOLUTION*RESOLUTION)
 
-        start_date = self.date_selector.start_date.date().toString("yyyy-MM-dd")
-        end_date = self.date_selector.end_date.date().toString("yyyy-MM-dd")
+        self.query_start_date = self.date_selector.start_date.date()
+        self.query_end_date = self.date_selector.end_date.date()
+        start_date = self.query_start_date.toString("yyyy-MM-dd")
+        end_date = self.query_end_date.toString("yyyy-MM-dd")
+
         geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
                                    self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
 
@@ -252,12 +270,13 @@ class MainWindow(QWidget):
         for result, (lat, lon) in zip(results, geocoords):
             key = (str(lat), str(lon))
             responses[key] = result["daily" if DAILY else "hourly"][VARIABLE]
-            print(responses[key])
+            #print(responses[key])
 
         self.ren = Renderer()
         self.ren.set_data(responses)
         self.apicalled = True
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
+        QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
         self.submit_button.setText("Query")
 
 
