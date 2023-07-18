@@ -244,7 +244,9 @@ class MainWindow(QWidget):
 
         geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
                                    self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
-
+        
+        session = requests.Session()
+        
         def api_call(lat, lon):
             url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_date}&end_date={end_date}&temperature_unit={TEMPERATURE_UNIT}&windspeed_unit={WINDSPEED_UNIT}&precipitation_unit={PRECIPITATION_UNIT}&timezone={TIMEZONE}&models=best_match&cell_selection=nearest"
 
@@ -254,7 +256,7 @@ class MainWindow(QWidget):
                 url += f"&hourly={VARIABLE}"
 
             self.progress_updated.emit()
-            res = requests.get(url)
+            res = session.get(url)
 
             if res.status_code == requests.codes.ok:
                 return res.json()
