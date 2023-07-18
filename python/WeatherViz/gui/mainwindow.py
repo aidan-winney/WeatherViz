@@ -54,6 +54,7 @@ class MainWindow(QWidget):
         self.query_start_date = QDate.currentDate()
         self.query_end_date = QDate.currentDate()
         self.map_widget = MapWidget([27.75, -83.25], 7)
+        self.map_widget.mapChanged.connect(self.update_overlay)
         self.progress_updated.connect(self.update_progress, QtCore.Qt.QueuedConnection)
 
         self.start_date = QDateEdit(calendarPopup=True)
@@ -105,6 +106,7 @@ class MainWindow(QWidget):
         self.arrow_pad.zoom_out.clicked.connect(self.zoom_out)
         self.arrow_pad.show()
 
+    #Navigation Functions
     def resizeEvent(self, event):
         self.toolbar.setGeometry(450 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
@@ -112,32 +114,26 @@ class MainWindow(QWidget):
 
     def move_up(self):
         self.map_widget.location[0] += 1 / (2 ** (self.map_widget.zoom - 8))
-        self.map_widget.refresh()
         self.update_overlay()
 
     def move_down(self):
         self.map_widget.location[0] -= 1 / (2 ** (self.map_widget.zoom - 8))
-        self.map_widget.refresh()
         self.update_overlay()
 
     def move_left(self):
         self.map_widget.location[1] -= 1 / (2 ** (self.map_widget.zoom - 8))
-        self.map_widget.refresh()
         self.update_overlay()
 
     def move_right(self):
         self.map_widget.location[1] += 1 / (2 ** (self.map_widget.zoom - 8))
-        self.map_widget.refresh()
         self.update_overlay()
 
     def zoom_in(self):
         self.map_widget.zoom += 1
-        self.map_widget.refresh()
         self.update_overlay()
 
     def zoom_out(self):
         self.map_widget.zoom -= 1
-        self.map_widget.refresh()
         self.update_overlay()
 
     def keyPressEvent(self, event):
@@ -161,6 +157,8 @@ class MainWindow(QWidget):
                                          self.map_widget.web_map.height())
             image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
             self.map_widget.refresh(image)
+        else:
+            self.map_widget.refresh()
     
     def change_opacity(self, image_path, opacity_level):
         img = Image.open(image_path).convert("RGBA")
