@@ -3,6 +3,7 @@ import json
 
 import requests
 from PIL.Image import Image
+from PySide2 import QtCore
 from PySide2.QtCore import QRect, QRectF
 from PySide2.QtGui import Qt, QPixmap, QPainter, QColor, QPainterPath, QBrush, QPen, QRegion
 from PySide2.QtWebEngineWidgets import QWebEngineView
@@ -14,8 +15,12 @@ import io
 from WeatherViz.UIRescale import UIRescale
 
 class MapWidget(QGraphicsView):
+    mapChanged = QtCore.Signal()
     def __init__(self, initial_location, initial_zoom):
         super().__init__()
+
+        self.freezeMap = True
+
         self.map = None
         self.web_map = None
         self.zoom = initial_zoom
@@ -38,17 +43,10 @@ class MapWidget(QGraphicsView):
         self.setMask(mask)
 
     def createMap(self):
-        # Right part of main page (MAP PLACEHOLDER)
+        # Right part of main page
         m = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
                        zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False,
                        boxZoom=False, scrollWheelZoom=False)
-        roundnum = "function(num) {return L.Util.formatNum(num, 6);};"
-        mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
-                                      lng_formatter=roundnum).add_to(m)
-
-        # icon = features.CustomIcon('gui\\Donpeng.png', icon_size=(50, 50))
-        # marker = folium.Marker(location=[29.651634, -82.324829], icon=icon)
-        # marker.add_to(m)
 
         data = io.BytesIO()
         m.save(data, close_file=False)
@@ -76,9 +74,7 @@ class MapWidget(QGraphicsView):
         self.map = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
                               zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False,
                               boxZoom=False, scrollWheelZoom=False)
-        roundnum = "function(num) {return L.Util.formatNum(num, 5);};"
-        mouse = plugins.MousePosition(position='topright', separator=' | ', prefix="Position:", lat_formatter=roundnum,
-                                      lng_formatter=roundnum).add_to(self.map)
+
         if image != None:
             image.save('output.png')
             icon = features.CustomIcon('output.png', icon_size=(self.web_map.width(), self.web_map.height()))
@@ -90,25 +86,28 @@ class MapWidget(QGraphicsView):
         self.web_map.setHtml(data.getvalue().decode())
         self.web_map.update()
 
+    #Mouse Navigation Functions
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if self.freezeMap is False and event.button() == Qt.LeftButton:
             self.last_pos = event.pos()
     #
     def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
+        if self.freezeMap is False and event.buttons() == Qt.LeftButton:
             diff = event.pos() - self.last_pos
             self.pan_map(diff.x()/50, diff.y()/50)
             self.last_pos = event.pos()
 
     def pan_map(self, dx, dy):
-        self.location[1] -= dx
-        self.location[0] += dy
-        self.refresh()
+        if self.freezeMap is False:
+            self.location[1] -= dx
+            self.location[0] += dy
+            self.mapChanged.emit()
 
     def wheelEvent(self, event):
-        zoom_direction = event.angleDelta().y()
-        zoom_direction = 1 if zoom_direction > 0 else -1
+        if self.freezeMap is False:
+            zoom_direction = event.angleDelta().y()
+            zoom_direction = 1 if zoom_direction > 0 else -1
 
-        self.zoom += zoom_direction
-        self.refresh()
-        self.fitInView(self.rect(), Qt.KeepAspectRatio)
+            self.zoom += zoom_direction
+            self.fitInView(self.rect(), Qt.KeepAspectRatio)
+            self.mapChanged.emit()

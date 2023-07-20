@@ -68,7 +68,6 @@ class DateRangeChooser(QWidget):
         layout.addWidget(end_date_selector)
 
         self.start_date.dateChanged.connect(lambda: self.updateEndDate(self.start_date, self.end_date))
-        self.end_date.dateChanged.connect(lambda: self.slider.update_range(self.start_date, self.end_date))
         self.setLayout(layout)
 
     def show_calendar(self):
@@ -80,5 +79,4 @@ class DateRangeChooser(QWidget):
         calendar_widget.show()
 
     def updateEndDate(self, start_date, end_date):
-        self.slider.update_range(start_date, end_date)
         end_date.setMinimumDate(start_date.date())
