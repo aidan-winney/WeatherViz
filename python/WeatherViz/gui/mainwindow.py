@@ -39,6 +39,8 @@ from WeatherViz.gui.Panel import Panel
 
 from WeatherViz.gui.Toolbar import Toolbar
 
+from WeatherViz.gui.ScrollableContent import ScrollableContent
+
 
 class MainWindow(QWidget):
     progress_updated = QtCore.Signal()
@@ -68,7 +70,7 @@ class MainWindow(QWidget):
         self.slider.get_slider().valueChanged.connect(self.update_overlay)
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
         self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
-        self.date_selector.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
+        # self.date_selector.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.hourly = QRadioButton("Hourly")
         # self.hourly.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.daily = QRadioButton("Daily")
@@ -85,27 +87,18 @@ class MainWindow(QWidget):
         self.progress = ProgressBar(self)
         self.progress.set_progress(4, 4)
         self.submit_button = QPushButton('Query', self)
-        self.submit_button.setFixedHeight(50)
+        self.submit_button.setFixedHeight(50 * UIRescale.Scale)
         self.submit_button.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
 
-        self.date_label = QLabel("  Date Range", self)
-        self.date_label.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px; min-height: 30px;")
-
-        self.time_panel = Panel("Timeline Interval", "Tooltip", [self.hourly, self.daily], self)
-        self.time_panel.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
-        self.res_panel = Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen], self)
-        self.res_panel.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
-        self.type_panel = Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind])
-        self.type_panel.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
-
         self.submit_button.clicked.connect(self.query)
-        content = [self.date_label, self.date_selector,
-                   self.time_panel,
-                   self.res_panel,
-                   self.type_panel,
+        content = [ScrollableContent([QLabel("Date Range"), self.date_selector,
+                   Panel("Timeline Interval", "Tooltip", [self.hourly, self.daily]),
+                   Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen]),
+                   Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind])], self),
                    self.submit_button, self.progress]
+        # content = [ScrollableContent([QLabel("Date Range")])]
         self.queryPane = QueryPane(content, self)
-        self.layout.addWidget(self.queryPane)
+        self.layout.addWidget(self.queryPane, alignment=Qt.AlignTop)
         self.layout.addWidget(self.map_widget)
 
         # Instruction pop-up goes here - for Aidan
@@ -184,7 +177,7 @@ class MainWindow(QWidget):
 
     #Navigation Functions
     def resizeEvent(self, event):
-        self.toolbar.setGeometry(450 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
+        self.toolbar.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
         super().resizeEvent(event)
 

@@ -38,7 +38,7 @@ class MapWidget(QGraphicsView):
         self.setInteractive(False)
         self.createMap()
         self.path = QPainterPath()
-        self.path.addRoundedRect(QRectF(self.rect()), 20.0, 20.0)
+        self.path.addRoundedRect(QRectF(self.rect()), 15.0 * UIRescale.Scale, 15.0 * UIRescale.Scale)
         mask = QRegion(self.path.toFillPolygon().toPolygon())
         self.setMask(mask)
 
@@ -65,7 +65,7 @@ class MapWidget(QGraphicsView):
         # Resize the web view to fit the widget
         self.web_map.setGeometry(self.rect())
         self.path = QPainterPath()
-        self.path.addRoundedRect(QRectF(self.rect()), 20.0, 20.0)
+        self.path.addRoundedRect(QRectF(self.rect()), 15.0 * UIRescale.Scale, 15.0 * UIRescale.Scale)
         mask = QRegion(self.path.toFillPolygon().toPolygon())
         self.setMask(mask)
         super().resizeEvent(event)

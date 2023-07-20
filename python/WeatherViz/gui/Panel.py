@@ -41,7 +41,6 @@ class Panel(QWidget):
         self.content.setContentsMargins(0, 0, 0, 0)
         self.content.setMaximumHeight(150 * UIRescale.Scale)
         layout.addWidget(self.content)
-        layout.addStretch(1)
 
         content_layout = QVBoxLayout()
         content_layout.setSpacing(20 * UIRescale.Scale)
