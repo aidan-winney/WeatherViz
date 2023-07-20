@@ -6,13 +6,14 @@ from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBo
 from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter, QIcon, Qt
 from PySide2.QtCore import QDate, Slot, QPoint, QThread, QMetaObject
 from PySide2 import QtCore
+from ast import literal_eval
 import sys
 import io
 from PIL import Image
 from threading import Thread
 import requests
 import concurrent.futures
-
+import sqlite3
 
 from WeatherViz.UIRescale import UIRescale
 from WeatherViz.gui.ArrowPad import ArrowPad
@@ -195,7 +196,6 @@ class MainWindow(QWidget):
         self.play_button.togglePlay(False)
         self.slider.update_range(self.query_start_date, self.query_end_date, self.query_daily)
 
-
     def get_data(self):
         #Resolution
         if self.twobytwo.isChecked():
@@ -242,8 +242,11 @@ class MainWindow(QWidget):
         start_date = self.query_start_date.toString("yyyy-MM-dd")
         end_date = self.query_end_date.toString("yyyy-MM-dd")
 
+        center_lat = self.map_widget.location[0]
+        center_lon = self.map_widget.location[1]
+        zoom = self.map_widget.zoom
         geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
-                                   self.map_widget.location[0], self.map_widget.location[1], self.map_widget.zoom)
+                                   center_lat, center_lon, zoom)
 
         def api_call(lat, lon):
             url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_date}&end_date={end_date}&temperature_unit={TEMPERATURE_UNIT}&windspeed_unit={WINDSPEED_UNIT}&precipitation_unit={PRECIPITATION_UNIT}&timezone={TIMEZONE}&models=best_match&cell_selection=nearest"
@@ -273,6 +276,25 @@ class MainWindow(QWidget):
         self.ren = Renderer()
         self.ren.set_data(responses)
         self.apicalled = True
+
+        # Database caching
+        database_connection = sqlite3.connect("queries.db")
+        cur = database_connection.cursor()
+        res = cur.execute("SELECT name FROM sqlite_master")
+        if len(res.fetchall()) == 0:
+            cur.execute(
+                "CREATE TABLE saved(id INTEGER, name TEXT, start_date TEXT, end_date TEXT, interval TEXT, resolution INTEGER, weather_variable TEXT, data TEXT, center_lat REAL, center_lon REAL, zoom INTEGER)")
+        #Interval saves as text '0' or '1'
+        query_id = len(cur.execute("SELECT id FROM saved").fetchall())
+        data = [(query_id, "name here", start_date, end_date, DAILY, RESOLUTION, VARIABLE, str(responses), center_lat, center_lon, zoom),]
+        cur.executemany("INSERT INTO saved VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
+        database_connection.commit()
+
+        #load the data back
+        res = cur.execute("SELECT data FROM saved WHERE id= (?)", (query_id, ))
+        load_data = res.fetchone()
+        print(literal_eval(load_data[0]))
+
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
         QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
         self.submit_button.setText("Query")
