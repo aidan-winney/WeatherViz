@@ -47,8 +47,6 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.freezeMap = True
-
         self.setWindowTitle("WeatherViz")
         self.setStyleSheet("background-color: rgba(32, 32, 32, 255); border-radius: 5px;")  # Change as needed
         self.setContentsMargins(0, 0, 0, 0)
@@ -164,16 +162,10 @@ class MainWindow(QWidget):
         self.instructionText1.lower()
         self.instructionText2.lower()
         self.instructionText3.lower()
-        self.freezeMap = False
-        self.map_widget.freezeMap = False
-        self.play_button.freezeMap = False
 
     def showInstructions(self):
         self.instructionButton.raise_()
         self.instructionText3.raise_()
-        self.freezeMap = True
-        self.map_widget.freezeMap = True
-        self.play_button.freezeMap = True
 
     #Navigation Functions
     def resizeEvent(self, event):
@@ -182,34 +174,28 @@ class MainWindow(QWidget):
         super().resizeEvent(event)
 
     def move_up(self):
-        if self.freezeMap is False:
-            self.map_widget.location[0] += 1 / (2 ** (self.map_widget.zoom - 8))
-            self.update_overlay()
+        self.map_widget.location[0] += 1 / (2 ** (self.map_widget.zoom - 8))
+        self.update_overlay()
 
     def move_down(self):
-        if self.freezeMap is False:
-            self.map_widget.location[0] -= 1 / (2 ** (self.map_widget.zoom - 8))
-            self.update_overlay()
+        self.map_widget.location[0] -= 1 / (2 ** (self.map_widget.zoom - 8))
+        self.update_overlay()
 
     def move_left(self):
-        if self.freezeMap is False:
-            self.map_widget.location[1] -= 1 / (2 ** (self.map_widget.zoom - 8))
-            self.update_overlay()
+        self.map_widget.location[1] -= 1 / (2 ** (self.map_widget.zoom - 8))
+        self.update_overlay()
 
     def move_right(self):
-        if self.freezeMap is False:
-            self.map_widget.location[1] += 1 / (2 ** (self.map_widget.zoom - 8))
-            self.update_overlay()
+        self.map_widget.location[1] += 1 / (2 ** (self.map_widget.zoom - 8))
+        self.update_overlay()
 
     def zoom_in(self):
-        if self.freezeMap is False:
-            self.map_widget.zoom += 1
-            self.update_overlay()
+        self.map_widget.zoom += 1
+        self.update_overlay()
 
     def zoom_out(self):
-        if self.freezeMap is False:
-            self.map_widget.zoom -= 1
-            self.update_overlay()
+        self.map_widget.zoom -= 1
+        self.update_overlay()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_W:  # W
@@ -258,10 +244,9 @@ class MainWindow(QWidget):
         return self.daily.isChecked()
 
     def query(self):
-        if self.freezeMap is False:
-            self.submit_button.setChecked(True)
-            self.submit_button.setText("Querying...")
-            threading.Thread(target=self.get_data).start()
+        self.submit_button.setChecked(True)
+        self.submit_button.setText("Querying...")
+        threading.Thread(target=self.get_data).start()
 
     def update_progress(self):
         self.progress.increment_progress()

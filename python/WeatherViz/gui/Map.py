@@ -19,8 +19,6 @@ class MapWidget(QGraphicsView):
     def __init__(self, initial_location, initial_zoom):
         super().__init__()
 
-        self.freezeMap = True
-
         self.map = None
         self.web_map = None
         self.zoom = initial_zoom
@@ -88,26 +86,24 @@ class MapWidget(QGraphicsView):
 
     #Mouse Navigation Functions
     def mousePressEvent(self, event):
-        if self.freezeMap is False and event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton:
             self.last_pos = event.pos()
     #
     def mouseMoveEvent(self, event):
-        if self.freezeMap is False and event.buttons() == Qt.LeftButton:
+        if event.buttons() == Qt.LeftButton:
             diff = event.pos() - self.last_pos
             self.pan_map(diff.x()/50, diff.y()/50)
             self.last_pos = event.pos()
 
     def pan_map(self, dx, dy):
-        if self.freezeMap is False:
-            self.location[1] -= dx
-            self.location[0] += dy
-            self.mapChanged.emit()
+        self.location[1] -= dx
+        self.location[0] += dy
+        self.mapChanged.emit()
 
     def wheelEvent(self, event):
-        if self.freezeMap is False:
-            zoom_direction = event.angleDelta().y()
-            zoom_direction = 1 if zoom_direction > 0 else -1
+        zoom_direction = event.angleDelta().y()
+        zoom_direction = 1 if zoom_direction > 0 else -1
 
-            self.zoom += zoom_direction
-            self.fitInView(self.rect(), Qt.KeepAspectRatio)
-            self.mapChanged.emit()
+        self.zoom += zoom_direction
+        self.fitInView(self.rect(), Qt.KeepAspectRatio)
+        self.mapChanged.emit()
