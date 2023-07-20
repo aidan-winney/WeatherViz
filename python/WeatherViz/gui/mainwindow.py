@@ -43,6 +43,8 @@ from WeatherViz.gui.Panel import Panel
 
 from WeatherViz.gui.Toolbar import Toolbar
 
+from WeatherViz.gui.ScrollableContent import ScrollableContent
+
 
 # NOT NEEDED, JUST FOR INITIAL TESTING
 class Color(QWidget):
@@ -61,12 +63,12 @@ class MainWindow(QWidget):
         self.setStyleSheet("background-color: rgba(32, 32, 32, 255); border-radius: 5px;")  # Change as needed
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QHBoxLayout(self)
+        self.layout.setAlignment(Qt.AlignBottom)
 
         self.image = None
         self.apicalled = False
         self.map_widget = MapWidget([27.75, -83.25], 7)
         self.progress_updated.connect(self.update_progress, QtCore.Qt.QueuedConnection)
-
 
         self.start_date = QDateEdit(calendarPopup=True)
         self.start_date.setDate(QDate.currentDate())
@@ -75,9 +77,9 @@ class MainWindow(QWidget):
         self.slider.get_slider().valueChanged.connect(self.update_overlay)
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
         self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
-        self.hourly = QRadioButton("Hourly")
-        self.daily = QRadioButton("Daily")
-        self.daily.setChecked(True)
+        hourly = QRadioButton("Hourly")
+        daily = QRadioButton("Daily")
+        daily.setChecked(True)
         self.twobytwo = QRadioButton("2x2")
         self.fourbyfour = QRadioButton("4x4")
         self.fourbyfour.setChecked(True)
@@ -89,17 +91,18 @@ class MainWindow(QWidget):
         self.progress = ProgressBar(self)
         self.progress.set_progress(4, 4)
         self.submit_button = QPushButton('Query', self)
-        self.submit_button.setFixedHeight(50)
+        self.submit_button.setFixedHeight(50 * UIRescale.Scale)
         self.submit_button.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
 
         self.submit_button.clicked.connect(self.query)
-        content = [QLabel("Date Range", self), self.date_selector,
-                   Panel("Timeline Interval", "Tooltip", [self.hourly, self.daily], self),
-                   Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen], self),
-                   Panel("Weather Type", "Tooltip", [self.temperature, self.precipitation, self.wind]),
+        content = [ScrollableContent([QLabel("Date Range"), self.date_selector,
+                   Panel("Timeline Interval", "Tooltip", [hourly, daily]),
+                   Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen]),
+                   Panel("Weather Type", "Tooltip", [self.temperature, self.precipitation, self.wind])], self),
                    self.submit_button, self.progress]
+        # content = [ScrollableContent([QLabel("Date Range")])]
         self.queryPane = QueryPane(content, self)
-        self.layout.addWidget(self.queryPane)
+        self.layout.addWidget(self.queryPane, alignment=Qt.AlignTop)
         self.layout.addWidget(self.map_widget)
         self.setLayout(self.layout)
 
@@ -118,7 +121,7 @@ class MainWindow(QWidget):
         self.arrow_pad.show()
 
     def resizeEvent(self, event):
-        self.toolbar.setGeometry(450 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
+        self.toolbar.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
         super().resizeEvent(event)
 

@@ -24,4 +24,4 @@ class Toolbar(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(Qt.NoPen)
         painter.setBrush(QBrush(QColor(90, 90, 90, 120)))
-        painter.drawRoundedRect(self.rect(), 5, 5)
+        painter.drawRoundedRect(self.rect(), 5 * UIRescale.Scale, 5 * UIRescale.Scale)
