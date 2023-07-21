@@ -40,13 +40,15 @@ from WeatherViz.gui.Toolbar import Toolbar
 
 from WeatherViz.gui.ScrollableContent import ScrollableContent
 
+from WeatherViz.gui.Help import Help
+
 
 class MainWindow(QWidget):
     progress_updated = QtCore.Signal()
     def __init__(self):
         super().__init__()
 
-        self.freezeMap = True
+        self.freezeMap = False
 
         self.setWindowTitle("WeatherViz")
         self.setStyleSheet("background-color: rgba(32, 32, 32, 255); border-radius: 5px;")  # Change as needed
@@ -61,7 +63,6 @@ class MainWindow(QWidget):
         self.map_widget = MapWidget([27.75, -83.25], 7)
         self.map_widget.mapChanged.connect(self.update_overlay)
         self.progress_updated.connect(self.update_progress, QtCore.Qt.QueuedConnection)
-
         self.start_date = QDateEdit(calendarPopup=True)
         self.start_date.setDate(QDate.currentDate())
         self.end_date = QDateEdit(calendarPopup=True)
@@ -83,6 +84,13 @@ class MainWindow(QWidget):
         self.temperature = QRadioButton("Temperature")
         self.temperature.setChecked(True)
         self.wind = QRadioButton("Wind")
+        self.play1 = QRadioButton("1000ms")
+        self.play1.toggled.connect(self.changePlaybackSpeed)
+        self.play1.setChecked(True)
+        self.play2 = QRadioButton("500ms")
+        self.play2.toggled.connect(self.changePlaybackSpeed)
+        self.play3 = QRadioButton("250ms")
+        self.play3.toggled.connect(self.changePlaybackSpeed)
         self.progress = ProgressBar(self)
         self.progress.set_progress(4, 4)
         self.submit_button = QPushButton('Query', self)
@@ -93,7 +101,8 @@ class MainWindow(QWidget):
         content = [ScrollableContent([QLabel("Date Range"), self.date_selector,
                    Panel("Timeline Interval", "Tooltip", [self.hourly, self.daily]),
                    Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen]),
-                   Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind])], self),
+                   Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind]),
+                   Panel("Playback Speed", "Tooltip", [self.play1, self.play2, self.play3])], self),
                    self.submit_button, self.progress]
         # content = [ScrollableContent([QLabel("Date Range")])]
         self.queryPane = QueryPane(content, self)
@@ -101,7 +110,7 @@ class MainWindow(QWidget):
         self.layout.addWidget(self.map_widget)
 
         # Instruction pop-up goes here - for Aidan
-        self.trigger_instruction_panel()
+        # self.trigger_instruction_panel()
 
         self.setLayout(self.layout)
 
@@ -118,6 +127,17 @@ class MainWindow(QWidget):
         self.arrow_pad.zoom_in.clicked.connect(self.zoom_in)
         self.arrow_pad.zoom_out.clicked.connect(self.zoom_out)
         self.arrow_pad.show()
+
+        self.help = Help(self)
+        self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, self.rect().height() - 850 * UIRescale.Scale, 600 * UIRescale.Scale, 800 * UIRescale.Scale)
+
+    def changePlaybackSpeed(self):
+        if self.play1.isChecked():
+            self.play_button.speed = 1000
+        elif self.play2.isChecked():
+            self.play_button.speed = 500
+        else:
+            self.play_button.speed = 250
 
     def trigger_instruction_panel(self):
         # self.instructionPopUp = QGroupBox()
@@ -178,6 +198,9 @@ class MainWindow(QWidget):
     def resizeEvent(self, event):
         self.toolbar.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
+        self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
+                              self.rect().height() - 650 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
+                              600 * UIRescale.Scale)
         super().resizeEvent(event)
 
     def move_up(self):

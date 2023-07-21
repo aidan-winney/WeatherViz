@@ -7,8 +7,9 @@ from WeatherViz.UIRescale import UIRescale
 class PlayButton(QWidget):
     def __init__(self, slider, parent=None):
         super(PlayButton, self).__init__(parent)
+        self.speed = 1000
 
-        self.freezeMap = True
+        self.freezeMap = False
 
         self.slider = slider
 
@@ -30,7 +31,7 @@ class PlayButton(QWidget):
         if self.freezeMap is False:
             if checked:
                 self.playButton.setText("▢")
-                self.timer.start(1000)
+                self.timer.start(self.speed)
             else:
                 self.playButton.setText("▶")
                 self.timer.stop()

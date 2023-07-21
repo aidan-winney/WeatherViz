@@ -28,10 +28,39 @@ class DateRangeChooser(QWidget):
         start_date_layout.addStretch(1)
 
         calendar_start = QCalendarWidget(self)
+        calendar_start.setStyleSheet("""
+            QCalendarWidget QAbstractItemView {
+                border-radius: 10px;
+                background-color: rgba(70, 70, 70, 100);
+                color: rgba(200, 200, 200, 255);
+                alternate-background-color: rgba(120, 120, 120, 255);
+                selection-background-color: rgba(55, 159, 225, 255);
+                selection-color: white;
+                font-size: 14px;
+            }
+
+            QCalendarWidget QAbstractItemView:enabled:hover {
+                background-color: rgba(60, 60, 60, 255);
+            }
+            """)
         calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-8))
-        # calendar_start.setGeometry(60, 42, 190, 35)
-        # self.start_date = QDateEdit(self, calendarPopup=True)
-        self.start_date.setStyleSheet("background-color: rgba(55, 55, 55, 255);  border-radius: 3px;")
+        self.start_date.setStyleSheet("""
+                    QDateEdit::down-arrow {
+                        image: url(WeatherViz/python/WeatherViz/assets/down_arrow.png);
+                    }
+                    
+                    QDateEdit::drop-down {
+                        background-color: rgba(70, 70, 70, 255);
+                        subcontrol-origin: padding;
+                        subcontrol-position: top right;
+                        width: 20px;
+                        border-left-width: 1px;
+                        border-left-color: darkgray;
+                        border-left-style: solid;
+                        border-top-right-radius: 3px;
+                        border-bottom-right-radius: 3px;
+                    }
+                    QDateEdit { background-color: rgba(55, 55, 55, 255);  border-radius: 3px; }""")
         self.start_date.setFixedSize(150 * UIRescale.Scale, 30 * UIRescale.Scale)
         self.start_date.setDate(QDate.currentDate())
         self.start_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
@@ -51,10 +80,41 @@ class DateRangeChooser(QWidget):
         end_date_layout.addStretch(1)
 
         calendar_end = QCalendarWidget(self)
+        calendar_end.setStyleSheet("""
+            QCalendarWidget QAbstractItemView {
+                border-radius: 10px;
+                background-color: rgba(70, 70, 70, 100);
+                color: rgba(200, 200, 200, 255);
+                alternate-background-color: rgba(120, 120, 120, 255);
+                selection-background-color: rgba(55, 159, 225, 255);
+                selection-color: white;
+                font-size: 14px;
+            }
+
+            QCalendarWidget QAbstractItemView:enabled:hover {
+                background-color: rgba(60, 60, 60, 255);
+            }
+            """)
         calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-8))
         # calendar_end.setGeometry(270, 42, 190, 35)
         # self.end_date = QDateEdit(self, calendarPopup=True)
-        self.end_date.setStyleSheet("background-color: rgba(55, 55, 55, 255);  border-radius: 3px;")
+        self.end_date.setStyleSheet("""
+                    QDateEdit::down-arrow {
+                        image: url(WeatherViz/python/WeatherViz/assets/down_arrow.png);
+                    }
+                    
+                    QDateEdit::drop-down {
+                        background-color: rgba(70, 70, 70, 255);
+                        subcontrol-origin: padding;
+                        subcontrol-position: top right;
+                        width: 20px;
+                        border-left-width: 1px;
+                        border-left-color: darkgray;
+                        border-left-style: solid;
+                        border-top-right-radius: 3px;
+                        border-bottom-right-radius: 3px;
+                    }
+                    QDateEdit { background-color: rgba(55, 55, 55, 255);  border-radius: 3px; }""")
         self.end_date.setFixedSize(150 * UIRescale.Scale, 30 * UIRescale.Scale)
         self.end_date.setContentsMargins(0, 0, 20, 0)
         self.end_date.setDate(QDate.currentDate())

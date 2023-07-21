@@ -19,7 +19,7 @@ class MapWidget(QGraphicsView):
     def __init__(self, initial_location, initial_zoom):
         super().__init__()
 
-        self.freezeMap = True
+        self.freezeMap = False
 
         self.map = None
         self.web_map = None
