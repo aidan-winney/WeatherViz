@@ -16,7 +16,7 @@ class ScrollableContent(QScrollArea):
         self.adjustSize()
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        # self.setMinimumHeight(550 * UIRescale.Scale)
+        # self.setMinimumHeight(600 * UIRescale.Scale)
         # self.setMaximumHeight(1000 * UIRescale.Scale)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
         self.setStyleSheet(
