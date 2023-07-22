@@ -49,6 +49,7 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.freezeMap = False
+        self.is_querying = False
 
         self.setWindowTitle("WeatherViz")
         self.setStyleSheet("background-color: rgba(32, 32, 32, 255); border-radius: 5px;")  # Change as needed
@@ -68,13 +69,13 @@ class MainWindow(QWidget):
         self.end_date = QDateEdit(calendarPopup=True)
         self.slider = DateRangeSlider(self.start_date, self.end_date, self)
         self.slider.get_slider().valueChanged.connect(self.update_overlay)
-        self.slider.playback_speed.get_button(0).clicked.connect(lambda: self.changePlaybackSpeed("1x"))
-        self.slider.playback_speed.get_button(1).clicked.connect(lambda: self.changePlaybackSpeed("2x"))
-        self.slider.playback_speed.get_button(2).clicked.connect(lambda: self.changePlaybackSpeed("3x"))
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
         self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
+        # self.date_selector.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.hourly = QRadioButton("Hourly")
+        # self.hourly.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.daily = QRadioButton("Daily")
+        # self.daily.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.daily.setChecked(True)
         self.twobytwo = QRadioButton("2x2")
         self.fourbyfour = QRadioButton("4x4")
@@ -278,9 +279,11 @@ class MainWindow(QWidget):
         return self.daily.isChecked()
 
     def query(self):
-        if self.freezeMap is False:
+        if self.freezeMap is False and not self.is_querying:
+            self.is_querying = True
             self.submit_button.setChecked(True)
             self.submit_button.setText("Querying...")
+            self.submit_button.setEnabled(False)
             threading.Thread(target=self.get_data).start()
 
     def update_progress(self):
@@ -373,5 +376,7 @@ class MainWindow(QWidget):
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
         QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
         self.submit_button.setText("Query")
+        self.submit_button.setEnabled(True)
+        self.is_querying = False
 
 
