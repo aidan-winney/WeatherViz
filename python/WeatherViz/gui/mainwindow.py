@@ -49,6 +49,7 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.freezeMap = False
+        self.is_querying = False
 
         self.setWindowTitle("WeatherViz")
         self.setStyleSheet("background-color: rgba(32, 32, 32, 255); border-radius: 5px;")  # Change as needed
@@ -84,6 +85,7 @@ class MainWindow(QWidget):
         self.temperature = QRadioButton("Temperature")
         self.temperature.setChecked(True)
         self.wind = QRadioButton("Wind")
+        self.play_button = PlayButton(self.slider.get_slider(), self)
         self.play1 = QRadioButton("1000ms")
         self.play1.toggled.connect(self.changePlaybackSpeed)
         self.play1.setChecked(True)
@@ -114,7 +116,6 @@ class MainWindow(QWidget):
 
         self.setLayout(self.layout)
 
-        self.play_button = PlayButton(self.slider.get_slider(), self)
         self.toolbar = Toolbar([self.slider, self.play_button], self)
         self.toolbar.setGeometry(450 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
 
@@ -280,9 +281,11 @@ class MainWindow(QWidget):
         return self.daily.isChecked()
 
     def query(self):
-        if self.freezeMap is False:
+        if self.freezeMap is False and not self.is_querying:
+            self.is_querying = True
             self.submit_button.setChecked(True)
             self.submit_button.setText("Querying...")
+            self.submit_button.setEnabled(False)
             threading.Thread(target=self.get_data).start()
 
     def update_progress(self):
@@ -375,5 +378,7 @@ class MainWindow(QWidget):
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
         QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
         self.submit_button.setText("Query")
+        self.submit_button.setEnabled(True)
+        self.is_querying = False  
 
 
