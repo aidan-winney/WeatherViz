@@ -11,7 +11,7 @@ class Toolbar(QWidget):
         self.initUI(content)
 
     def initUI(self, content):
-        self.setMaximumHeight(80 * UIRescale.Scale)
+        self.setMaximumHeight(90 * UIRescale.Scale)
         content_layout = QHBoxLayout()
         content_layout.setContentsMargins(20 * UIRescale.Scale, 10 * UIRescale.Scale, 20 * UIRescale.Scale, 10 * UIRescale.Scale)
         content_layout.setSpacing(20 * UIRescale.Scale)

@@ -23,6 +23,7 @@ class ScrollableContent(QScrollArea):
             """
             QScrollArea {
                 height: 1000px;
+                background-color: transparent;
             }
             
             QScrollBar:vertical {

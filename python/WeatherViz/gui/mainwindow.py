@@ -68,13 +68,13 @@ class MainWindow(QWidget):
         self.end_date = QDateEdit(calendarPopup=True)
         self.slider = DateRangeSlider(self.start_date, self.end_date, self)
         self.slider.get_slider().valueChanged.connect(self.update_overlay)
+        self.slider.playback_speed.get_button(0).clicked.connect(lambda: self.changePlaybackSpeed("1x"))
+        self.slider.playback_speed.get_button(1).clicked.connect(lambda: self.changePlaybackSpeed("2x"))
+        self.slider.playback_speed.get_button(2).clicked.connect(lambda: self.changePlaybackSpeed("3x"))
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
         self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
-        # self.date_selector.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.hourly = QRadioButton("Hourly")
-        # self.hourly.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.daily = QRadioButton("Daily")
-        # self.daily.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.daily.setChecked(True)
         self.twobytwo = QRadioButton("2x2")
         self.fourbyfour = QRadioButton("4x4")
@@ -84,13 +84,6 @@ class MainWindow(QWidget):
         self.temperature = QRadioButton("Temperature")
         self.temperature.setChecked(True)
         self.wind = QRadioButton("Wind")
-        self.play1 = QRadioButton("1000ms")
-        self.play1.toggled.connect(self.changePlaybackSpeed)
-        self.play1.setChecked(True)
-        self.play2 = QRadioButton("500ms")
-        self.play2.toggled.connect(self.changePlaybackSpeed)
-        self.play3 = QRadioButton("250ms")
-        self.play3.toggled.connect(self.changePlaybackSpeed)
         self.progress = ProgressBar(self)
         self.progress.set_progress(4, 4)
         self.submit_button = QPushButton('Query', self)
@@ -101,8 +94,7 @@ class MainWindow(QWidget):
         content = [ScrollableContent([QLabel("Date Range"), self.date_selector,
                    Panel("Timeline Interval", "Tooltip", [self.hourly, self.daily]),
                    Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen]),
-                   Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind]),
-                   Panel("Playback Speed", "Tooltip", [self.play1, self.play2, self.play3])], self),
+                   Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind])], self),
                    self.submit_button, self.progress]
         # content = [ScrollableContent([QLabel("Date Range")])]
         self.queryPane = QueryPane(content, self)
@@ -129,15 +121,21 @@ class MainWindow(QWidget):
         self.arrow_pad.show()
 
         self.help = Help(self)
-        self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, self.rect().height() - 850 * UIRescale.Scale, 600 * UIRescale.Scale, 800 * UIRescale.Scale)
+        self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
+                              self.map_widget.rect().height() - self.help.height() - 50 * UIRescale.Scale,
+                              self.map_widget.rect().width() - 70 * UIRescale.Scale, 400 * UIRescale.Scale)
 
-    def changePlaybackSpeed(self):
-        if self.play1.isChecked():
+    def changePlaybackSpeed(self, state):
+        if state == "1x":
             self.play_button.speed = 1000
-        elif self.play2.isChecked():
+        elif state == "2x":
             self.play_button.speed = 500
         else:
             self.play_button.speed = 250
+
+        if self.play_button.playButton.isChecked():
+            self.play_button.timer.stop()
+            self.play_button.timer.start(self.play_button.speed)
 
     def trigger_instruction_panel(self):
         # self.instructionPopUp = QGroupBox()
@@ -198,9 +196,9 @@ class MainWindow(QWidget):
     def resizeEvent(self, event):
         self.toolbar.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
+        screen_geometry = QApplication.desktop().availableGeometry(self)
         self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
-                              self.rect().height() - 650 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
-                              600 * UIRescale.Scale)
+                              self.map_widget.rect().height() - self.help.height() - 50 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 400 * UIRescale.Scale)
         super().resizeEvent(event)
 
     def move_up(self):

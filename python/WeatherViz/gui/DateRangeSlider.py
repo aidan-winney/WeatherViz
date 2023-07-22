@@ -1,6 +1,10 @@
 from PySide2.QtCore import QRect
 from PySide2.QtGui import Qt, QPainter, QColor
-from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider
+from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout
+from WeatherViz.UIRescale import UIRescale
+
+from WeatherViz.gui.TriButton import TriButton
+
 
 class DateRangeSlider(QWidget):
     def __init__(self, start_date, end_date, parent=None):
@@ -47,12 +51,27 @@ class DateRangeSlider(QWidget):
                 """)
         self.slider.valueChanged.connect(self.update_date_label)
 
+        controls = QWidget()
+        controls.setContentsMargins(0, 0, 0, 0)
+        controls.setStyleSheet("background-color: transparent; font-weight: bold; color: white")
+
+        control_layout = QHBoxLayout()
+        control_layout.setContentsMargins(0, 0, 0, 0)
+        control_layout.setSpacing(0)
         self.date_label = QLabel()
         # self.date_label.setMargin(0)
         self.date_label.setContentsMargins(0, 0, 0, 0)
-        self.date_label.setStyleSheet("background-color: rgba(90, 90, 90, 0); font-weight: bold; color: white")
+        self.date_label.setStyleSheet("background-color: transparent; font-weight: bold; color: white")
         self.update_date_label()
-        layout.addWidget(self.date_label)
+
+        self.playback_speed = TriButton(["1x", "2x", "3x"], 20 * UIRescale.Scale)
+
+        control_layout.addWidget(self.date_label)
+        control_layout.addStretch(1)
+        control_layout.addWidget(self.playback_speed)
+        controls.setLayout(control_layout)
+
+        layout.addWidget(controls)
         layout.addWidget(self.slider)
 
         self.setLayout(layout)

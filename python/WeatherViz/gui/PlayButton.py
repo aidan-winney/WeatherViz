@@ -17,7 +17,15 @@ class PlayButton(QWidget):
         layout.setContentsMargins(0,0,0,0)
         layout.setMargin(0)
         self.playButton = QPushButton("▶")
-        self.playButton.setStyleSheet("background-color: rgba(90, 90, 90, 255); font-weight: bold; color: white; border-radius: 3px;")
+        self.playButton.setStyleSheet("""
+                QPushButton:pressed {
+                    background-color: rgba(70, 70, 70, 255); 
+                }
+                QPushButton:checked {
+                    background-color: rgba(80, 80, 80, 255); 
+                }
+                QPushButton {
+                    background-color: rgba(90, 90, 90, 255); font-weight: bold; color: white; border-radius: 3px }""")
         self.playButton.setCheckable(True)
         self.playButton.setFixedSize(35 * UIRescale.Scale, 35 * UIRescale.Scale)
         self.playButton.toggled.connect(self.togglePlay)

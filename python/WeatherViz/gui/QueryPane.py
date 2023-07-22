@@ -95,7 +95,12 @@ class QueryPane(QWidget):
         add_tab_button.setText("+")
         add_tab_button.setFixedSize(60 * UIRescale.Scale, 60 * UIRescale.Scale)
         border_radius = UIRescale.Scale * 30
-        add_tab_button.setStyleSheet(f"background-color: rgba(60, 60, 60, 255); border-radius: {border_radius}px; font-weight: bold; color: white")
+        add_tab_button.setStyleSheet(f"""
+                QToolButton:pressed {{ 
+                    background-color: rgba(50, 50, 50, 255); 
+                }} 
+                QToolButton {{ 
+                    background-color: rgba(60, 60, 60, 255); border-radius: {border_radius}px; font-weight: bold; color: white }}""")
         add_tab_button.clicked.connect(self.addTab)
         add_tab_button.setToolTip("Save query and begin a new one")
 
@@ -104,6 +109,9 @@ class QueryPane(QWidget):
         self.delete_tab_button.setFixedSize(60 * UIRescale.Scale, 60 * UIRescale.Scale)
         border_radius = UIRescale.Scale * 30
         self.delete_tab_button.setStyleSheet(f"""
+                QToolButton:pressed {{ 
+                    background-color: rgba(58, 20, 20, 255); 
+                }} 
                 QToolButton:disabled {{
                     background-color: rgba(40, 40, 40, 255); 
                 }} 
