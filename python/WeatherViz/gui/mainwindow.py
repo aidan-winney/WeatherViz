@@ -1,4 +1,5 @@
 import threading
+import time
 from PIL.ImageQt import ImageQt
 from WeatherViz import renderer
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
@@ -42,7 +43,29 @@ from WeatherViz.gui.ScrollableContent import ScrollableContent
 
 from WeatherViz.gui.Help import Help
 
+class TimerThread(threading.Thread):
+    def __init__(self, interval, function, *args, **kwargs):
+        super().__init__()
+        self.interval = interval
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+        self.end_time = time.time() + self.interval
+        self.stop_signal = threading.Event()
 
+    def run(self):
+        while not self.stop_signal.is_set() and time.time() < self.end_time:
+            time.sleep(0.1)  # Adjust this sleep duration to control the timer accuracy
+
+        if not self.stop_signal.is_set():
+            self.function(*self.args, **self.kwargs)
+
+    def cancel(self):
+        self.stop_signal.set()
+
+    def time_remaining(self):
+        return max(0, self.end_time - time.time())
+    
 class MainWindow(QWidget):
     progress_updated = QtCore.Signal()
     def __init__(self):
@@ -50,6 +73,10 @@ class MainWindow(QWidget):
 
         self.freezeMap = False
         self.is_querying = False
+        self.last_query_time = time.time()
+        self.query_times = []
+        self.query_count = 0
+        self.timers = []
 
         self.setWindowTitle("WeatherViz")
         self.setStyleSheet("background-color: rgba(32, 32, 32, 255); border-radius: 5px;")  # Change as needed
@@ -283,11 +310,25 @@ class MainWindow(QWidget):
         return self.daily.isChecked()
 
     def query(self):
-        if self.freezeMap is False:
+        if self.freezeMap is False and not self.is_querying and (self.sixteenbysixteen.isChecked() == False or len(self.query_times) < 2 or time.time() - self.last_query_time >= 60):
+            self.is_querying = True
             self.submit_button.setChecked(True)
             self.submit_button.setText("Querying...")
+            if self.sixteenbysixteen.isChecked():
+                self.query_times.append(time.time())
+                self.last_query_time = time.time()
+            self.submit_button.setEnabled(False)
+            self.timers.append(TimerThread(60, self.reset_query_count))
+            self.timers[len(self.timers)-1].start()
             threading.Thread(target=self.get_data).start()
+        elif len(self.query_times) == 2 and len(self.timers) is not 0:
+            self.submit_button.setText(f"Try again in {round(self.timers[0].time_remaining())} seconds")
 
+    def reset_query_count(self):
+        self.query_times.pop(0)
+        self.timers.pop(0)
+        self.submit_button.setText("Query")
+    
     def update_progress(self):
         self.progress.increment_progress()
 
@@ -378,5 +419,7 @@ class MainWindow(QWidget):
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
         QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
         self.submit_button.setText("Query")
+        self.submit_button.setEnabled(True)
+        self.is_querying = False 
 
 
