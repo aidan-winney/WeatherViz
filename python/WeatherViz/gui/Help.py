@@ -32,7 +32,6 @@ class Help(QWidget):
         self.close_button.setContentsMargins(0, 0, 0, 0)
         self.close_button.setStyleSheet("background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px;")
         self.close_button.clicked.connect(self.close_help_box)
-        self.close_button.setHidden(True)
         control_layout.addWidget(self.close_button, alignment=Qt.AlignLeft)
         control_layout.addStretch(1)
 
@@ -75,7 +74,6 @@ class Help(QWidget):
         help_layout.addWidget(instructionText3, alignment=Qt.AlignCenter)
 
         self.help_box.setLayout(help_layout)
-        self.help_box.setHidden(True)
 
         layout.addWidget(self.help_box)
         layout.addWidget(controls, alignment=Qt.AlignBottom)
