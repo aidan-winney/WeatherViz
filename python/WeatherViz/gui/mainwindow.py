@@ -68,6 +68,9 @@ class MainWindow(QWidget):
         self.start_date.setDate(QDate.currentDate())
         self.end_date = QDateEdit(calendarPopup=True)
         self.slider = DateRangeSlider(self.start_date, self.end_date, self)
+        self.slider.playback_speed.get_button(0).clicked.connect(lambda: self.changePlaybackSpeed("1x"))
+        self.slider.playback_speed.get_button(1).clicked.connect(lambda: self.changePlaybackSpeed("2x"))
+        self.slider.playback_speed.get_button(2).clicked.connect(lambda: self.changePlaybackSpeed("3x"))
         self.slider.get_slider().valueChanged.connect(self.update_overlay)
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
         self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
@@ -123,8 +126,9 @@ class MainWindow(QWidget):
 
         self.help = Help(self)
         self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
-                              self.map_widget.rect().height() - self.help.height() - 50 * UIRescale.Scale,
-                              self.map_widget.rect().width() - 70 * UIRescale.Scale, 400 * UIRescale.Scale)
+                              self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale,
+                              self.map_widget.rect().width() - 70 * UIRescale.Scale,
+                              600 * UIRescale.Scale)
 
     def changePlaybackSpeed(self, state):
         if state == "1x":
@@ -197,9 +201,9 @@ class MainWindow(QWidget):
     def resizeEvent(self, event):
         self.toolbar.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
-        screen_geometry = QApplication.desktop().availableGeometry(self)
         self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
-                              self.map_widget.rect().height() - self.help.height() - 50 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 400 * UIRescale.Scale)
+                              self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
+                              600 * UIRescale.Scale)
         super().resizeEvent(event)
 
     def move_up(self):
@@ -279,11 +283,9 @@ class MainWindow(QWidget):
         return self.daily.isChecked()
 
     def query(self):
-        if self.freezeMap is False and not self.is_querying:
-            self.is_querying = True
+        if self.freezeMap is False:
             self.submit_button.setChecked(True)
             self.submit_button.setText("Querying...")
-            self.submit_button.setEnabled(False)
             threading.Thread(target=self.get_data).start()
 
     def update_progress(self):
@@ -376,7 +378,5 @@ class MainWindow(QWidget):
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
         QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
         self.submit_button.setText("Query")
-        self.submit_button.setEnabled(True)
-        self.is_querying = False
 
 
