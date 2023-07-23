@@ -1,4 +1,5 @@
 import threading
+import time
 from PIL.ImageQt import ImageQt
 from WeatherViz import renderer
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
@@ -43,11 +44,40 @@ from WeatherViz.gui.ScrollableContent import ScrollableContent
 
 from WeatherViz.gui.Help import Help
 
+class TimerThread(threading.Thread):
+    def __init__(self, interval, function, *args, **kwargs):
+        super().__init__()
+        self.interval = interval
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+        self.end_time = time.time() + self.interval
+        self.stop_signal = threading.Event()
 
+    def run(self):
+        while not self.stop_signal.is_set() and time.time() < self.end_time:
+            time.sleep(0.1)  # Adjust this sleep duration to control the timer accuracy
+
+        if not self.stop_signal.is_set():
+            self.function(*self.args, **self.kwargs)
+
+    def cancel(self):
+        self.stop_signal.set()
+
+    def time_remaining(self):
+        return max(0, self.end_time - time.time())
+    
 class MainWindow(QWidget):
     progress_updated = QtCore.Signal()
     def __init__(self):
         super().__init__()
+
+        self.freezeMap = False
+        self.is_querying = False
+        self.last_query_time = time.time()
+        self.query_times = []
+        self.query_count = 0
+        self.timers = []
 
         self.setWindowTitle("WeatherViz")
         self.setStyleSheet("background-color: rgba(32, 32, 32, 255); border-radius: 5px;")  # Change as needed
@@ -66,6 +96,9 @@ class MainWindow(QWidget):
         self.start_date.setDate(QDate.currentDate())
         self.end_date = QDateEdit(calendarPopup=True)
         self.slider = DateRangeSlider(self.start_date, self.end_date, self)
+        self.slider.playback_speed.get_button(0).clicked.connect(lambda: self.changePlaybackSpeed("1x"))
+        self.slider.playback_speed.get_button(1).clicked.connect(lambda: self.changePlaybackSpeed("2x"))
+        self.slider.playback_speed.get_button(2).clicked.connect(lambda: self.changePlaybackSpeed("3x"))
         self.slider.get_slider().valueChanged.connect(self.update_overlay)
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
         self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
@@ -83,13 +116,6 @@ class MainWindow(QWidget):
         self.temperature = QRadioButton("Temperature")
         self.temperature.setChecked(True)
         self.wind = QRadioButton("Wind")
-        self.play1 = QRadioButton("1000ms")
-        self.play1.toggled.connect(self.changePlaybackSpeed)
-        self.play1.setChecked(True)
-        self.play2 = QRadioButton("500ms")
-        self.play2.toggled.connect(self.changePlaybackSpeed)
-        self.play3 = QRadioButton("250ms")
-        self.play3.toggled.connect(self.changePlaybackSpeed)
         self.progress = ProgressBar(self)
         self.progress.set_progress(4, 4)
         self.submit_button = QPushButton('Query', self)
@@ -100,8 +126,7 @@ class MainWindow(QWidget):
         content = [ScrollableContent([QLabel("Date Range"), self.date_selector,
                    Panel("Timeline Interval", "Tooltip", [self.hourly, self.daily]),
                    Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen]),
-                   Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind]),
-                   Panel("Playback Speed", "Tooltip", [self.play1, self.play2, self.play3])], self),
+                   Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind])], self),
                    self.submit_button, self.progress]
         # content = [ScrollableContent([QLabel("Date Range")])]
         self.queryPane = QueryPane(content, self)
@@ -128,15 +153,22 @@ class MainWindow(QWidget):
         self.arrow_pad.show()
 
         self.help = Help(self)
-        self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, self.rect().height() - 850 * UIRescale.Scale, 600 * UIRescale.Scale, 800 * UIRescale.Scale)
+        self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
+                              self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale,
+                              self.map_widget.rect().width() - 70 * UIRescale.Scale,
+                              600 * UIRescale.Scale)
 
-    def changePlaybackSpeed(self):
-        if self.play1.isChecked():
+    def changePlaybackSpeed(self, state):
+        if state == "1x":
             self.play_button.speed = 1000
-        elif self.play2.isChecked():
+        elif state == "2x":
             self.play_button.speed = 500
         else:
             self.play_button.speed = 250
+
+        if self.play_button.playButton.isChecked():
+            self.play_button.timer.stop()
+            self.play_button.timer.start(self.play_button.speed)
 
     def trigger_instruction_panel(self):
         # self.instructionPopUp = QGroupBox()
@@ -192,7 +224,7 @@ class MainWindow(QWidget):
         self.toolbar.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
         self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
-                              self.rect().height() - 650 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
+                              self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
                               600 * UIRescale.Scale)
         super().resizeEvent(event)
 
@@ -267,10 +299,25 @@ class MainWindow(QWidget):
         return self.daily.isChecked()
 
     def query(self):
-        self.submit_button.setChecked(True)
-        self.submit_button.setText("Querying...")
-        threading.Thread(target=self.get_data).start()
+        if self.freezeMap is False and not self.is_querying and (self.sixteenbysixteen.isChecked() == False or len(self.query_times) < 2 or time.time() - self.last_query_time >= 60):
+            self.is_querying = True
+            self.submit_button.setChecked(True)
+            self.submit_button.setText("Querying...")
+            if self.sixteenbysixteen.isChecked():
+                self.query_times.append(time.time())
+                self.last_query_time = time.time()
+            self.submit_button.setEnabled(False)
+            self.timers.append(TimerThread(60, self.reset_query_count))
+            self.timers[len(self.timers)-1].start()
+            threading.Thread(target=self.get_data).start()
+        elif len(self.query_times) == 2 and len(self.timers) is not 0:
+            self.submit_button.setText(f"Try again in {round(self.timers[0].time_remaining())} seconds")
 
+    def reset_query_count(self):
+        self.query_times.pop(0)
+        self.timers.pop(0)
+        self.submit_button.setText("Query")
+    
     def update_progress(self):
         self.progress.increment_progress()
 
@@ -383,5 +430,7 @@ class MainWindow(QWidget):
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
         QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
         self.submit_button.setText("Query")
+        self.submit_button.setEnabled(True)
+        self.is_querying = False 
 
 

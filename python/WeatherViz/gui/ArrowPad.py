@@ -9,17 +9,17 @@ class ArrowPad(QWidget):
         super(ArrowPad, self).__init__(parent)
         # Create arrow buttons
         self.up_button = QPushButton("↑")
-        self.up_button.setStyleSheet("background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px;")
+        self.up_button.setStyleSheet("QPushButton:pressed { background-color: rgba(70, 70, 70, 200); } QPushButton { background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px }")
         self.down_button = QPushButton("↓")
-        self.down_button.setStyleSheet("background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px;")
+        self.down_button.setStyleSheet("QPushButton:pressed { background-color: rgba(70, 70, 70, 200); } QPushButton { background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px }")
         self.left_button = QPushButton("←")
-        self.left_button.setStyleSheet("background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px;")
+        self.left_button.setStyleSheet("QPushButton:pressed { background-color: rgba(70, 70, 70, 200); } QPushButton { background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px }")
         self.right_button = QPushButton("→")
-        self.right_button.setStyleSheet("background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px;")
+        self.right_button.setStyleSheet("QPushButton:pressed { background-color: rgba(70, 70, 70, 200); } QPushButton { background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px }")
         self.zoom_in = QPushButton("+")
-        self.zoom_in.setStyleSheet("background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px;")
+        self.zoom_in.setStyleSheet("QPushButton:pressed { background-color: rgba(70, 70, 70, 200); } QPushButton { background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px }")
         self.zoom_out = QPushButton("-")
-        self.zoom_out.setStyleSheet("background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px;")
+        self.zoom_out.setStyleSheet("QPushButton:pressed { background-color: rgba(70, 70, 70, 200); } QPushButton { background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px }")
 
         button_size = 40 * UIRescale.Scale
         self.up_button.setFixedSize(button_size, button_size)

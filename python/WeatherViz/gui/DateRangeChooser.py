@@ -43,7 +43,7 @@ class DateRangeChooser(QWidget):
                 background-color: rgba(60, 60, 60, 255);
             }
             """)
-        calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-8))
+        calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-9))
         self.start_date.setStyleSheet("""
                     QDateEdit::down-arrow {
                         image: url(WeatherViz/python/WeatherViz/assets/down_arrow.png);
@@ -64,7 +64,7 @@ class DateRangeChooser(QWidget):
         self.start_date.setFixedSize(150 * UIRescale.Scale, 30 * UIRescale.Scale)
         self.start_date.setDate(QDate.currentDate())
         self.start_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
-        self.start_date.setMaximumDate(QDate.currentDate().addDays(-8))
+        self.start_date.setMaximumDate(QDate.currentDate().addDays(-9))
         self.start_date.setCalendarWidget(calendar_start)
         start_date_layout.addWidget(self.start_date)
         start_date_selector.setLayout(start_date_layout)
@@ -95,7 +95,7 @@ class DateRangeChooser(QWidget):
                 background-color: rgba(60, 60, 60, 255);
             }
             """)
-        calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-8))
+        calendar_end.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-9))
         # calendar_end.setGeometry(270, 42, 190, 35)
         # self.end_date = QDateEdit(self, calendarPopup=True)
         self.end_date.setStyleSheet("""
@@ -119,7 +119,7 @@ class DateRangeChooser(QWidget):
         self.end_date.setContentsMargins(0, 0, 20, 0)
         self.end_date.setDate(QDate.currentDate())
         self.end_date.setMinimumDate(QDate.currentDate())  # Change to correct minimum date
-        self.end_date.setMaximumDate(QDate.currentDate().addDays(-8))
+        self.end_date.setMaximumDate(QDate.currentDate().addDays(-9))
         self.end_date.setCalendarWidget(calendar_end)
         end_date_layout.addWidget(self.end_date)
         end_date_selector.setLayout(end_date_layout)
