@@ -4,8 +4,10 @@ from PySide2.QtCore import QPropertyAnimation, QEasingCurve, QRect, QDate
 from PySide2.QtGui import QPalette, QColor, Qt, QIcon
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTabWidget, QToolButton, \
     QSizePolicy, QDateEdit, QRadioButton
+from PySide2 import QtCore
 
 from WeatherViz.UIRescale import UIRescale
+import sqlite3
 from WeatherViz.gui.DateRangeChooser import DateRangeChooser
 from WeatherViz.gui.DateRangeSlider import DateRangeSlider
 from WeatherViz.gui.Panel import Panel
@@ -16,6 +18,7 @@ from WeatherViz.gui.ScrollableContent import ScrollableContent
 
 
 class QueryPane(QWidget):
+    switch_tab = QtCore.Signal()
     def __init__(self, content, parent=None):
         super(QueryPane, self).__init__(parent)
         self.tab_widget = None
@@ -140,3 +143,4 @@ class QueryPane(QWidget):
 
     def tabChanged(self, index):
         self.delete_tab_button.setEnabled(index >= 1)
+        self.switch_tab.emit()

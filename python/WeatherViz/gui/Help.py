@@ -52,6 +52,7 @@ class Help(QWidget):
                 QPushButton { 
                     background-color: rgba(90, 90, 90, 200); font-weight: bold; color: white; border-radius: 3px }""")
         self.close_button.clicked.connect(self.close_help_box)
+        self.close_button.setHidden(True)
         control_layout.addWidget(self.close_button, alignment=Qt.AlignLeft)
         control_layout.addStretch(1)
 

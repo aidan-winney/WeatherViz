@@ -72,7 +72,6 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.freezeMap = False
         self.is_querying = False
         self.last_query_time = time.time()
         self.query_times = []
@@ -130,11 +129,12 @@ class MainWindow(QWidget):
                    self.submit_button, self.progress]
         # content = [ScrollableContent([QLabel("Date Range")])]
         self.queryPane = QueryPane(content, self)
+        self.queryPane.switch_tab.connect(self.load_data)
         self.layout.addWidget(self.queryPane, alignment=Qt.AlignTop)
         self.layout.addWidget(self.map_widget)
 
         # Instruction pop-up goes here - for Aidan
-        # self.trigger_instruction_panel()
+        #self.trigger_instruction_panel()
 
         self.setLayout(self.layout)
 
@@ -299,7 +299,7 @@ class MainWindow(QWidget):
         return self.daily.isChecked()
 
     def query(self):
-        if self.freezeMap is False and not self.is_querying and (self.sixteenbysixteen.isChecked() == False or len(self.query_times) < 2 or time.time() - self.last_query_time >= 60):
+        if not self.is_querying and (self.sixteenbysixteen.isChecked() == False or len(self.query_times) < 2 or time.time() - self.last_query_time >= 60):
             self.is_querying = True
             self.submit_button.setChecked(True)
             self.submit_button.setText("Querying...")
@@ -415,22 +415,63 @@ class MainWindow(QWidget):
         res = cur.execute("SELECT name FROM sqlite_master")
         if len(res.fetchall()) == 0:
             cur.execute(
-                "CREATE TABLE saved(id INTEGER, name TEXT, start_date TEXT, end_date TEXT, interval TEXT, resolution INTEGER, weather_variable TEXT, data TEXT, center_lat REAL, center_lon REAL, zoom INTEGER)")
-        #Interval saves as text '0' or '1'
-        query_id = len(cur.execute("SELECT id FROM saved").fetchall())
-        data = [(query_id, "name here", start_date, end_date, DAILY, RESOLUTION, VARIABLE, str(responses), center_lat, center_lon, zoom),]
-        cur.executemany("INSERT INTO saved VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
-        database_connection.commit()
+                "CREATE TABLE saved(id INTEGER, start_date TEXT, end_date TEXT, interval TEXT, resolution INTEGER, weather_variable TEXT, data TEXT, center_lat REAL, center_lon REAL, zoom INTEGER, PRIMARY KEY (id))")
+                #Interval saves as text '0' or '1'
 
-        #load the data back
-        res = cur.execute("SELECT data FROM saved WHERE id= (?)", (query_id, ))
-        load_data = res.fetchone()
-        print(literal_eval(load_data[0]))
+        data = [(self.queryPane.tab_widget.currentIndex(), start_date, end_date, DAILY, RESOLUTION, VARIABLE, str(responses), center_lat, center_lon, zoom),]
+        if len(cur.execute("SELECT * FROM saved WHERE id = (?)", (self.queryPane.tab_widget.currentIndex(),)).fetchall()) != 0:
+            cur.execute("DELETE FROM saved WHERE id = (?)", (self.queryPane.tab_widget.currentIndex(),))
+        cur.executemany("INSERT INTO saved VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
+        database_connection.commit()
 
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
         QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
         self.submit_button.setText("Query")
         self.submit_button.setEnabled(True)
         self.is_querying = False 
+
+    def load_data(self):
+        database_connection = sqlite3.connect("queries.db")
+        cur = database_connection.cursor()
+        res = cur.execute("SELECT * FROM saved WHERE id= (?)", (self.queryPane.tab_widget.currentIndex(),))
+        query_info = res.fetchone()
+        if query_info != None: #check if they click + before they click query,
+
+            #Set query variables to saved ones
+            self.date_selector.start_date.setDate(QDate.fromString(query_info[1], "yyyy-MM-dd"))
+            self.date_selector.end_date.setDate(QDate.fromString(query_info[2], "yyyy-MM-dd"))
+            if literal_eval(query_info[3]):
+                self.daily.setChecked(True)
+            else:
+                self.hourly.setChecked(True)
+
+            if query_info[4] == 2:
+                self.twobytwo.setChecked(True)
+            elif query_info[4] == 4:
+                self.fourbyfour.setChecked(True)
+            elif query_info[4] == 16:
+                self.sixteenbysixteen.setChecked(True)
+
+            if query_info[5] == "temperature_2m_mean" or query_info[5] == "temperature_2m":
+                self.temperature.setChecked(True)
+            elif query_info[5] == "windspeed_10m_max" or query_info[5] == "windspeed_10m":
+                self.wind.setChecked(True)
+            elif query_info[5] == "rain_sum" or query_info[5] == "rain":
+                self.wind.setChecked(True)
+
+            if literal_eval(query_info[6]) != None:
+                self.apicalled = True
+                self.ren = Renderer()
+                self.ren.set_data(literal_eval(query_info[6]))
+
+            self.map_widget.location[0] = query_info[7]
+            self.map_widget.location[1] = query_info[8]
+
+            self.map_widget.zoom = query_info[9]
+
+            #TODO add in map.widget.refresh when changes
+            #TODO right now it doesn't load it in immediately upon entering the program
+            self.update_overlay()
+
 
 
