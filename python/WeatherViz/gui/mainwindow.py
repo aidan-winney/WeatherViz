@@ -416,10 +416,14 @@ class MainWindow(QWidget):
             cur.execute(
                 "CREATE TABLE saved(id INTEGER, start_date TEXT, end_date TEXT, interval TEXT, resolution INTEGER, weather_variable TEXT, data TEXT, center_lat REAL, center_lon REAL, zoom INTEGER, PRIMARY KEY (id))")
                 #Interval saves as text '0' or '1'
-        id = random.randint(0, 10000)
-        while id in self.query_dict.values():
+        tab_text = self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())
+        if tab_text in self.query_dict:
+            id = self.query_dict[tab_text]
+        else:
             id = random.randint(0, 10000)
-        self.query_dict[self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())] = id
+            while id in self.query_dict.values():
+                id = random.randint(0, 10000)
+            self.query_dict[self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())] = id
         data = [(id, start_date, end_date, DAILY, RESOLUTION, VARIABLE, str(responses), center_lat, center_lon, zoom),]
         if len(cur.execute("SELECT * FROM saved WHERE id = (?)", (id,)).fetchall()) != 0:
             cur.execute("DELETE FROM saved WHERE id = (?)", (id,))
