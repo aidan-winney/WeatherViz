@@ -26,9 +26,7 @@ import json
 from WeatherViz.renderer import Renderer
 
 from WeatherViz.gui.DateRangeSlider import DateRangeSlider
-
 from WeatherViz.gui.PlayButton import PlayButton
-
 from WeatherViz.gui.ProgressBar import ProgressBar
 from WeatherViz.Worker import Worker
 
@@ -36,13 +34,9 @@ from WeatherViz.gui.NonCollapsiblePanel import NonCollapsiblePanel
 
 from WeatherViz.gui.DateRangeChooser import DateRangeChooser
 from WeatherViz.gui.QueryPane import QueryPane
-
 from WeatherViz.gui.Panel import Panel
-
 from WeatherViz.gui.Toolbar import Toolbar
-
 from WeatherViz.gui.ScrollableContent import ScrollableContent
-
 from WeatherViz.gui.Help import Help
 
 class TimerThread(threading.Thread):
