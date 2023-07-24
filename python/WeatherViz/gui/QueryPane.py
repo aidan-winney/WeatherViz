@@ -19,9 +19,11 @@ from WeatherViz.gui.ScrollableContent import ScrollableContent
 
 class QueryPane(QWidget):
     switch_tab = QtCore.Signal()
+    delete_tab = QtCore.Signal()
     def __init__(self, content, parent=None):
         super(QueryPane, self).__init__(parent)
         self.tab_widget = None
+        self.count = 0
         self.initUI(content)
 
     def initUI(self, content):
@@ -133,12 +135,14 @@ class QueryPane(QWidget):
 
 
     def addTab(self):
-        tab_index = self.tab_widget.addTab(QWidget(), "Query " + f"{self.tab_widget.count() + 1}")
+        tab_index = self.tab_widget.addTab(QWidget(), "Query " + f"{self.count + 1}")
         self.tab_widget.setCurrentIndex(tab_index)
+        self.count = self.count + 1
 
     def deleteTab(self):
         index = self.tab_widget.currentIndex()
         if index >= 1:
+            self.delete_tab.emit()
             self.tab_widget.removeTab(index)
 
     def tabChanged(self, index):

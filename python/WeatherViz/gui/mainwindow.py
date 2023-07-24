@@ -10,6 +10,7 @@ from PySide2 import QtCore
 from ast import literal_eval
 import sys
 import io
+import random
 from PIL import Image
 from threading import Thread
 import requests
@@ -77,6 +78,7 @@ class MainWindow(QWidget):
         self.query_times = []
         self.query_count = 0
         self.timers = []
+        self.query_dict = {}
 
         self.setWindowTitle("WeatherViz")
         self.setStyleSheet("background-color: rgba(32, 32, 32, 255); border-radius: 5px;")  # Change as needed
@@ -130,6 +132,7 @@ class MainWindow(QWidget):
         # content = [ScrollableContent([QLabel("Date Range")])]
         self.queryPane = QueryPane(content, self)
         self.queryPane.switch_tab.connect(self.load_data)
+        self.queryPane.delete_tab.connect(self.delete_query)
         self.layout.addWidget(self.queryPane, alignment=Qt.AlignTop)
         self.layout.addWidget(self.map_widget)
 
@@ -157,6 +160,8 @@ class MainWindow(QWidget):
                               self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale,
                               self.map_widget.rect().width() - 70 * UIRescale.Scale,
                               600 * UIRescale.Scale)
+
+        self.initial_load()
 
     def changePlaybackSpeed(self, state):
         if state == "1x":
@@ -417,12 +422,16 @@ class MainWindow(QWidget):
             cur.execute(
                 "CREATE TABLE saved(id INTEGER, start_date TEXT, end_date TEXT, interval TEXT, resolution INTEGER, weather_variable TEXT, data TEXT, center_lat REAL, center_lon REAL, zoom INTEGER, PRIMARY KEY (id))")
                 #Interval saves as text '0' or '1'
-
-        data = [(self.queryPane.tab_widget.currentIndex(), start_date, end_date, DAILY, RESOLUTION, VARIABLE, str(responses), center_lat, center_lon, zoom),]
-        if len(cur.execute("SELECT * FROM saved WHERE id = (?)", (self.queryPane.tab_widget.currentIndex(),)).fetchall()) != 0:
-            cur.execute("DELETE FROM saved WHERE id = (?)", (self.queryPane.tab_widget.currentIndex(),))
+        id = random.randint(0, 10000)
+        while id in self.query_dict.values():
+            id = random.randint(0, 10000)
+        self.query_dict[self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())] = id
+        data = [(id, start_date, end_date, DAILY, RESOLUTION, VARIABLE, str(responses), center_lat, center_lon, zoom),]
+        if len(cur.execute("SELECT * FROM saved WHERE id = (?)", (id,)).fetchall()) != 0:
+            cur.execute("DELETE FROM saved WHERE id = (?)", (id,))
         cur.executemany("INSERT INTO saved VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
         database_connection.commit()
+        database_connection.close()
 
         QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
         QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
@@ -430,20 +439,40 @@ class MainWindow(QWidget):
         self.submit_button.setEnabled(True)
         self.is_querying = False 
 
+    def initial_load(self):
+        database_connection = sqlite3.connect("queries.db")
+        cur = database_connection.cursor()
+        res = cur.execute("SELECT name FROM sqlite_master")
+        if len(res.fetchall()) != 0:
+            res = cur.execute("SELECT id FROM saved")
+            id_list = res.fetchall()
+            if len(id_list) > 0:
+                for id in id_list:
+                    self.query_dict[self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())] = id[0]
+                    self.queryPane.addTab()
+                self.load_data()
+        database_connection.close()
+
     def load_data(self):
         database_connection = sqlite3.connect("queries.db")
         cur = database_connection.cursor()
-        res = cur.execute("SELECT * FROM saved WHERE id= (?)", (self.queryPane.tab_widget.currentIndex(),))
-        query_info = res.fetchone()
-        if query_info != None: #check if they click + before they click query,
+        tab_text = self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())
+        if tab_text in self.query_dict:
+            id = self.query_dict[tab_text]
+            res = cur.execute("SELECT * FROM saved WHERE id= (?)", (id,))
+            query_info = res.fetchone()
 
             #Set query variables to saved ones
             self.date_selector.start_date.setDate(QDate.fromString(query_info[1], "yyyy-MM-dd"))
             self.date_selector.end_date.setDate(QDate.fromString(query_info[2], "yyyy-MM-dd"))
+            self.query_start_date = self.date_selector.start_date.date()
+            self.query_end_date = self.date_selector.end_date.date()
             if literal_eval(query_info[3]):
                 self.daily.setChecked(True)
+                self.query_daily = True
             else:
                 self.hourly.setChecked(True)
+                self.query_daily = False
 
             if query_info[4] == 2:
                 self.twobytwo.setChecked(True)
@@ -466,12 +495,22 @@ class MainWindow(QWidget):
 
             self.map_widget.location[0] = query_info[7]
             self.map_widget.location[1] = query_info[8]
-
             self.map_widget.zoom = query_info[9]
 
-            #TODO add in map.widget.refresh when changes
-            #TODO right now it doesn't load it in immediately upon entering the program
             self.update_overlay()
+            self.update_slider_range()
+        database_connection.close()
+
+    def delete_query(self):
+        database_connection = sqlite3.connect("queries.db")
+        cur = database_connection.cursor()
+        tab_text = self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())
+        if tab_text in self.query_dict:
+            id = self.query_dict[tab_text]
+            self.query_dict.pop(self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex()))
+            cur.execute("DELETE FROM saved WHERE id = (?)", (id,))
+        database_connection.commit()
+        database_connection.close()
 
 
 
