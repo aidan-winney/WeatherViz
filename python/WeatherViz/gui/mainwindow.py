@@ -169,6 +169,11 @@ class MainWindow(QWidget):
             self.play_button.timer.stop()
             self.play_button.timer.start(self.play_button.speed)
 
+    def closeEvent(self, event):
+        for timer in self.timers:
+            timer.cancel()
+        event.accept()
+
     def trigger_instruction_panel(self):
         # self.instructionPopUp = QGroupBox()
         # self.instructionPopUp.setWindowTitle("Instructions")
@@ -305,9 +310,9 @@ class MainWindow(QWidget):
             if self.sixteenbysixteen.isChecked():
                 self.query_times.append(time.time())
                 self.last_query_time = time.time()
+                self.timers.append(TimerThread(60, self.reset_query_count))
+                self.timers[len(self.timers)-1].start()
             self.submit_button.setEnabled(False)
-            self.timers.append(TimerThread(60, self.reset_query_count))
-            self.timers[len(self.timers)-1].start()
             threading.Thread(target=self.get_data).start()
         elif len(self.query_times) == 2 and len(self.timers) is not 0:
             self.submit_button.setText(f"Try again in {round(self.timers[0].time_remaining())} seconds")
@@ -326,116 +331,121 @@ class MainWindow(QWidget):
         self.slider.update_range(self.query_start_date, self.query_end_date, self.query_daily)
 
     def get_data(self):
-        #Resolution
-        if self.twobytwo.isChecked():
-            RESOLUTION = 2
-        elif self.fourbyfour.isChecked():
-            RESOLUTION = 4
-        elif self.sixteenbysixteen.isChecked():
-            RESOLUTION = 16
-        else:
-            RESOLUTION = 2
-
-        #Time interval
-        if self.daily.isChecked():
-            DAILY = True
-        else:
-            DAILY = False
-        self.query_daily = DAILY
-
-        #Weather event
-        if self.temperature.isChecked():
-            if DAILY:
-                VARIABLE = "temperature_2m_mean"
+        try:
+            #Resolution
+            if self.twobytwo.isChecked():
+                RESOLUTION = 2
+            elif self.fourbyfour.isChecked():
+                RESOLUTION = 4
+            elif self.sixteenbysixteen.isChecked():
+                RESOLUTION = 16
             else:
-                VARIABLE = "temperature_2m"
-        elif self.wind.isChecked(): #TODO: Edit this for actual wind speed data
-            if DAILY:
-                VARIABLE = "windspeed_10m_max"
-            else:
-                VARIABLE = "windspeed_10m"
-        elif self.rain.isChecked():
-            if DAILY:
-                VARIABLE = "rain_sum"
-            else:
-                VARIABLE = "rain"
-        TEMPERATURE_UNIT = "fahrenheit"
-        WINDSPEED_UNIT = "mph"
-        PRECIPITATION_UNIT = "inch"
-        TIMEZONE = "EST"
-        self.progress.set_total(RESOLUTION*RESOLUTION)
-        self.progress.set_progress(0, RESOLUTION*RESOLUTION)
+                RESOLUTION = 2
 
-        self.query_start_date = self.date_selector.start_date.date()
-        self.query_end_date = self.date_selector.end_date.date()
-        start_date = self.query_start_date.toString("yyyy-MM-dd")
-        end_date = self.query_end_date.toString("yyyy-MM-dd")
+            #Time interval
+            if self.daily.isChecked():
+                DAILY = True
+            else:
+                DAILY = False
+            self.query_daily = DAILY
 
-        center_lat = self.map_widget.location[0]
-        center_lon = self.map_widget.location[1]
-        zoom = self.map_widget.zoom
-        geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
+            #Weather event
+            if self.temperature.isChecked():
+                if DAILY:
+                    VARIABLE = "temperature_2m_mean"
+                else:
+                    VARIABLE = "temperature_2m"
+            elif self.wind.isChecked(): #TODO: Edit this for actual wind speed data
+                if DAILY:
+                    VARIABLE = "windspeed_10m_max"
+                else:
+                    VARIABLE = "windspeed_10m"
+            elif self.rain.isChecked():
+                if DAILY:
+                    VARIABLE = "rain_sum"
+                else:
+                    VARIABLE = "rain"
+            TEMPERATURE_UNIT = "fahrenheit"
+            WINDSPEED_UNIT = "mph"
+            PRECIPITATION_UNIT = "inch"
+            TIMEZONE = "EST"
+            self.progress.set_total(RESOLUTION*RESOLUTION)
+            self.progress.set_progress(0, RESOLUTION*RESOLUTION)
+
+            self.query_start_date = self.date_selector.start_date.date()
+            self.query_end_date = self.date_selector.end_date.date()
+            start_date = self.query_start_date.toString("yyyy-MM-dd")
+            end_date = self.query_end_date.toString("yyyy-MM-dd")
+
+            center_lat = self.map_widget.location[0]
+            center_lon = self.map_widget.location[1]
+            zoom = self.map_widget.zoom
+            geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
                                    center_lat, center_lon, zoom)
 
-        session = requests.Session()
+            session = requests.Session()
 
-        def api_call(lat, lon):
-            url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_date}&end_date={end_date}&temperature_unit={TEMPERATURE_UNIT}&windspeed_unit={WINDSPEED_UNIT}&precipitation_unit={PRECIPITATION_UNIT}&timezone={TIMEZONE}&models=best_match&cell_selection=nearest"
+            def api_call(lat, lon):
+                url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_date}&end_date={end_date}&temperature_unit={TEMPERATURE_UNIT}&windspeed_unit={WINDSPEED_UNIT}&precipitation_unit={PRECIPITATION_UNIT}&timezone={TIMEZONE}&models=best_match&cell_selection=nearest"
 
-            if DAILY:
-                url += f"&daily={VARIABLE}"
+                if DAILY:
+                    url += f"&daily={VARIABLE}"
+                else:
+                    url += f"&hourly={VARIABLE}"
+
+                self.progress_updated.emit()
+                res = session.get(url)
+
+                if res.status_code == requests.codes.ok:
+                    return res.json()
+                else:
+                    raise RuntimeError(f"The request failed w/ code {res.status_code}, text {res.text}")
+
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                results = executor.map(lambda coords: api_call(*coords), geocoords)
+
+            responses = {}
+            for result, (lat, lon) in zip(results, geocoords):
+                key = (str(lat), str(lon))
+                responses[key] = result["daily" if DAILY else "hourly"][VARIABLE]
+                #print(responses[key])
+
+            self.ren = Renderer()
+            self.ren.set_data(responses)
+            self.apicalled = True
+
+            # Database caching
+            database_connection = sqlite3.connect("queries.db")
+            cur = database_connection.cursor()
+            res = cur.execute("SELECT name FROM sqlite_master")
+            if len(res.fetchall()) == 0:
+                cur.execute(
+                    "CREATE TABLE saved(id INTEGER, start_date TEXT, end_date TEXT, interval TEXT, resolution INTEGER, weather_variable TEXT, data TEXT, center_lat REAL, center_lon REAL, zoom INTEGER, PRIMARY KEY (id))")
+                    #Interval saves as text '0' or '1'
+            tab_text = self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())
+            if tab_text in self.query_dict:
+                id = self.query_dict[tab_text]
             else:
-                url += f"&hourly={VARIABLE}"
-
-            self.progress_updated.emit()
-            res = session.get(url)
-
-            if res.status_code == requests.codes.ok:
-                return res.json()
-            else:
-                raise RuntimeError(f"The request failed w/ code {res.status_code}, text {res.text}")
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            results = executor.map(lambda coords: api_call(*coords), geocoords)
-
-        responses = {}
-        for result, (lat, lon) in zip(results, geocoords):
-            key = (str(lat), str(lon))
-            responses[key] = result["daily" if DAILY else "hourly"][VARIABLE]
-            #print(responses[key])
-
-        self.ren = Renderer()
-        self.ren.set_data(responses)
-        self.apicalled = True
-
-        # Database caching
-        database_connection = sqlite3.connect("queries.db")
-        cur = database_connection.cursor()
-        res = cur.execute("SELECT name FROM sqlite_master")
-        if len(res.fetchall()) == 0:
-            cur.execute(
-                "CREATE TABLE saved(id INTEGER, start_date TEXT, end_date TEXT, interval TEXT, resolution INTEGER, weather_variable TEXT, data TEXT, center_lat REAL, center_lon REAL, zoom INTEGER, PRIMARY KEY (id))")
-                #Interval saves as text '0' or '1'
-        tab_text = self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())
-        if tab_text in self.query_dict:
-            id = self.query_dict[tab_text]
-        else:
-            id = random.randint(0, 10000)
-            while id in self.query_dict.values():
                 id = random.randint(0, 10000)
-            self.query_dict[self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())] = id
-        data = [(id, start_date, end_date, DAILY, RESOLUTION, VARIABLE, str(responses), center_lat, center_lon, zoom),]
-        if len(cur.execute("SELECT * FROM saved WHERE id = (?)", (id,)).fetchall()) != 0:
-            cur.execute("DELETE FROM saved WHERE id = (?)", (id,))
-        cur.executemany("INSERT INTO saved VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
-        database_connection.commit()
-        database_connection.close()
+                while id in self.query_dict.values():
+                    id = random.randint(0, 10000)
+                self.query_dict[self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())] = id
+            data = [(id, start_date, end_date, DAILY, RESOLUTION, VARIABLE, str(responses), center_lat, center_lon, zoom),]
+            if len(cur.execute("SELECT * FROM saved WHERE id = (?)", (id,)).fetchall()) != 0:
+                cur.execute("DELETE FROM saved WHERE id = (?)", (id,))
+            cur.executemany("INSERT INTO saved VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
+            database_connection.commit()
+            database_connection.close()
 
-        QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
-        QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
-        self.submit_button.setText("Query")
-        self.submit_button.setEnabled(True)
-        self.is_querying = False 
+            QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
+            QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
+            self.submit_button.setText("Query")
+            self.submit_button.setEnabled(True)
+            self.is_querying = False
+        except Exception as e:
+            self.submit_button.setText('Query failed (API limit reached)')
+            self.is_querying = False
+            self.submit_button.setEnabled(True)  
 
     def initial_load(self):
         database_connection = sqlite3.connect("queries.db")
