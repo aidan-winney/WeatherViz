@@ -307,6 +307,8 @@ class MainWindow(QWidget):
                 self.image_label.setPixmap(None)
                 self.image_label.hide()
                 self.map_widget.refresh(self.image)
+        else:
+            self.map_widget.refresh()
 
     def change_opacity(self, image_path, opacity_level):
         img = Image.open(image_path).convert("RGBA")

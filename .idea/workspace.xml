@@ -7,10 +7,8 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="added tabs">
+    <list default="true" id="467b0a32-fb8f-4a69-9f33-65e7c181440f" name="Changes" comment="Changed heatmap rendering method for smoother timelapse">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/Map.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/Map.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/PlayButton.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/PlayButton.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/WeatherViz/gui/mainwindow.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -85,7 +83,7 @@
       <workItem from="1687861459352" duration="7790000" />
       <workItem from="1689166275720" duration="6246000" />
       <workItem from="1689583398696" duration="36031000" />
-      <workItem from="1689841651264" duration="34607000" />
+      <workItem from="1689841651264" duration="36383000" />
     </task>
     <task id="LOCAL-00001" summary="made imports absolute">
       <created>1687782278308</created>
@@ -150,7 +148,14 @@
       <option name="project" value="LOCAL" />
       <updated>1689814654959</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Changed heatmap rendering method for smoother timelapse">
+      <created>1690251007680</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1690251007681</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -177,7 +182,8 @@
     <MESSAGE value="Fixed bug with button controls not displaying heatmap properly" />
     <MESSAGE value="updated ui" />
     <MESSAGE value="added tabs" />
-    <option name="LAST_COMMIT_MESSAGE" value="added tabs" />
+    <MESSAGE value="Changed heatmap rendering method for smoother timelapse" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed heatmap rendering method for smoother timelapse" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/WeatherViz$main.coverage" NAME="main Coverage Results" MODIFIED="1687780390087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python/WeatherViz" />
