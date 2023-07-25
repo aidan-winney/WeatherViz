@@ -19,8 +19,6 @@ class MapWidget(QGraphicsView):
     def __init__(self, initial_location, initial_zoom):
         super().__init__()
 
-        self.freezeMap = False
-
         self.map = None
         self.web_map = None
         self.zoom = initial_zoom
@@ -71,6 +69,21 @@ class MapWidget(QGraphicsView):
         super().resizeEvent(event)
 
     def refresh(self, image=None):
+        if self.zoom < 2:
+            self.zoom = 2
+
+        #print(self.zoom)
+
+        #TODO Finish adjusting where the map can go
+        if self.location[0] < -90:
+            self.location[0] = -90
+        elif self.location[0] > 90:
+            self.location[0] = 90
+        elif self.location[1] < -180:
+            self.location[1] = -180
+        elif self.location[1] > 180:
+            self.location[1] = 180
+
         self.map = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
                               zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False,
                               boxZoom=False, scrollWheelZoom=False)
@@ -88,26 +101,24 @@ class MapWidget(QGraphicsView):
 
     #Mouse Navigation Functions
     def mousePressEvent(self, event):
-        if self.freezeMap is False and event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton:
             self.last_pos = event.pos()
     #
     def mouseMoveEvent(self, event):
-        if self.freezeMap is False and event.buttons() == Qt.LeftButton:
+        if event.buttons() == Qt.LeftButton:
             diff = event.pos() - self.last_pos
             self.pan_map(diff.x()/50, diff.y()/50)
             self.last_pos = event.pos()
 
     def pan_map(self, dx, dy):
-        if self.freezeMap is False:
-            self.location[1] -= dx
-            self.location[0] += dy
-            self.mapChanged.emit()
+        self.location[1] -= dx
+        self.location[0] += dy
+        self.mapChanged.emit()
 
     def wheelEvent(self, event):
-        if self.freezeMap is False:
-            zoom_direction = event.angleDelta().y()
-            zoom_direction = 1 if zoom_direction > 0 else -1
+        zoom_direction = event.angleDelta().y()
+        zoom_direction = 1 if zoom_direction > 0 else -1
 
-            self.zoom += zoom_direction
-            self.fitInView(self.rect(), Qt.KeepAspectRatio)
-            self.mapChanged.emit()
+        self.zoom += zoom_direction
+        self.fitInView(self.rect(), Qt.KeepAspectRatio)
+        self.mapChanged.emit()

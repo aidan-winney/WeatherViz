@@ -9,8 +9,6 @@ class PlayButton(QWidget):
         super(PlayButton, self).__init__(parent)
         self.speed = 1000
 
-        self.freezeMap = False
-
         self.slider = slider
 
         layout = QVBoxLayout()
@@ -36,7 +34,6 @@ class PlayButton(QWidget):
         self.timer.timeout.connect(self.incrementSlider)
 
     def togglePlay(self, checked):
-        if self.freezeMap is False:
             if checked:
                 self.playButton.setText("▢")
                 self.timer.start(self.speed)
