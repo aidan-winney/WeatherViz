@@ -70,21 +70,6 @@ class MapWidget(QGraphicsView):
         super().resizeEvent(event)
 
     def refresh(self, image=None, no_map_refresh=False):
-        if self.zoom < 2:
-            self.zoom = 2
-
-        #print(self.zoom)
-
-        #TODO Finish adjusting where the map can go
-        if self.location[0] < -90:
-            self.location[0] = -90
-        elif self.location[0] > 90:
-            self.location[0] = 90
-        elif self.location[1] < -180:
-            self.location[1] = -180
-        elif self.location[1] > 180:
-            self.location[1] = 180
-
         self.map = folium.Map(location=self.location, tiles="CartoDB Positron", zoom_start=self.zoom,
                               zoom_control=False, keyboard=False, dragging=False, doubleClickZoom=False,
                               boxZoom=False, scrollWheelZoom=False)

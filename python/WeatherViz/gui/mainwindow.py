@@ -566,6 +566,7 @@ class MainWindow(QWidget):
         database_connection.close()
         self.ren = Renderer()
         self.ren.set_data({})
+        self.update_slider_range()
         self.update_overlay()
 
 
