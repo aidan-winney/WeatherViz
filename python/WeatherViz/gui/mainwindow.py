@@ -39,6 +39,9 @@ from WeatherViz.gui.Toolbar import Toolbar
 from WeatherViz.gui.ScrollableContent import ScrollableContent
 from WeatherViz.gui.Help import Help
 
+from WeatherViz.gui.MapLegend import MapLegend
+
+
 class TimerThread(threading.Thread):
     def __init__(self, interval, function, *args, **kwargs):
         super().__init__()
@@ -365,16 +368,19 @@ class MainWindow(QWidget):
 
             #Weather event
             if self.temperature.isChecked():
+                self.legend_widget.title = "Temperature"
                 if DAILY:
                     VARIABLE = "temperature_2m_mean"
                 else:
                     VARIABLE = "temperature_2m"
             elif self.wind.isChecked(): #TODO: Edit this for actual wind speed data
+                self.legend_widget.title = "Wind"
                 if DAILY:
                     VARIABLE = "windspeed_10m_max"
                 else:
                     VARIABLE = "windspeed_10m"
             elif self.rain.isChecked():
+                self.legend_widget.title = "Rain"
                 if DAILY:
                     VARIABLE = "rain_sum"
                 else:
