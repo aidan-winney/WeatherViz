@@ -8,7 +8,7 @@ class PlayButton(QWidget):
     def __init__(self, slider, parent=None):
         super(PlayButton, self).__init__(parent)
         self.speed = 1000
-
+        self.is_checked = False
         self.slider = slider
 
         layout = QVBoxLayout()
@@ -34,12 +34,13 @@ class PlayButton(QWidget):
         self.timer.timeout.connect(self.incrementSlider)
 
     def togglePlay(self, checked):
-            if checked:
-                self.playButton.setText("▢")
-                self.timer.start(self.speed)
-            else:
-                self.playButton.setText("▶")
-                self.timer.stop()
+        self.is_checked = checked
+        if self.is_checked:
+            self.playButton.setText("▢")
+            self.timer.start(self.speed)
+        else:
+            self.playButton.setText("▶")
+            self.timer.stop()
 
     def incrementSlider(self):
         current_value = self.slider.value()
