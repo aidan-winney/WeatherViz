@@ -18,12 +18,11 @@ https://github.com/SplatMudkip/WeatherViz
 
 2. Create a Python 3.8 virtual environment.
 
-3. Activate the environment, clone the repository, and install the package:
+3. Activate the environment, clone the repository, and install the package (make sure it is installed outside the WeatherViz folder):
 
 	```
 	git clone https://github.com/SplatMudkip/WeatherViz
-    cd WeatherViz
-	pip install .
+	pip install ./WeatherViz
 	```
 
 Now the application can be run as `weatherviz`. It looks for a `config.toml` file in the current directory. Copy `config_example.toml` to get a starter configuration file:
