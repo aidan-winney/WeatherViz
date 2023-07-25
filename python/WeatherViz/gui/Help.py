@@ -73,18 +73,23 @@ class Help(QWidget):
         instructionText3 = QLabel(self)
         instructionText3.setStyleSheet("background-color: transparent;")
         instructionText3.setText(
+            "Map Navigation:\n"
             "    ∙ Use the buttons in the bottom right corner to move and zoom around the map\n    "
-            "∙ WASD can also be used to move plus Q to zoom in and E to zoom out\n    "
-            "∙ Set the Date Range to fetch between the two dates\n    "
+            "∙ WASD can also be used to move plus Q to zoom in and E to zoom out\n\n"
+            "Query Navigation: \n    "
+            "∙ Set the Date Range to fetch between the two dates\n        "
+            "◦ Data from the past week is not available yet\n    "
             "∙ The Timeline Interval lets you select between hourly and daily data\n    "
-            "∙ The Heatmap Resolution decides how many points will be rendered on the map\n         "
-            "◦ Higher resolutions will take longer to query\n    "
+            "∙ The Heatmap Resolution decides how many points will be sampled on the map\n         "
+            "◦ Higher resolutions will take longer to query, but will be more accurate\n    "
             "∙ Choose the weather statistic you want to query using the Weather Type setting\n    "
             "∙ Press the Query button to begin a query\n         "
             "◦ A progress bar will let you know how much of the query is currently completed\n    "
             "∙ When the query is completed, the heatmap will automatically appear on the map\n         "
             "◦ Press the play button in the upper-right corner to start a timelapse of the heatmap\n    "
-            "∙ Press the Close button below to enable map movement and querying")
+            "∙ Click + to open a new query tab and previous query result will remain on previous tabs\n    "
+            "∙ Click the trash symbol to delete the current saved query and tab\n\n"
+            "Press the Close button below to close this window")
 
 
         self.help_box = QWidget()
