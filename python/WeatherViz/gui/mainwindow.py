@@ -42,6 +42,8 @@ from WeatherViz.gui.ScrollableContent import ScrollableContent
 
 from WeatherViz.gui.Help import Help
 
+from WeatherViz.gui.MapLegend import MapLegend
+
 
 class MainWindow(QWidget):
     progress_updated = QtCore.Signal()
@@ -124,11 +126,21 @@ class MainWindow(QWidget):
         self.arrow_pad.zoom_out.clicked.connect(self.zoom_out)
         self.arrow_pad.show()
 
+        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)]
+        labels = ["75%", "50%", "25%", "0%"]
+        title = "Rain"
+
+        self.legend_widget = MapLegend(colors, labels, title, self)
+        self.legend_widget.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
+                              self.rect().height() - 400 * UIRescale.Scale,
+                              400 * UIRescale.Scale,
+                              150 * UIRescale.Scale)
+
         self.help = Help(self)
         self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
                               self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale,
                               self.map_widget.rect().width() - 70 * UIRescale.Scale,
-                              600 * UIRescale.Scale)
+                              400 * UIRescale.Scale)
 
     def changePlaybackSpeed(self, state):
         if state == "1x":
@@ -203,7 +215,11 @@ class MainWindow(QWidget):
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
         self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
                               self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
-                              600 * UIRescale.Scale)
+                              400 * UIRescale.Scale)
+        self.legend_widget.setGeometry(self.rect().width() - 200 * UIRescale.Scale,
+                                        self.toolbar.rect().height() + 75 * UIRescale.Scale,
+                                       150 * UIRescale.Scale,
+                                       400 * UIRescale.Scale)
         super().resizeEvent(event)
 
     def move_up(self):
@@ -316,16 +332,19 @@ class MainWindow(QWidget):
 
         #Weather event
         if self.temperature.isChecked():
+            self.legend_widget.title = "Temperature"
             if DAILY:
                 VARIABLE = "temperature_2m_mean"
             else:
                 VARIABLE = "temperature_2m"
         elif self.wind.isChecked(): #TODO: Edit this for actual wind speed data
+            self.legend_widget.title = "Wind"
             if DAILY:
                 VARIABLE = "windspeed_10m_max"
             else:
                 VARIABLE = "windspeed_10m"
         elif self.rain.isChecked():
+            self.legend_widget.title = "Rain"
             if DAILY:
                 VARIABLE = "rain_sum"
             else:
