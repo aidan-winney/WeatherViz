@@ -97,7 +97,7 @@ class MainWindow(QWidget):
         self.slider.playback_speed.get_button(0).clicked.connect(lambda: self.changePlaybackSpeed("1x"))
         self.slider.playback_speed.get_button(1).clicked.connect(lambda: self.changePlaybackSpeed("2x"))
         self.slider.playback_speed.get_button(2).clicked.connect(lambda: self.changePlaybackSpeed("3x"))
-        self.slider.get_slider().valueChanged.connect(self.update_overlay)
+        self.slider.get_slider().valueChanged.connect(lambda: self.update_overlay(True))
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
         self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
         # self.date_selector.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
@@ -169,6 +169,8 @@ class MainWindow(QWidget):
                               400 * UIRescale.Scale)
 
         self.initial_load()
+
+        self.image_label = QLabel(self.map_widget)
 
     def changePlaybackSpeed(self, state):
         if state == "1x":
@@ -251,27 +253,27 @@ class MainWindow(QWidget):
 
     def move_up(self):
         self.map_widget.location[0] += 1 / (2 ** (self.map_widget.zoom - 8))
-        self.update_overlay()
+        self.update_overlay(False)
 
     def move_down(self):
         self.map_widget.location[0] -= 1 / (2 ** (self.map_widget.zoom - 8))
-        self.update_overlay()
+        self.update_overlay(False)
 
     def move_left(self):
         self.map_widget.location[1] -= 1 / (2 ** (self.map_widget.zoom - 8))
-        self.update_overlay()
+        self.update_overlay(False)
 
     def move_right(self):
         self.map_widget.location[1] += 1 / (2 ** (self.map_widget.zoom - 8))
-        self.update_overlay()
+        self.update_overlay(False)
 
     def zoom_in(self):
         self.map_widget.zoom += 1
-        self.update_overlay()
+        self.update_overlay(False)
 
     def zoom_out(self):
         self.map_widget.zoom -= 1
-        self.update_overlay()
+        self.update_overlay(False)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_W:  # W
@@ -287,15 +289,24 @@ class MainWindow(QWidget):
         elif self.map_widget.zoom < 18 and event.key() == Qt.Key_Q:  # Q
             self.zoom_in()
 
-    def update_overlay(self):
+    def update_overlay(self, render_pixmap=False):
         if self.apicalled:
             byte_array = self.ren.render(self.slider.get_slider().value(), self.map_widget.location[0], self.map_widget.location[1],
                                          self.map_widget.zoom, self.map_widget.web_map.width(),
                                          self.map_widget.web_map.height())
-            image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
-            self.map_widget.refresh(image)
-        else:
-            self.map_widget.refresh()
+            self.image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
+            if render_pixmap or self.play_button.is_checked:
+                if self.image_label.pixmap is not None and (self.map_widget.marker is not None or render_pixmap is False):
+                    self.map_widget.refresh()
+
+                self.image_label.setPixmap(QPixmap.fromImage(ImageQt(self.image)))
+                self.image_label.setGeometry(0, 0, self.map_widget.web_map.width(), self.map_widget.web_map.height())
+                self.image_label.show()
+
+            else:
+                self.image_label.setPixmap(None)
+                self.image_label.hide()
+                self.map_widget.refresh(self.image)
 
     def change_opacity(self, image_path, opacity_level):
         img = Image.open(image_path).convert("RGBA")

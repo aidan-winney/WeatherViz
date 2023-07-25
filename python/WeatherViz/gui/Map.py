@@ -23,6 +23,7 @@ class MapWidget(QGraphicsView):
         self.web_map = None
         self.zoom = initial_zoom
         self.location = initial_location
+        self.marker = None
 
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
@@ -68,7 +69,7 @@ class MapWidget(QGraphicsView):
         self.setMask(mask)
         super().resizeEvent(event)
 
-    def refresh(self, image=None):
+    def refresh(self, image=None, no_map_refresh=False):
         if self.zoom < 2:
             self.zoom = 2
 
@@ -91,8 +92,10 @@ class MapWidget(QGraphicsView):
         if image != None:
             image.save('output.png')
             icon = features.CustomIcon('output.png', icon_size=(self.web_map.width(), self.web_map.height()))
-            marker = Marker(location=self.location, icon=icon)
-            marker.add_to(self.map)
+            self.marker = Marker(location=self.location, icon=icon)
+            self.marker.add_to(self.map)
+        else:
+            self.marker = None
 
         data = io.BytesIO()
         self.map.save(data, close_file=False)
