@@ -30,6 +30,12 @@ class Panel(QWidget):
         self.info_label.setToolTip(tooltip)
         self.info_label.setWindowFlag(Qt.ToolTip)
         self.info_label.setToolTipDuration(5000)
+        self.info_label.setStyleSheet("""QToolTip {
+                    background-color: rgba(100, 100, 100, 255);
+                    color: white;
+                    font-weight: bold;
+                    border-radius: 10px
+                }""")
         self.info_label.setContentsMargins(10 * UIRescale.Scale, 0, 0, 0)
         header_layout.addWidget(self.info_label)
         header_layout.addStretch(1)

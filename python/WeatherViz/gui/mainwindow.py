@@ -243,7 +243,7 @@ class MainWindow(QWidget):
         self.toolbar.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
         self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
-                              self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
+                              self.rect().height() - self.help.rect().height() - 70 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
                               400 * UIRescale.Scale)
         self.legend_widget.setGeometry(self.rect().width() - 200 * UIRescale.Scale,
                                         self.toolbar.rect().height() + 75 * UIRescale.Scale,

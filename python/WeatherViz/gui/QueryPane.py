@@ -104,6 +104,12 @@ class QueryPane(QWidget):
                 QToolButton:pressed {{ 
                     background-color: rgba(50, 50, 50, 255); 
                 }} 
+                QToolTip {{
+                    background-color: rgba(100, 100, 100, 255);
+                    color: white;
+                    font-weight: bold;
+                    border-radius: 10px
+                }}
                 QToolButton {{ 
                     background-color: rgba(60, 60, 60, 255); border-radius: {border_radius}px; font-weight: bold; color: white }}""")
         add_tab_button.clicked.connect(self.addTab)
@@ -116,7 +122,13 @@ class QueryPane(QWidget):
         self.delete_tab_button.setStyleSheet(f"""
                 QToolButton:pressed {{ 
                     background-color: rgba(58, 20, 20, 255); 
-                }} 
+                }}
+                QToolTip {{
+                    background-color: rgba(100, 100, 100, 255);
+                    color: white;
+                    font-weight: bold;
+                    border-radius: 10px
+                }}
                 QToolButton:disabled {{
                     background-color: rgba(40, 40, 40, 255); 
                 }} 
