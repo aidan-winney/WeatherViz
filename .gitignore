@@ -1,6 +1,11 @@
-logs/
 .idea/
+logs/
 target/
 Cargo.lock
+config.toml
+queries.db
 *.pyd
 __pycache__
+
+# TODO: write Rust map library so that we don't have to write the visualization to disk
+output.png

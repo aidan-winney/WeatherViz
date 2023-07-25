@@ -22,7 +22,12 @@ https://github.com/SplatMudkip/WeatherViz
 
 	```
 	git clone https://github.com/SplatMudkip/WeatherViz
-	pip install ./WeatherViz
+    cd WeatherViz
+	pip install .
 	```
 
-Now the application can be run as `weatherviz`.
+Now the application can be run as `weatherviz`. It looks for a `config.toml` file in the current directory. Copy `config_example.toml` to get a starter configuration file:
+
+    ```
+    cp config_example.toml config.toml
+    ```
