@@ -152,9 +152,9 @@ class MainWindow(QWidget):
         self.arrow_pad.zoom_out.clicked.connect(self.zoom_out)
         self.arrow_pad.show()
 
-        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)]
-        labels = ["75%", "50%", "25%", "0%"]
-        title = "Rain"
+        colors = [(120, 120, 120)]
+        labels = [""]
+        title = "Legend"
 
         self.legend_widget = MapLegend(colors, labels, title, self)
         self.legend_widget.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
@@ -380,18 +380,30 @@ class MainWindow(QWidget):
             #Weather event
             if self.temperature.isChecked():
                 self.legend_widget.title = "Temperature"
+                colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)]
+                labels = ["75%", "50%", "25%", "0%"]
+                self.legend_widget.labels = labels
+                self.legend_widget.colors = colors
                 if DAILY:
                     VARIABLE = "temperature_2m_mean"
                 else:
                     VARIABLE = "temperature_2m"
             elif self.wind.isChecked(): #TODO: Edit this for actual wind speed data
                 self.legend_widget.title = "Wind"
+                colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)]
+                labels = ["75%", "50%", "25%", "0%"]
+                self.legend_widget.labels = labels
+                self.legend_widget.colors = colors
                 if DAILY:
                     VARIABLE = "windspeed_10m_max"
                 else:
                     VARIABLE = "windspeed_10m"
             elif self.rain.isChecked():
                 self.legend_widget.title = "Rain"
+                colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)]
+                labels = ["75%", "50%", "25%", "0%"]
+                self.legend_widget.labels = labels
+                self.legend_widget.colors = colors
                 if DAILY:
                     VARIABLE = "rain_sum"
                 else:
