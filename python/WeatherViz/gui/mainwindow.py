@@ -519,6 +519,9 @@ class MainWindow(QWidget):
             cur.execute("DELETE FROM saved WHERE id = (?)", (id,))
         database_connection.commit()
         database_connection.close()
+        self.ren = Renderer()
+        self.ren.set_data({})
+        self.update_overlay()
 
 
 
