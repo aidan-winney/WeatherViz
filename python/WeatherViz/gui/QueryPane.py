@@ -141,6 +141,7 @@ class QueryPane(QWidget):
         tab_layout.setContentsMargins(100 * UIRescale.Scale, 25 * UIRescale.Scale, 70 * UIRescale.Scale, 0)
         tab_layout.addWidget(add_tab_button)
         tab_layout.addWidget(self.delete_tab_button)
+        self.delete_tab_button.setEnabled(True)
 
         tab_widget.setLayout(tab_layout)
         return tab_widget
@@ -156,7 +157,8 @@ class QueryPane(QWidget):
         if index >= 1:
             self.delete_tab.emit()
             self.tab_widget.removeTab(index)
+        else:
+            self.delete_tab.emit()
 
     def tabChanged(self, index):
-        self.delete_tab_button.setEnabled(index >= 1)
         self.switch_tab.emit()

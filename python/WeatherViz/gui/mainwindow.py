@@ -307,6 +307,8 @@ class MainWindow(QWidget):
                 self.image_label.setPixmap(None)
                 self.image_label.hide()
                 self.map_widget.refresh(self.image)
+        else:
+            self.map_widget.refresh()
 
     def change_opacity(self, image_path, opacity_level):
         img = Image.open(image_path).convert("RGBA")
@@ -562,6 +564,9 @@ class MainWindow(QWidget):
             cur.execute("DELETE FROM saved WHERE id = (?)", (id,))
         database_connection.commit()
         database_connection.close()
+        self.ren = Renderer()
+        self.ren.set_data({})
+        self.update_overlay()
 
 
 
