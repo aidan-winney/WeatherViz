@@ -93,7 +93,6 @@ class MainWindow(QWidget):
         self.query_start_date = QDate.currentDate()
         self.query_end_date = QDate.currentDate()
         self.map_widget = MapWidget([27.75, -83.25], 7)
-        self.map_widget.mapChanged.connect(self.update_overlay)
         self.progress_updated.connect(self.update_progress, QtCore.Qt.QueuedConnection)
         self.start_date = QDateEdit(calendarPopup=True)
         self.start_date.setDate(QDate.currentDate())
@@ -513,6 +512,7 @@ class MainWindow(QWidget):
             self.is_rendering = False
         except Exception as e:
             self.submit_button.setText('Query failed (API limit reached)')
+            print(e)
             self.is_querying = False
             self.submit_button.setEnabled(True)
         finally:
