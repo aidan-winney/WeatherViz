@@ -376,7 +376,7 @@ class MainWindow(QWidget):
                 RESOLUTION = 2
 
             #Time interval
-            if self.daily.isChecked():
+            if self.is_daily():
                 DAILY = True
             else:
                 DAILY = False
@@ -494,6 +494,9 @@ class MainWindow(QWidget):
             self.submit_button.setText('Query failed (API limit reached)')
             self.is_querying = False
             self.submit_button.setEnabled(True)
+        finally:
+            executor.shutdown()
+            session.close()
 
     def initial_load(self):
         database_connection = sqlite3.connect("queries.db")
