@@ -579,8 +579,8 @@ class MainWindow(QWidget):
             self.map_widget.location[1] = query_info[8]
             self.map_widget.zoom = query_info[9]
 
-            self.update_overlay()
             self.update_slider_range()
+            self.update_overlay()
         database_connection.close()
 
     def delete_query(self):
