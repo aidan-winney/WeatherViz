@@ -296,11 +296,11 @@ class MainWindow(QWidget):
         self.update_overlay(False)
 
     def zoom_in(self):
-        self.map_widget.zoom += 1
+        self.map_widget.zoom = min(self.map_widget.zoom + 1, 18)
         self.update_overlay(False)
 
     def zoom_out(self):
-        self.map_widget.zoom -= 1
+        self.map_widget.zoom = max(self.map_widget.zoom - 1, 0)
         self.update_overlay(False)
 
     def keyPressEvent(self, event):
