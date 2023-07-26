@@ -84,7 +84,7 @@ class Help(QWidget):
             "◦ Higher resolutions will take longer to query, but will be more accurate\n    "
             "∙ Choose the weather statistic you want to query using the Weather Type setting\n    "
             "∙ Press the Query button to begin a query\n         "
-            "◦ A progress bar will let you know how much of the query is currently completed\n        "
+            "◦ A progress bar will let you know how much of the query is currently completed\n         "
             "◦ When the query is completed, the heatmap will automatically appear on the map\n    "
             "∙ Press the play button in the upper-right corner to start a timelapse of the heatmap\n\n"
             "Saving Query Results\n    "
