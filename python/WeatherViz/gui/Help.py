@@ -90,6 +90,7 @@ class Help(QWidget):
             "◦ Press the play button in the upper-right corner to start a timelapse of the heatmap\n    "
             "∙ Click + to open a new query tab and previous query result will remain on previous tabs\n    "
             "∙ Click the trash symbol to delete the current saved query and tab\n\n"
+            "Times are based on EST timezone\n\n"
             "Press the Close button below to close this window")
 
 
