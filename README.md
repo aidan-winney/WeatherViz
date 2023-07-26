@@ -26,6 +26,8 @@ https://github.com/SplatMudkip/WeatherViz
 	pip install .
  	```
 
-Now the application can be run as `weatherviz`. It looks for a `config.toml` file in the current directory. Copy `config_example.toml` to get a starter configuration file:
+Now the application can be run as `weatherviz`.
+
+WeatherViz looks for a `config.toml` file in the current directory, falling back on default values without one. Copy `config_example.toml` to get a starter configuration file including comments explaining each option:
 
 	cp config_example.toml config.toml
