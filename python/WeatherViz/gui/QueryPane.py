@@ -16,9 +16,6 @@ from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
 from WeatherViz.gui.ScrollableContent import ScrollableContent
 
-import WeatherViz.assets_rc
-
-
 class QueryPane(QWidget):
     switch_tab = QtCore.Signal()
     delete_tab = QtCore.Signal()
