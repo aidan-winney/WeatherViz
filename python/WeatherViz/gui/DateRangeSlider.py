@@ -3,7 +3,7 @@ from PySide2.QtGui import Qt, QPainter, QColor
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout
 from WeatherViz.UIRescale import UIRescale
 
-from WeatherViz.gui.TriButton import TriButton
+from WeatherViz.gui.MultiButton import MultiButton
 
 
 class DateRangeSlider(QWidget):
@@ -74,7 +74,7 @@ class DateRangeSlider(QWidget):
         self.date_label.setStyleSheet("background-color: transparent; font-weight: bold; color: white")
         self.update_date_label()
 
-        self.playback_speed = TriButton(["1x", "2x", "4x", "8x"], 20 * UIRescale.Scale)
+        self.playback_speed = MultiButton(["1x", "2x", "4x", "8x"], 20 * UIRescale.Scale)
 
         control_layout.addWidget(self.date_label)
         control_layout.addStretch(1)
