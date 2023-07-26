@@ -74,6 +74,7 @@ class MainWindow(QWidget):
         self.last_query_time = time.time()
         self.query_times = []
         self.query_count = 0
+        self.first_query = False
         self.timers = []
         self.query_dict = {}
 
@@ -187,6 +188,8 @@ class MainWindow(QWidget):
     def closeEvent(self, event):
         for timer in self.timers:
             timer.cancel()
+        if self.first_query:
+            self.delete_query()
         event.accept()
 
     def trigger_instruction_panel(self):
@@ -492,9 +495,14 @@ class MainWindow(QWidget):
                     self.query_dict[self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())] = id[0]
                     self.queryPane.addTab()
                 self.load_data()
+            else:
+                self.first_query = True
+        else:
+            self.first_query = True
         database_connection.close()
 
     def load_data(self):
+        self.first_query = False
         database_connection = sqlite3.connect("queries.db")
         cur = database_connection.cursor()
         tab_text = self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())
@@ -543,6 +551,8 @@ class MainWindow(QWidget):
         database_connection.close()
 
     def delete_query(self):
+        if self.queryPane.tab_widget.currentIndex() == 0 and self.queryPane.tab_widget.count() == 1:
+            self.first_query = True
         database_connection = sqlite3.connect("queries.db")
         cur = database_connection.cursor()
         tab_text = self.queryPane.tab_widget.tabText(self.queryPane.tab_widget.currentIndex())
