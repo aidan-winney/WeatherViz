@@ -30,7 +30,7 @@ class Help(QWidget):
 
         self.help_button = QPushButton("?")
         self.help_button.setFixedSize(45 * UIRescale.Scale, 45 * UIRescale.Scale)
-        self.help_button.setContentsMargins(0,0,50*UIRescale.Scale,0)
+        self.help_button.setContentsMargins(0, 0, 50 * UIRescale.Scale, 0)
         self.help_button.setStyleSheet("""
                 QPushButton:pressed { 
                     background-color: rgba(80, 80, 80, 200); 
@@ -60,19 +60,18 @@ class Help(QWidget):
         controls.setLayout(control_layout)
 
         instructionText1 = QLabel(self)
-        instructionText1.setStyleSheet("background-color: transparent;")
+        instructionText1.setStyleSheet("background-color: transparent; font-size: 35pt; font-weight: bold;")
         instructionText1.setText("Welcome to WeatherViz!")
         instructionText1.setAlignment(Qt.AlignCenter)
-        instructionText1.setFont(QFont("Arial", 28, QFont.Bold))
 
         instructionText2 = QLabel(self)
-        instructionText2.setStyleSheet("background-color: transparent;")
+        instructionText2.setStyleSheet("background-color: transparent; font-size: 28pt;")
         instructionText2.setText("Instructions:")
         instructionText2.setAlignment(Qt.AlignCenter)
         instructionText2.setFont(QFont("Arial", 18))
 
         instructionText3 = QLabel(self)
-        instructionText3.setStyleSheet("background-color: transparent;")
+        instructionText3.setStyleSheet("background-color: transparent; font-size: 11pt;")
         instructionText3.setText(
             "Map Navigation:\n"
             "    ∙ Use the buttons in the bottom right corner to move and zoom around the map\n    "
@@ -97,9 +96,8 @@ class Help(QWidget):
             "Times are based on EST timezone\n\n"
             "Press the Close button below to close this window")
 
-
         self.help_box = QWidget()
-        self.help_box.setStyleSheet("background-color: rgba(240, 240, 240, 255); border-radius: 5px;")
+        self.help_box.setStyleSheet("background-color: rgba(125, 125, 125, 130); border-radius: 5px;")
 
         help_layout = QVBoxLayout(self.help_box)
         help_layout.setMargin(20 * UIRescale.Scale)
@@ -109,7 +107,7 @@ class Help(QWidget):
                 height: 1000px;
                 background-color: transparent;
             }
-            
+
             QScrollBar:vertical {
                 width: 10px;
                 background-color: rgba(50, 50, 50, 255);
@@ -151,7 +149,8 @@ class Help(QWidget):
         self.help_box.setHidden(not self.help_box.isHidden())
         self.close_button.setHidden(not self.close_button.isHidden())
         self.help_button.setDisabled(True)
-        resize_event = QResizeEvent(QSize(800 * UIRescale.Scale, 400 * UIRescale.Scale), QSize(800 * UIRescale.Scale, 100 * UIRescale.Scale))
+        resize_event = QResizeEvent(QSize(800 * UIRescale.Scale, 400 * UIRescale.Scale),
+                                    QSize(800 * UIRescale.Scale, 100 * UIRescale.Scale))
         QApplication.sendEvent(self, resize_event)
         self.move(self.pos().x(), self.widget.rect().height() - self.rect().height() - 50 * UIRescale.Scale)
 

@@ -199,9 +199,9 @@ class MainWindow(QWidget):
         elif state == "2x":
             self.play_button.speed = 500
         else:
-            self.play_button.speed = 250
+            self.play_button.speed = 16
 
-        if self.play_button.playButton.isChecked():
+        if self.play_button.is_checked:
             self.play_button.timer.stop()
             self.play_button.timer.start(self.play_button.speed)
 
