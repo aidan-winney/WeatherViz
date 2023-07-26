@@ -213,55 +213,6 @@ class MainWindow(QWidget):
             timer.cancel()
         event.accept()
 
-    def trigger_instruction_panel(self):
-        # self.instructionPopUp = QGroupBox()
-        # self.instructionPopUp.setWindowTitle("Instructions")
-        # self.instructionPopUp.setFixedSize(1150, 500)
-        # self.instructionPopUp.setStyleSheet("background-color: rgba(225, 225, 225, 255)")
-
-        self.instructionText1 = QLabel(self)
-        self.instructionText1.setText("     Welcome to WeatherViz!")
-        self.instructionText1.setFont(QFont("Arial", 36, QFont.Bold))
-        self.instructionText1.setGeometry(QRect(345, 95, 830, 75))
-        self.instructionText1.setStyleSheet("background-color: rgba(125, 125, 125, 130); border-radius: 5px;")
-        self.instructionText2 = QLabel(self)
-        self.instructionText2.setText("\t          Instructions:")
-        self.instructionText2.setFont(QFont("Arial", 28))
-        self.instructionText2.setGeometry(QRect(345, 182, 830, 55))
-        self.instructionText2.setStyleSheet("background-color: rgba(125, 125, 125, 130); border-radius: 5px;")
-        self.instructionText3 = QLabel(self)
-        self.instructionText3.setText("    ∙ Use the buttons in the bottom right corner to move and zoom around the map\n    "
-                                      "∙ WASD can also be used to move plus Q to zoom in and E to zoom out\n    "
-                                      "∙ Set the Date Range to fetch between the two dates\n    "
-                                      "∙ The Timeline Interval lets you select between hourly and daily data\n    "
-                                      "∙ The Heatmap Resolution decides how many points will be rendered on the map\n         "
-                                      "◦ Higher resolutions will take longer to query\n    "
-                                      "∙ Choose the weather statistic you want to query using the Weather Type setting\n    "
-                                      "∙ Press the Query button to begin a query\n         "
-                                      "◦ A progress bar will let you know how much of the query is currently completed\n    "
-                                      "∙ When the query is completed, the heatmap will automatically appear on the map\n         "
-                                      "◦ Press the play button in the upper-right corner to start a timelapse of the heatmap\n    "
-                                      "∙ Press the Close button below to enable map movement and querying")
-        self.instructionText3.setGeometry(QRect(345, 250, 830, 255))
-        self.instructionText3.setStyleSheet("background-color: rgba(125, 125, 125, 130); border-radius: 5px; font-size: 13pt;")
-        self.instructionButton = QPushButton(self)
-        self.instructionButton.setText("Close")
-        self.instructionButton.setGeometry(QRect(715, 515, 75, 40))
-        self.instructionButton.setStyleSheet("background-color: rgba(125, 125, 125, 130); border-radius: 5px; font-size: 14pt;")
-        self.instructionButton.clicked.connect(self.clearInstructions)
-        # self.instructionPopUp.show()
-
-
-    def clearInstructions(self):
-        self.instructionButton.lower()
-        self.instructionText1.lower()
-        self.instructionText2.lower()
-        self.instructionText3.lower()
-
-    def showInstructions(self):
-        self.instructionButton.raise_()
-        self.instructionText3.raise_()
-
     #Navigation Functions
     def resizeEvent(self, event):
         self.toolbar.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
