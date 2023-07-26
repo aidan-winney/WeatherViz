@@ -5,7 +5,7 @@ from WeatherViz import renderer
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
     QWidget, QDateEdit, QCalendarWidget, QGridLayout, QSlider, QRadioButton
 from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter, QIcon, Qt, QFont
-from PySide2.QtCore import QDate, Slot, QPoint, QThread, QMetaObject, QRect
+from PySide2.QtCore import QDate, Slot, QPoint, QThread, QMetaObject, QRect, QTimer
 from PySide2 import QtCore
 from ast import literal_eval
 import sys
@@ -41,6 +41,9 @@ from WeatherViz.gui.Help import Help
 
 from WeatherViz.gui.MapLegend import MapLegend
 
+class DotWorker(QThread):
+    def run(self):
+        time.sleep(5)
 
 class TimerThread(threading.Thread):
     def __init__(self, interval, function, *args, **kwargs):
@@ -71,6 +74,7 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.is_querying = False
+        self.is_rendering = False
         self.last_query_time = time.time()
         self.query_times = []
         self.query_count = 0
@@ -131,6 +135,15 @@ class MainWindow(QWidget):
         self.queryPane.delete_tab.connect(self.delete_query)
         self.layout.addWidget(self.queryPane, alignment=Qt.AlignTop)
         self.layout.addWidget(self.map_widget)
+
+        self.dots = 0
+        self.dottimer = QTimer()
+        self.dottimer.timeout.connect(self.update_button_text)
+        self.worker = DotWorker(self)
+        self.worker.started.connect(self.startAnimating)
+        self.worker.finished.connect(self.stopAnimating)
+        self.submit_button.clicked.connect(self.worker.start)
+        self.dottimer.setInterval(500)
 
         # Instruction pop-up goes here - for Aidan
         #self.trigger_instruction_panel()
@@ -452,6 +465,9 @@ class MainWindow(QWidget):
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 results = executor.map(lambda coords: api_call(*coords), geocoords)
 
+            self.submit_button.setText("Rendering...")
+            self.is_rendering = True
+
             responses = {}
             for result, (lat, lon) in zip(results, geocoords):
                 key = (str(lat), str(lon))
@@ -487,9 +503,11 @@ class MainWindow(QWidget):
 
             QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
             QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
+            QMetaObject.invokeMethod(self.dottimer, "stop", Qt.QueuedConnection)
             self.submit_button.setText("Query")
             self.submit_button.setEnabled(True)
             self.is_querying = False
+            self.is_rendering = False
         except Exception as e:
             self.submit_button.setText('Query failed (API limit reached)')
             self.is_querying = False
@@ -497,6 +515,20 @@ class MainWindow(QWidget):
         finally:
             executor.shutdown()
             session.close()
+
+    def update_button_text(self):
+        self.dots = (self.dots + 1) % 4
+        if self.is_querying:
+            self.submit_button.setText("Querying" + "." * self.dots)
+        elif self.is_rendering:
+            self.submit_button.setText("Rendering" + "." * self.dots)
+
+    def startAnimating(self):
+        QMetaObject.invokeMethod(self.dottimer, "start", Qt.QueuedConnection)
+
+    def stopAnimating(self):
+        QMetaObject.invokeMethod(self.dottimer, "stop", Qt.QueuedConnection)
+
 
     def initial_load(self):
         database_connection = sqlite3.connect("queries.db")
