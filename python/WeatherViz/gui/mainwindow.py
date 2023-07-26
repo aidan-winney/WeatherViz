@@ -41,6 +41,8 @@ from WeatherViz.gui.Help import Help
 
 from WeatherViz.gui.MapLegend import MapLegend
 
+import WeatherViz.assets_rc
+
 class DotWorker(QThread):
     def run(self):
         time.sleep(5)
