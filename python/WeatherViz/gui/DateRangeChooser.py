@@ -46,7 +46,7 @@ class DateRangeChooser(QWidget):
         calendar_start.setDateRange(QDate(1980, 1, 1), QDate.currentDate().addDays(-9))
         self.start_date.setStyleSheet("""
                     QDateEdit::down-arrow {
-                        image: url(WeatherViz/python/WeatherViz/assets/down_arrow.png);
+                        image: url(:/assets/down_arrow.png);
                     }
                     
                     QDateEdit::drop-down {
@@ -100,7 +100,7 @@ class DateRangeChooser(QWidget):
         # self.end_date = QDateEdit(self, calendarPopup=True)
         self.end_date.setStyleSheet("""
                     QDateEdit::down-arrow {
-                        image: url(WeatherViz/python/WeatherViz/assets/down_arrow.png);
+                        image: url(:/assets/down_arrow.png);
                     }
                     
                     QDateEdit::drop-down {

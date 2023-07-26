@@ -24,7 +24,7 @@ class Panel(QWidget):
         self.titleLabel = QLabel(self.title)
         self.titleLabel.setStyleSheet("font-weight: bold; color: white")
         header_layout.addWidget(self.titleLabel)
-        info_icon = QIcon("WeatherViz/python/WeatherViz/assets/tooltip.png")
+        info_icon = QIcon(":/assets/tooltip.png")
         self.info_label = QLabel()
         self.info_label.setPixmap(info_icon.pixmap(16 * UIRescale.Scale, 16 * UIRescale.Scale))
         self.info_label.setToolTip(tooltip)
