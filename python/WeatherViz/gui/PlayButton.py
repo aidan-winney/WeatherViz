@@ -28,15 +28,16 @@ class PlayButton(QWidget):
         self.playButton.setFixedSize(35 * UIRescale.Scale, 35 * UIRescale.Scale)
         if not self.slider.isEnabled():
             self.playButton.setFixedWidth(0)
-        self.playButton.toggled.connect(self.togglePlay)
+        self.playButton.toggled.connect(lambda: self.togglePlay(~self.is_checked))
         layout.addWidget(self.playButton)
         self.setLayout(layout)
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.incrementSlider)
 
-    def togglePlay(self, checked):
+    def togglePlay(self, checked=True):
         self.is_checked = checked
+        print(self.is_checked)
         if self.is_checked and self.slider.isEnabled():
             self.playButton.setText("▢")
             self.timer.start(self.speed)
