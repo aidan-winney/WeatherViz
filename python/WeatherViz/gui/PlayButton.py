@@ -37,7 +37,6 @@ class PlayButton(QWidget):
 
     def togglePlay(self, checked=True):
         self.is_checked = checked
-        print(self.is_checked)
         if self.is_checked and self.slider.isEnabled():
             self.playButton.setText("▢")
             self.timer.start(self.speed)

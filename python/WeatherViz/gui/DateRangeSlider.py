@@ -3,7 +3,7 @@ from PySide2.QtGui import Qt, QPainter, QColor
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout
 from WeatherViz.UIRescale import UIRescale
 
-from WeatherViz.gui.TriButton import TriButton
+from WeatherViz.gui.MultiButton import MultiButton
 
 
 class DateRangeSlider(QWidget):
