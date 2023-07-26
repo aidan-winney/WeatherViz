@@ -43,10 +43,6 @@ from WeatherViz.gui.MapLegend import MapLegend
 
 import WeatherViz.assets_rc
 
-def get_color(gradient, position):
-    color = gradient[round(position * (len(gradient) - 1))]
-    return ((color >> 16) % 256, (color >> 8) % 256, color % 256)
-
 class DotWorker(QThread):
     def run(self):
         time.sleep(5)
@@ -179,8 +175,7 @@ class MainWindow(QWidget):
         self.arrow_pad.show()
 
         self.ren = Renderer()
-        gradient = self.ren.gradient()
-        colors = [get_color(gradient, position) for position in [1.00, 0.85, 0.55, 0.00]]
+        colors = [self.ren.color_at(position) for position in (1.00, 0.85, 0.55, 0.00)]
         labels = ["100%", "85%", "55%", "0%"]
         title = "Legend"
 
@@ -281,6 +276,14 @@ class MainWindow(QWidget):
                                          self.map_widget.zoom, self.map_widget.web_map.width(),
                                          self.map_widget.web_map.height())
             self.image = Image.frombytes("RGBA", (self.map_widget.web_map.width(), self.map_widget.web_map.height()), byte_array)
+            if self.temperature.isChecked():
+                self.legend_widget.title = "Temperature (F)"
+            elif self.wind.isChecked():
+                self.legend_widget.title = "Wind (mph)"
+            elif self.rain.isChecked():
+                self.legend_widget.title = "Rain (inch)"
+            labels = [self.ren.value_at(position) for position in (1.00, 0.85, 0.55, 0.00)]
+            self.legend_widget.labels = labels
             if render_pixmap or self.play_button.is_checked:
                 if self.image_label.pixmap is not None and (self.map_widget.marker is not None or render_pixmap is False):
                     self.map_widget.refresh()
@@ -366,7 +369,6 @@ class MainWindow(QWidget):
                 DAILY = False
             self.query_daily = DAILY
 
-            #Weather event
             if self.temperature.isChecked():
                 self.legend_widget.title = "Temperature (F)"
                 if DAILY:
@@ -385,6 +387,7 @@ class MainWindow(QWidget):
                     VARIABLE = "rain_sum"
                 else:
                     VARIABLE = "rain"
+
             TEMPERATURE_UNIT = "fahrenheit"
             WINDSPEED_UNIT = "mph"
             PRECIPITATION_UNIT = "inch"
@@ -436,7 +439,7 @@ class MainWindow(QWidget):
 
             self.ren.set_data(responses)
             self.apicalled = True
-
+            
             # Database caching
             database_connection = sqlite3.connect("queries.db")
             cur = database_connection.cursor()

@@ -2,6 +2,10 @@ use crate::{config::Config, geo, interp::{Interpolator}};
 use std::collections::{HashMap};
 use pyo3::{prelude::*, exceptions::PyRuntimeError, types::PyBytes};
 
+fn component_to_usize(component: f32) -> usize {
+    if component < 0.01 { 3 } else { f32_to_usize(component) }
+}
+
 fn f32_to_usize(float: f32) -> usize {
     (float * 255.0).round() as usize
 }
@@ -57,8 +61,18 @@ impl Renderer {
         });
         self.data = data;
     }
-    pub fn gradient(&self) -> Vec<u32> {
-        self.config.gradient.clone()
+    pub fn color_at(&self, position: f32) -> (u8, u8, u8) {
+        let color = self.config.gradient[component_to_usize(position)];
+        ((color >> 16) as u8, (color >> 8) as u8, color as u8)
+    }
+    pub fn value_at(&self, position: f64) -> String {
+        match self.min {
+            Some(min) => match self.max {
+                Some(max) => format!("{:.2}", min + position * (max - min)),
+                None => String::from("")
+            },
+            None => String::from("")
+        }
     }
     pub fn render(
         &mut self,
@@ -139,7 +153,7 @@ impl Renderer {
             match output {
                 Some(value) => {
                     let scaled = (value - min) / (max - min);
-                    let alpha = if scaled < 0.01 { 3 } else { f32_to_usize(scaled as f32) };
+                    let alpha = component_to_usize(scaled as f32);
                     let color = self.config.gradient[alpha];
                     result.push((color >> 16) as u8);
                     result.push((color >> 8) as u8);
