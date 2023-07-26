@@ -8,8 +8,8 @@ fn f32_to_usize(float: f32) -> usize {
 
 #[pyclass]
 pub struct Renderer {
-    pub data: HashMap<(String, String), Vec<Option<f64>>>,
-    pub config: Config
+    data: HashMap<(String, String), Vec<Option<f64>>>,
+    config: Config
 }
 
 #[pymethods]
@@ -23,6 +23,9 @@ impl Renderer {
     }
     pub fn set_data(&mut self, data: HashMap<(String, String), Vec<Option<f64>>>) {
         self.data = data;
+    }
+    pub fn gradient(&self) -> Vec<u32> {
+        self.config.gradient.clone()
     }
     pub fn render(
         &mut self,
