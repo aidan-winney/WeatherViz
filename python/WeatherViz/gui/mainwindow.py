@@ -334,8 +334,10 @@ class MainWindow(QWidget):
             self.submit_button.setEnabled(False)
             threading.Thread(target=self.get_data).start()
         elif len(self.query_times) == 2 and len(self.timers) is not 0:
+            if self.dottimer.isActive():
+                    QMetaObject.invokeMethod(self.dottimer, "stop", Qt.QueuedConnection)
             self.submit_button.setText(f"Try again in {round(self.timers[0].time_remaining())} seconds")
-
+    
     def reset_query_count(self):
         self.query_times.pop(0)
         self.timers.pop(0)
@@ -478,6 +480,7 @@ class MainWindow(QWidget):
                 print("Failed to stop timer. Error message: ", str(e2))
 
             self.is_querying = False
+            self.is_rendering = False
             self.submit_button.setEnabled(True)
             exception_message = str(e)
             words = exception_message.split()
