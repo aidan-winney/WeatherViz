@@ -455,8 +455,9 @@ class MainWindow(QWidget):
             center_lat = self.map_widget.location[0]
             center_lon = self.map_widget.location[1]
             zoom = self.map_widget.zoom
-            geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
+            raw_geocoords = renderer.geocoords(self.map_widget.web_map.width(), self.map_widget.web_map.height(), RESOLUTION,
                                    center_lat, center_lon, zoom)
+            geocoords = [renderer.saw(lat, lon) for (lat, lon) in raw_geocoords]
 
             session = requests.Session()
 
@@ -483,7 +484,7 @@ class MainWindow(QWidget):
             self.is_rendering = True
 
             responses = {}
-            for result, (lat, lon) in zip(results, geocoords):
+            for result, (lat, lon) in zip(results, raw_geocoords):
                 key = (str(lat), str(lon))
                 responses[key] = result["daily" if DAILY else "hourly"][VARIABLE]
                 #print(responses[key])
