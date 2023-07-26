@@ -6,10 +6,35 @@ fn f32_to_usize(float: f32) -> usize {
     (float * 255.0).round() as usize
 }
 
+// I'm gonna guess that there's a nicer way to do this with traits, but I haven't gotten to that
+// part of the book yet.
+
+fn opt_f64_min(a: Option<f64>, b: Option<f64>) -> Option<f64> {
+    match a {
+        Some(a_val) => match b {
+            Some(b_val) => Some(a_val.min(b_val)),
+            None => a
+        },
+        None => b
+    }
+}
+
+fn opt_f64_max(a: Option<f64>, b: Option<f64>) -> Option<f64> {
+    match a {
+        Some(a_val) => match b {
+            Some(b_val) => Some(a_val.max(b_val)),
+            None => a
+        },
+        None => b
+    }
+}
+
 #[pyclass]
 pub struct Renderer {
     data: HashMap<(String, String), Vec<Option<f64>>>,
-    config: Config
+    config: Config,
+    min: Option<f64>,
+    max: Option<f64>,
 }
 
 #[pymethods]
@@ -18,10 +43,18 @@ impl Renderer {
     pub fn new() -> PyResult<Self> {
         Ok(Self {
             data: HashMap::new(),
-            config: Config::new()?
+            config: Config::new()?,
+            min: None,
+            max: None
         })
     }
     pub fn set_data(&mut self, data: HashMap<(String, String), Vec<Option<f64>>>) {
+        self.min = data.values().fold(None, |acc, vec| {
+            opt_f64_min(acc, vec.iter().fold(None, |a, &b| { opt_f64_min(a, b) }))
+        });
+        self.max = data.values().fold(None, |acc, vec| {
+            opt_f64_max(acc, vec.iter().fold(None, |a, &b| { opt_f64_max(a, b) }))
+        });
         self.data = data;
     }
     pub fn gradient(&self) -> Vec<u32> {
@@ -80,6 +113,8 @@ impl Renderer {
         if x_len == 0 || y_len == 0 {
             return Ok(PyBytes::new(py, &vec![0; (width * height * 4) as usize]).into())
         }
+        let min = self.min.expect("Couldn't compute minimum");
+        let max = self.max.expect("Couldn't compute maximum");
         let interpolator = Interpolator::new(xs, ys, grid);
         let mut outputs = Vec::new();
         for j in 0..height {
@@ -99,32 +134,6 @@ impl Renderer {
                 }
             }
         }
-        let min = outputs.iter().fold(Some(f64::INFINITY), |a, &b| {
-            match a {
-                Some(a_val) => {
-                    match b {
-                        Some(b_val) => {
-                            Some(a_val.min(b_val))
-                        }
-                        None => a
-                    }
-                }
-                None => b
-            }
-        }).expect("How did we get here?");
-        let max = outputs.iter().fold(Some(f64::NEG_INFINITY), |a, &b| {
-            match a {
-                Some(a_val) => {
-                    match b {
-                        Some(b_val) => {
-                            Some(a_val.max(b_val))
-                        }
-                        None => a
-                    }
-                }
-                None => b
-            }
-        }).expect("How did we get here?");
         let mut result = Vec::new();
         for output in &outputs {
             match output {
