@@ -595,6 +595,9 @@ class MainWindow(QWidget):
         database_connection.close()
         self.ren = Renderer()
         self.ren.set_data({})
+        self.query_start_date = QDate.currentDate()
+        self.query_end_date = QDate.currentDate()
+        self.query_daily = True
         self.update_slider_range()
         self.update_overlay()
 
