@@ -1,10 +1,6 @@
-use crate::{config::Config, geo};
-use std::collections::HashMap;
+use crate::{config::Config, geo, interp::{Interpolator}};
+use std::collections::{HashMap};
 use pyo3::{prelude::*, exceptions::PyRuntimeError, types::PyBytes};
-
-// TODO: implement bilinear interpolation as a temporary fix
-// we assume that weather is a Gaussian process because we are cool like that
-use friedrich::gaussian_process::GaussianProcess;
 
 #[pyclass]
 pub struct Renderer {
@@ -34,11 +30,9 @@ impl Renderer {
         width: i32,
         height: i32
     ) -> PyResult<Py<PyBytes>> {
-        //let grid_vec = Vec::new();
-        //let xs = Vec::new();
-        //let ys = Vec::new();
-        let mut training_inputs = Vec::new();
-        let mut training_outputs = Vec::new();
+        let mut grid_map = HashMap::new();
+        let mut xs = Vec::new();
+        let mut ys = Vec::new();
         let (center_x, center_y) = geo::project(center_lat, center_lon, zoom);
         let corner_x = center_x - (width as f64) / 2.0;
         let corner_y = center_y - (height as f64) / 2.0;
@@ -48,40 +42,101 @@ impl Renderer {
                     .map_err(|_| PyRuntimeError::new_err(format!("Invalid latitude {lat}")))?;
                 let lon = lon.parse::<f64>()
                     .map_err(|_| PyRuntimeError::new_err(format!("Invalid longitude {lon}")))?;
-                let (x, y) = geo::project(lat, lon, zoom);
-                //xs.push(x - corner_x);
-                //ys.push(y - corner_y);
-                //grid_vec.push(*value);
-                training_inputs.push(vec![x - corner_x, y - corner_y]);
-                training_outputs.push(*value);
+                let (mut x, mut y) = geo::project(lat, lon, zoom);
+                x -= corner_x;
+                y -= corner_y;
+                xs.push(x);
+                ys.push(y);
+                grid_map.insert((format!("{x}"), format!("{y}")), *value);
             } else {
                 return Err(PyRuntimeError::new_err(format!("Invalid time {time} for coord \
                                                            ({lat}, {lon})")))
             }
         }
-        //let res = (self.data.len() as f64).sqrt() as i32;
-        //let grid = ndarray::Array::from_shape_vec((res, res), grid_vec);
-        let gp = GaussianProcess::default(training_inputs, training_outputs);
-        let mut inputs = Vec::new();
-        for j in 0..height {
-            let j = j as f64;
-            for i in 0..width {
-                let i = i as f64;
-                inputs.push(vec![i, j]);
+        xs.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        ys.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        xs.dedup();
+        ys.dedup();
+        let mut grid_vec = Vec::new();
+        for x in &xs {
+            for y in &ys {
+                match grid_map.get(&(format!("{x}"), format!("{y}"))) {
+                    Some(value) => grid_vec.push(*value),
+                    _ => return Err(PyRuntimeError::new_err(format!("Invalid key ({x}, {y})")))
+                }
             }
         }
-        let outputs = gp.predict(&inputs);
-        let min = outputs.iter().fold(f64::INFINITY, |a, &b| a.min(b));
-        let max = outputs.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
+        let x_len = xs.len();
+        let y_len = ys.len();
+        let grid = ndarray::Array::from_shape_vec((x_len, y_len), grid_vec)
+            .map_err(|err| PyRuntimeError::new_err(format!("{err}")))?;
+        if x_len == 0 || y_len == 0 {
+            return Ok(PyBytes::new(py, &vec![0; (width * height * 4) as usize]).into())
+        }
+        let interpolator = Interpolator::new(xs, ys, grid);
+        let mut outputs = Vec::new();
+        for j in 0..height {
+            let j = j as f64;
+            let closest_y_is = interpolator.closest_y_indices(j);
+            for i in 0..width {
+                if interpolator.within_y_bounds(j) {
+                    let i = i as f64;
+                    let closest_x_is = interpolator.closest_x_indices(i);
+                    if interpolator.within_x_bounds(i) {
+                        outputs.push(Some(interpolator.interp(i, j, closest_x_is, closest_y_is)));
+                    } else {
+                        outputs.push(None);
+                    }
+                } else {
+                    outputs.push(None);
+                }
+            }
+        }
+        let min = outputs.iter().fold(Some(f64::INFINITY), |a, &b| {
+            match a {
+                Some(a_val) => {
+                    match b {
+                        Some(b_val) => {
+                            Some(a_val.min(b_val))
+                        }
+                        None => a
+                    }
+                }
+                None => b
+            }
+        }).expect("How did we get here?");
+        let max = outputs.iter().fold(Some(f64::NEG_INFINITY), |a, &b| {
+            match a {
+                Some(a_val) => {
+                    match b {
+                        Some(b_val) => {
+                            Some(a_val.max(b_val))
+                        }
+                        None => a
+                    }
+                }
+                None => b
+            }
+        }).expect("How did we get here?");
         let mut result = Vec::new();
-        for output in outputs {
-            let alpha_f = (output - min) / (max - min);
-            let alpha = if alpha_f < 0.01 { 3 } else { (alpha_f * 255.0).round() as usize };
-            let color = self.config.gradient[alpha];
-            result.push((color >> 16) as u8);
-            result.push((color >> 8) as u8);
-            result.push(color as u8);
-            result.push(alpha as u8);
+        for output in &outputs {
+            match output {
+                Some(value) => {
+                    let alpha_f = (value - min) / (max - min);
+                    let alpha = if alpha_f < 0.01 { 3 } else { (alpha_f * 255.0).round() as usize };
+                    let color = self.config.gradient[alpha];
+                    result.push((color >> 16) as u8);
+                    result.push((color >> 8) as u8);
+                    result.push(color as u8);
+                    result.push(alpha as u8);
+                }
+                None => {
+                    result.push(0);
+                    result.push(0);
+                    result.push(0);
+                    result.push(0);
+                }
+            }    
         }
         Ok(PyBytes::new(py, &result).into())
     }
