@@ -95,7 +95,6 @@ class MainWindow(QWidget):
         self.query_start_date = QDate.currentDate()
         self.query_end_date = QDate.currentDate()
         self.map_widget = MapWidget([27.75, -83.25], 7)
-        self.map_widget.mapChanged.connect(self.update_overlay)
         self.progress_updated.connect(self.update_progress, QtCore.Qt.QueuedConnection)
         self.start_date = QDateEdit(calendarPopup=True)
         self.start_date.setDate(QDate.currentDate())
@@ -128,9 +127,15 @@ class MainWindow(QWidget):
 
         self.submit_button.clicked.connect(self.query)
         content = [ScrollableContent([QLabel("Date Range"), self.date_selector,
-                   Panel("Timeline Interval", "Tooltip", [self.hourly, self.daily]),
-                   Panel("Heatmap Resolution", "Tooltip", [self.twobytwo, self.fourbyfour, self.sixteenbysixteen]),
-                   Panel("Weather Type", "Tooltip", [self.temperature, self.rain, self.wind])], self),
+                   Panel("Timeline Interval", "Choose whether you get a datapoint for each day, or a datapoint for each hour"
+                         , [self.hourly, self.daily]),
+                   Panel("Heatmap Resolution",
+                         "Higher resolutions will sample more locations so it will take longer but be more accurate"
+                         , [self.twobytwo, self.fourbyfour, self.sixteenbysixteen]),
+                   Panel("Weather Type", "Temperature data is for 2 meters above ground\n"
+                                         "Wind speed is 10 meters above ground\n"
+                         "Daily:\n∙ Average temperature, total amount of rain, maximum wind speed for the day"
+                                         , [self.temperature, self.rain, self.wind])], self),
                    self.submit_button, self.progress]
         # content = [ScrollableContent([QLabel("Date Range")])]
         self.queryPane = QueryPane(content, self)
@@ -309,6 +314,7 @@ class MainWindow(QWidget):
         elif self.map_widget.zoom < 18 and event.key() == Qt.Key_Q:  # Q
             self.zoom_in()
 
+    @QtCore.Slot()
     def update_overlay(self, render_pixmap=False):
         if self.apicalled:
             byte_array = self.ren.render(self.slider.get_slider().value(), self.map_widget.location[0], self.map_widget.location[1],
@@ -515,6 +521,7 @@ class MainWindow(QWidget):
             self.is_rendering = False
         except Exception as e:
             self.submit_button.setText('Query failed (API limit reached)')
+            print(e)
             self.is_querying = False
             self.submit_button.setEnabled(True)
         finally:

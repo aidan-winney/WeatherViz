@@ -15,7 +15,6 @@ import io
 from WeatherViz.UIRescale import UIRescale
 
 class MapWidget(QGraphicsView):
-    mapChanged = QtCore.Signal()
     def __init__(self, initial_location, initial_zoom):
         super().__init__()
 
@@ -32,7 +31,6 @@ class MapWidget(QGraphicsView):
         self.setViewportMargins(0, 0, 0, 0)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.setInteractive(False)
         self.createMap()
@@ -86,27 +84,3 @@ class MapWidget(QGraphicsView):
         self.map.save(data, close_file=False)
         self.web_map.setHtml(data.getvalue().decode())
         self.web_map.update()
-
-    #Mouse Navigation Functions
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.last_pos = event.pos()
-    #
-    def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            diff = event.pos() - self.last_pos
-            self.pan_map(diff.x()/50, diff.y()/50)
-            self.last_pos = event.pos()
-
-    def pan_map(self, dx, dy):
-        self.location[1] -= dx
-        self.location[0] += dy
-        self.mapChanged.emit()
-
-    def wheelEvent(self, event):
-        zoom_direction = event.angleDelta().y()
-        zoom_direction = 1 if zoom_direction > 0 else -1
-
-        self.zoom += zoom_direction
-        self.fitInView(self.rect(), Qt.KeepAspectRatio)
-        self.mapChanged.emit()

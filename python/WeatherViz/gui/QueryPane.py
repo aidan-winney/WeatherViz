@@ -153,7 +153,7 @@ class QueryPane(QWidget):
 
     def deleteTab(self):
         index = self.tab_widget.currentIndex()
-        if index >= 1:
+        if self.tab_widget.count() > 1:
             self.delete_tab.emit()
             self.tab_widget.removeTab(index)
         else:
