@@ -207,6 +207,9 @@ class MainWindow(QWidget):
             self.play_button.timer.start(self.play_button.speed)
 
     def closeEvent(self, event):
+        if self.worker.isRunning():
+            self.worker.quit()
+            self.worker.wait() 
         for timer in self.timers:
             timer.cancel()
         if self.first_query:
@@ -520,13 +523,32 @@ class MainWindow(QWidget):
             self.is_querying = False
             self.is_rendering = False
         except Exception as e:
-            self.submit_button.setText('Query failed (API limit reached)')
-            print(e)
+            try:
+                if self.dottimer.isActive():
+                    QMetaObject.invokeMethod(self.dottimer, "stop", Qt.QueuedConnection)
+            except Exception as e2:
+                print("Failed to stop timer. Error message: ", str(e2))
+
             self.is_querying = False
             self.submit_button.setEnabled(True)
+            exception_message = str(e)
+            words = exception_message.split()
+            first_word = words[7] if words else ""
+
         finally:
-            executor.shutdown()
-            session.close()
+            if 'executor' in locals():
+                executor.shutdown()
+            if 'session' in locals():
+                session.close()
+
+            if 'first_word' in locals() and first_word == "{\"reason\":\"Daily":
+                self.update_button_limit_except()
+            elif 'first_word' in locals() and first_word == "{\"reason\":\"Minutely":
+                self.update_button_limit_except()
+            elif 'first_word' in locals() and first_word == "{\"reason\":\"Hourly":
+                self.update_button_limit_except()
+            elif 'first_word' in locals():
+                self.update_button_unknown_except()
 
     def update_button_text(self):
         self.dots = (self.dots + 1) % 4
@@ -534,6 +556,12 @@ class MainWindow(QWidget):
             self.submit_button.setText("Querying" + "." * self.dots)
         elif self.is_rendering:
             self.submit_button.setText("Rendering" + "." * self.dots)
+
+    def update_button_limit_except(self):
+        self.submit_button.setText('Query failed (API limit reached)')
+    
+    def update_button_unknown_except(self):
+        self.submit_button.setText('Query failed (Unknown Error)')
 
     def startAnimating(self):
         QMetaObject.invokeMethod(self.dottimer, "start", Qt.QueuedConnection)
