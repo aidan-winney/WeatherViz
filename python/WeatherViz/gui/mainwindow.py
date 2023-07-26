@@ -493,11 +493,11 @@ class MainWindow(QWidget):
             if 'session' in locals():
                 session.close()
 
-            if 'first_word' in locals() and first_word == "{\"reason\":\"Daily":
+            if 'first_word' in locals() and (first_word == "{\"reason\":\"Daily" or first_word == "{\"error\":true,\"reason\":\"Daily"):
                 self.update_button_limit_except()
-            elif 'first_word' in locals() and first_word == "{\"reason\":\"Minutely":
+            elif 'first_word' in locals() and (first_word == "{\"reason\":\"Minutely" or first_word == "\"error\":true,{\"reason\":\"Minutely"):
                 self.update_button_limit_except()
-            elif 'first_word' in locals() and first_word == "{\"reason\":\"Hourly":
+            elif 'first_word' in locals() and (first_word == "{\"reason\":\"Hourly" or first_word == "\"error\":true,{\"reason\":\"Hourly"):
                 self.update_button_limit_except()
             elif 'first_word' in locals():
                 self.update_button_unknown_except()
