@@ -2,6 +2,8 @@
 // a more general library like Enterpolation given more time. We wanted to use interp but couldn't
 // find it packaged anywhere. For more: https://libreda.org/doc/interp/interp2d/index.html
 
+// TODO: research alternative interpolation methods
+
 use std::cmp::Ordering;
 use ndarray::Array2;
 

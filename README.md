@@ -28,6 +28,6 @@ https://github.com/SplatMudkip/WeatherViz
 
 Now the application can be run as `weatherviz`.
 
-WeatherViz looks for a `config.toml` file in the current directory, falling back on default values without one. Copy `config_example.toml` to get a starter configuration file including comments explaining each option:
+WeatherViz looks for a `config.toml` file in the current directory, falling back on default values without one. To get a starter configuration file including comments explaining each option, copy `config_example.toml` to the directory that WeatherViz will be executed from, for example:
 
 	cp config_example.toml config.toml

@@ -84,6 +84,11 @@ impl Renderer {
         width: i32,
         height: i32
     ) -> PyResult<Py<PyBytes>> {
+        if self.min.is_none() || self.max.is_none() {
+            return Ok(PyBytes::new(py, &vec![0; (width * height * 4) as usize]).into())
+        }
+        let min = self.min.unwrap();
+        let max = self.max.unwrap();
         let mut grid_map = HashMap::new();
         let mut xs = Vec::new();
         let mut ys = Vec::new();
@@ -91,20 +96,22 @@ impl Renderer {
         let corner_x = center_x - (width as f64) / 2.0;
         let corner_y = center_y - (height as f64) / 2.0;
         for ((lat, lon), values_over_time) in &self.data {
+            let lat = lat.parse::<f64>()
+                .map_err(|_| PyRuntimeError::new_err(format!("Invalid latitude {lat}")))?;
+            let lon = lon.parse::<f64>()
+                .map_err(|_| PyRuntimeError::new_err(format!("Invalid longitude {lon}")))?;
+            let (mut x, mut y) = geo::project(lat, lon, zoom);
+            x -= corner_x;
+            y -= corner_y;
+            xs.push(x);
+            ys.push(y);
             if let Some(Some(value)) = values_over_time.get(time) {
-                let lat = lat.parse::<f64>()
-                    .map_err(|_| PyRuntimeError::new_err(format!("Invalid latitude {lat}")))?;
-                let lon = lon.parse::<f64>()
-                    .map_err(|_| PyRuntimeError::new_err(format!("Invalid longitude {lon}")))?;
-                let (mut x, mut y) = geo::project(lat, lon, zoom);
-                x -= corner_x;
-                y -= corner_y;
-                xs.push(x);
-                ys.push(y);
                 grid_map.insert((format!("{x}"), format!("{y}")), *value);
             } else {
-                return Err(PyRuntimeError::new_err(format!("Invalid time {time} for coord \
-                                                           ({lat}, {lon})")))
+                // TODO: investigate data that would raise this error
+                // return Err(PyRuntimeError::new_err(format!("Invalid time {time} for coord \
+                //                                           ({lat}, {lon})")))
+                grid_map.insert((format!("{x}"), format!("{y}")), (min + max) / 2.0);
             }
         }
         xs.sort_by(|a, b| a.partial_cmp(b).unwrap());
@@ -124,11 +131,6 @@ impl Renderer {
         let y_len = ys.len();
         let grid = ndarray::Array::from_shape_vec((x_len, y_len), grid_vec)
             .map_err(|err| PyRuntimeError::new_err(format!("{err}")))?;
-        if x_len == 0 || y_len == 0 {
-            return Ok(PyBytes::new(py, &vec![0; (width * height * 4) as usize]).into())
-        }
-        let min = self.min.expect("Couldn't compute minimum");
-        let max = self.max.expect("Couldn't compute maximum");
         let interpolator = Interpolator::new(xs, ys, grid);
         let mut outputs = Vec::new();
         for j in 0..height {

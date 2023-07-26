@@ -5,13 +5,13 @@
 # If activated, overrides max_opacity and min_opacity.
 opacity = 0.0
 
-# The opacity of the highest value in the heatmap (0.0-1.0).
-# Activated if opacity is less than 1/255.
-max_opacity = 1.0
-
 # The opacity of the lowest value in the heatmap (0.0-1.0).
 # Activated if opacity is less than 1/255.
-min_opacity = 0.0
+min_opacity = 0.05
+
+# The opacity of the highest value in the heatmap (0.0-1.0).
+# Activated if opacity is less than 1/255.
+max_opacity = 0.4
 
 [gradient]
 # Here, enter what the HTML5 canvas API calls "color stops": each a key-value pair with a key

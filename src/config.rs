@@ -11,8 +11,8 @@ fn i64_to_u8(int: &i64) -> Result<u8, PyErr> {
 #[pyclass]
 pub struct Config {
     pub opacity: f32,
-    pub max_opacity: f32,
     pub min_opacity: f32,
+    pub max_opacity: f32,
     pub gradient: Vec<u32>
 }
 
@@ -30,13 +30,13 @@ impl Config {
                 Some(Some(Value::Float(float))) => *float as f32,
                 _ => 0.0
             },
-            max_opacity: match opt_table.as_ref().map(|t| t.get("max_opacity")) {
-                Some(Some(Value::Float(float))) => *float as f32,
-                _ => 1.0
-            },
             min_opacity: match opt_table.as_ref().map(|t| t.get("min_opacity")) {
                 Some(Some(Value::Float(float))) => *float as f32,
-                _ => 0.0
+                _ => 0.05
+            },
+            max_opacity: match opt_table.as_ref().map(|t| t.get("max_opacity")) {
+                Some(Some(Value::Float(float))) => *float as f32,
+                _ => 0.4
             },
             gradient: {
                 let mut dt = DrawTarget::new(256, 1);

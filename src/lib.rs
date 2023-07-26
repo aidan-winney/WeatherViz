@@ -7,6 +7,7 @@ mod renderer;
 use pyo3::prelude::*;
 
 // TODO: refactor signatures for bound functions
+// TODO: research PyO3 optimization techniques
 
 #[pymodule]
 #[pyo3(name = "renderer")]
