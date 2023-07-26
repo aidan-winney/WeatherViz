@@ -99,7 +99,6 @@ class MainWindow(QWidget):
         self.slider.playback_speed.get_button(2).clicked.connect(lambda: self.changePlaybackSpeed("3x"))
         self.slider.get_slider().valueChanged.connect(lambda: self.update_overlay(True))
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
-        self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
         # self.date_selector.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.hourly = QRadioButton("Hourly")
         # self.hourly.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
@@ -139,6 +138,8 @@ class MainWindow(QWidget):
         self.setLayout(self.layout)
 
         self.play_button = PlayButton(self.slider.get_slider(), self)
+        self.start_date.dateChanged.connect(self.play_button.checkDisabled)
+        self.end_date.dateChanged.connect(self.play_button.checkDisabled)
         self.toolbar = Toolbar([self.slider, self.play_button], self)
         self.toolbar.setGeometry(450 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
 
@@ -360,6 +361,7 @@ class MainWindow(QWidget):
     def update_slider_range(self):
         self.play_button.togglePlay(False)
         self.slider.update_range(self.query_start_date, self.query_end_date, self.query_daily)
+        self.play_button.checkDisabled()
 
     def get_data(self):
         try:
