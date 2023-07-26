@@ -16,6 +16,8 @@ from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
 from WeatherViz.gui.ScrollableContent import ScrollableContent
 
+import WeatherViz.assets_rc
+
 
 class QueryPane(QWidget):
     switch_tab = QtCore.Signal()
@@ -116,7 +118,7 @@ class QueryPane(QWidget):
         add_tab_button.setToolTip("Save query and begin a new one")
 
         self.delete_tab_button = QToolButton()
-        self.delete_tab_button.setIcon(QIcon("WeatherViz/python/WeatherViz/assets/trash.png"))
+        self.delete_tab_button.setIcon(QIcon(":/assets/trash.png"))
         self.delete_tab_button.setFixedSize(60 * UIRescale.Scale, 60 * UIRescale.Scale)
         border_radius = UIRescale.Scale * 30
         self.delete_tab_button.setStyleSheet(f"""
