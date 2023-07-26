@@ -2,6 +2,10 @@ use crate::{config::Config, geo, interp::{Interpolator}};
 use std::collections::{HashMap};
 use pyo3::{prelude::*, exceptions::PyRuntimeError, types::PyBytes};
 
+fn f32_to_usize(float: f32) -> usize {
+    (float * 255.0).round() as usize
+}
+
 #[pyclass]
 pub struct Renderer {
     pub data: HashMap<(String, String), Vec<Option<f64>>>,
@@ -122,13 +126,29 @@ impl Renderer {
         for output in &outputs {
             match output {
                 Some(value) => {
-                    let alpha_f = (value - min) / (max - min);
-                    let alpha = if alpha_f < 0.01 { 3 } else { (alpha_f * 255.0).round() as usize };
+                    let scaled = (value - min) / (max - min);
+                    let alpha = if scaled < 0.01 { 3 } else { f32_to_usize(scaled as f32) };
                     let color = self.config.gradient[alpha];
                     result.push((color >> 16) as u8);
                     result.push((color >> 8) as u8);
                     result.push(color as u8);
-                    result.push(alpha as u8);
+                    let opacity = f32_to_usize(self.config.opacity);
+                    let final_alpha = if opacity > 0 {
+                        opacity
+                    } else {
+                        let max_opacity = f32_to_usize(self.config.max_opacity);
+                        let min_opacity = f32_to_usize(self.config.min_opacity);
+                        if alpha < max_opacity {
+                            if alpha < min_opacity {
+                                min_opacity
+                            } else {
+                                alpha
+                            }
+                        } else {
+                            max_opacity
+                        }
+                    };
+                    result.push(final_alpha as u8);
                 }
                 None => {
                     result.push(0);

@@ -22,11 +22,10 @@ https://github.com/SplatMudkip/WeatherViz
 
 	```
 	git clone https://github.com/SplatMudkip/WeatherViz
-	pip install ./WeatherViz
+    cd WeatherViz
+	pip install .
  	```
 
-Now the application can be run as `weatherviz`. **Currently, this script only works in the parent directory of the repository**--i.e. the current directory after executing the above commands.
+Now the application can be run as `weatherviz`. It looks for a `config.toml` file in the current directory. Copy `config_example.toml` to get a starter configuration file:
 
-Additionally, it looks for a `config.toml` file in the current directory. Copy `config_example.toml` to get a starter configuration file:
-
-	cp WeatherViz/config_example.toml config.toml
+	cp config_example.toml config.toml

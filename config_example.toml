@@ -1,7 +1,22 @@
+# Our initial rendering system, and our current configuration system, were adapted from those of
+# heatmap.js. For more: https://www.patrick-wied.at/static/heatmapjs/docs.html
+
+# A global opacity for the heatmap (0.0-1.0), activated if at least 1/255.
+# If activated, overrides max_opacity and min_opacity.
+opacity = 0.0
+
+# The opacity of the highest value in the heatmap (0.0-1.0).
+# Activated if opacity is less than 1/255.
 max_opacity = 1.0
+
+# The opacity of the lowest value in the heatmap (0.0-1.0).
+# Activated if opacity is less than 1/255.
 min_opacity = 0.0
 
 [gradient]
+# Here, enter what the HTML5 canvas API calls "color stops": each a key-value pair with a key
+# between 0.0 and 1.0 representing a position between the start and end of the gradient,
+# respectively, and a value being a table of integral RGB values.
 0.25 = { r = 0x00, g = 0x00, b = 0xFF }
 0.55 = { r = 0x00, g = 0xFF, b = 0x00 }
 0.85 = { r = 0xFF, g = 0xFF, b = 0x00 }

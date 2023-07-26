@@ -1,4 +1,6 @@
-// Adapted from https://libreda.org/doc/interp/interp2d/index.html
+// This module is adapted from LibrEDA's internal interpolation module, interp. We might have used
+// a more general library like Enterpolation given more time. We wanted to use interp but couldn't
+// find it packaged anywhere. For more: https://libreda.org/doc/interp/interp2d/index.html
 
 use std::cmp::Ordering;
 use ndarray::Array2;

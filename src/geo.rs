@@ -5,6 +5,15 @@ fn scale(zoom: i32) -> f64 {
     256.0 * 2.0_f64.powf(zoom as f64)
 }
 
+// "saw off" (hehe) geocoords to standard ranges using saw waves
+#[pyfunction]
+#[pyo3(name = "saw")]
+pub fn saw(lat: f64, lon: f64) -> (f64, f64) {
+    let lat_sawed = 180.0 * (lat / 180.0 - (0.5 + lat / 180.0).floor() as f64);
+    let lon_sawed = 360.0 * (lon / 360.0 - (0.5 + lon / 360.0).floor() as f64);
+    (lat_sawed, lon_sawed)
+}
+
 // geocoords to coords on The Big Map in pixel space
 pub fn project(lat: f64, lon: f64, zoom: i32) -> (f64, f64) {
     let sin = (MAX_LAT.min(lat).max(-MAX_LAT) * DEG_TO_RAD).sin();
