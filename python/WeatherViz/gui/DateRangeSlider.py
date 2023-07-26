@@ -44,9 +44,18 @@ class DateRangeSlider(QWidget):
                     QSlider::add-page:horizontal {
                         background: lightgray;
                     }
-                    QSlider::tick:horizontal {
-                        background: green;
-                        width: 5px;
+                    
+                    QSlider::handle:horizontal:disabled {
+                        background: transparent;
+                    }
+                    QSlider::add-page:horizontal:disabled {
+                        background: gray;
+                    }
+                    QSlider::sub-page:horizontal:disabled {
+                        background: gray;
+                    }
+                    QSlider::groove:horizontal:disabled {
+                        height: 2px;
                     }
                 """)
         self.slider.valueChanged.connect(self.update_date_label)
@@ -58,6 +67,7 @@ class DateRangeSlider(QWidget):
         control_layout = QHBoxLayout()
         control_layout.setContentsMargins(0, 0, 0, 0)
         control_layout.setSpacing(0)
+        self.slider.setDisabled(True)
         self.date_label = QLabel()
         # self.date_label.setMargin(0)
         self.date_label.setContentsMargins(0, 0, 0, 0)
@@ -101,6 +111,10 @@ class DateRangeSlider(QWidget):
         self.end_date = end_date
         self.daily = daily
         date_range = self.end_date.toJulianDay() - self.start_date.toJulianDay()
+        if date_range > 0:
+            self.slider.setDisabled(False)
+        else:
+            self.slider.setDisabled(True)
         if self.daily is False:
             date_range = (date_range + 1) * 24 - 1
         self.slider.setRange(0, date_range)

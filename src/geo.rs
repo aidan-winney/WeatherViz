@@ -1,7 +1,7 @@
 use crate::consts::*;
 use pyo3::prelude::*;
 
-pub fn scale(zoom: i32) -> f64 {
+fn scale(zoom: i32) -> f64 {
     256.0 * 2.0_f64.powf(zoom as f64)
 }
 

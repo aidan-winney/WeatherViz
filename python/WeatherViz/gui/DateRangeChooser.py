@@ -62,7 +62,7 @@ class DateRangeChooser(QWidget):
                     }
                     QDateEdit { background-color: rgba(55, 55, 55, 255);  border-radius: 3px; }""")
         self.start_date.setFixedSize(150 * UIRescale.Scale, 30 * UIRescale.Scale)
-        self.start_date.setDate(QDate.currentDate())
+        self.start_date.setDate(QDate.currentDate().addDays(-13))
         self.start_date.setMinimumDate(QDate(1980, 1, 1))  # Change to correct minimum date
         self.start_date.setMaximumDate(QDate.currentDate().addDays(-9))
         self.start_date.setCalendarWidget(calendar_start)

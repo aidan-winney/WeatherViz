@@ -1,6 +1,7 @@
 mod config;
 mod consts;
 mod geo;
+mod interp;
 mod renderer;
 
 use pyo3::prelude::*;

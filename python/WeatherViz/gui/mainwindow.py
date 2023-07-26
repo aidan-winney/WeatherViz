@@ -5,7 +5,7 @@ from WeatherViz import renderer
 from PySide2.QtWidgets import QApplication, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMainWindow, \
     QWidget, QDateEdit, QCalendarWidget, QGridLayout, QSlider, QRadioButton
 from PySide2.QtGui import QPalette, QColor, QPixmap, QPainter, QIcon, Qt, QFont
-from PySide2.QtCore import QDate, Slot, QPoint, QThread, QMetaObject, QRect
+from PySide2.QtCore import QDate, Slot, QPoint, QThread, QMetaObject, QRect, QTimer
 from PySide2 import QtCore
 from ast import literal_eval
 import sys
@@ -41,6 +41,9 @@ from WeatherViz.gui.Help import Help
 
 from WeatherViz.gui.MapLegend import MapLegend
 
+class DotWorker(QThread):
+    def run(self):
+        time.sleep(5)
 
 class TimerThread(threading.Thread):
     def __init__(self, interval, function, *args, **kwargs):
@@ -71,6 +74,7 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.is_querying = False
+        self.is_rendering = False
         self.last_query_time = time.time()
         self.query_times = []
         self.query_count = 0
@@ -100,7 +104,6 @@ class MainWindow(QWidget):
         self.slider.playback_speed.get_button(2).clicked.connect(lambda: self.changePlaybackSpeed("3x"))
         self.slider.get_slider().valueChanged.connect(lambda: self.update_overlay(True))
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
-        self.date_selector.setGeometry(45 * UIRescale.Scale, 15 * UIRescale.Scale, 425 * UIRescale.Scale, 90 * UIRescale.Scale)
         # self.date_selector.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
         self.hourly = QRadioButton("Hourly")
         # self.hourly.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
@@ -134,12 +137,23 @@ class MainWindow(QWidget):
         self.layout.addWidget(self.queryPane, alignment=Qt.AlignTop)
         self.layout.addWidget(self.map_widget)
 
+        self.dots = 0
+        self.dottimer = QTimer()
+        self.dottimer.timeout.connect(self.update_button_text)
+        self.worker = DotWorker(self)
+        self.worker.started.connect(self.startAnimating)
+        self.worker.finished.connect(self.stopAnimating)
+        self.submit_button.clicked.connect(self.worker.start)
+        self.dottimer.setInterval(500)
+
         # Instruction pop-up goes here - for Aidan
         #self.trigger_instruction_panel()
 
         self.setLayout(self.layout)
 
         self.play_button = PlayButton(self.slider.get_slider(), self)
+        self.start_date.dateChanged.connect(self.play_button.checkDisabled)
+        self.end_date.dateChanged.connect(self.play_button.checkDisabled)
         self.toolbar = Toolbar([self.slider, self.play_button], self)
         self.toolbar.setGeometry(450 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
 
@@ -153,9 +167,9 @@ class MainWindow(QWidget):
         self.arrow_pad.zoom_out.clicked.connect(self.zoom_out)
         self.arrow_pad.show()
 
-        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)]
-        labels = ["75%", "50%", "25%", "0%"]
-        title = "Rain"
+        colors = [(120, 120, 120)]
+        labels = [""]
+        title = "Legend"
 
         self.legend_widget = MapLegend(colors, labels, title, self)
         self.legend_widget.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
@@ -163,7 +177,7 @@ class MainWindow(QWidget):
                               400 * UIRescale.Scale,
                               150 * UIRescale.Scale)
 
-        self.help = Help(self)
+        self.help = Help(self.map_widget, self)
         self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
                               self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale,
                               self.map_widget.rect().width() - 70 * UIRescale.Scale,
@@ -245,8 +259,9 @@ class MainWindow(QWidget):
     def resizeEvent(self, event):
         self.toolbar.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale, 30 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale, 100 * UIRescale.Scale)
         self.arrow_pad.setGeometry(self.rect().width() - 200 * UIRescale.Scale, self.rect().height() - 300 * UIRescale.Scale, 150 * UIRescale.Scale, 230 * UIRescale.Scale)
+        screen_geometry = QApplication.desktop().availableGeometry(self)
         self.help.setGeometry(self.queryPane.rect().width() + 50 * UIRescale.Scale,
-                              self.rect().height() - self.help.rect().height() - 50 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
+                              self.rect().height() - self.help.rect().height() - 70 * UIRescale.Scale, self.map_widget.rect().width() - 70 * UIRescale.Scale,
                               400 * UIRescale.Scale)
         self.legend_widget.setGeometry(self.rect().width() - 200 * UIRescale.Scale,
                                         self.toolbar.rect().height() + 75 * UIRescale.Scale,
@@ -362,6 +377,7 @@ class MainWindow(QWidget):
     def update_slider_range(self):
         self.play_button.togglePlay(False)
         self.slider.update_range(self.query_start_date, self.query_end_date, self.query_daily)
+        self.play_button.checkDisabled()
 
     def get_data(self):
         try:
@@ -376,7 +392,7 @@ class MainWindow(QWidget):
                 RESOLUTION = 2
 
             #Time interval
-            if self.daily.isChecked():
+            if self.is_daily():
                 DAILY = True
             else:
                 DAILY = False
@@ -385,18 +401,30 @@ class MainWindow(QWidget):
             #Weather event
             if self.temperature.isChecked():
                 self.legend_widget.title = "Temperature"
+                colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)]
+                labels = ["75%", "50%", "25%", "0%"]
+                self.legend_widget.labels = labels
+                self.legend_widget.colors = colors
                 if DAILY:
                     VARIABLE = "temperature_2m_mean"
                 else:
                     VARIABLE = "temperature_2m"
             elif self.wind.isChecked(): #TODO: Edit this for actual wind speed data
                 self.legend_widget.title = "Wind"
+                colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)]
+                labels = ["75%", "50%", "25%", "0%"]
+                self.legend_widget.labels = labels
+                self.legend_widget.colors = colors
                 if DAILY:
                     VARIABLE = "windspeed_10m_max"
                 else:
                     VARIABLE = "windspeed_10m"
             elif self.rain.isChecked():
                 self.legend_widget.title = "Rain"
+                colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)]
+                labels = ["75%", "50%", "25%", "0%"]
+                self.legend_widget.labels = labels
+                self.legend_widget.colors = colors
                 if DAILY:
                     VARIABLE = "rain_sum"
                 else:
@@ -440,6 +468,9 @@ class MainWindow(QWidget):
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 results = executor.map(lambda coords: api_call(*coords), geocoords)
 
+            self.submit_button.setText("Rendering...")
+            self.is_rendering = True
+
             responses = {}
             for result, (lat, lon) in zip(results, geocoords):
                 key = (str(lat), str(lon))
@@ -475,13 +506,32 @@ class MainWindow(QWidget):
 
             QMetaObject.invokeMethod(self, "update_overlay", QtCore.Qt.QueuedConnection)
             QMetaObject.invokeMethod(self, "update_slider_range", QtCore.Qt.QueuedConnection)
+            QMetaObject.invokeMethod(self.dottimer, "stop", Qt.QueuedConnection)
             self.submit_button.setText("Query")
             self.submit_button.setEnabled(True)
             self.is_querying = False
+            self.is_rendering = False
         except Exception as e:
             self.submit_button.setText('Query failed (API limit reached)')
             self.is_querying = False
             self.submit_button.setEnabled(True)
+        finally:
+            executor.shutdown()
+            session.close()
+
+    def update_button_text(self):
+        self.dots = (self.dots + 1) % 4
+        if self.is_querying:
+            self.submit_button.setText("Querying" + "." * self.dots)
+        elif self.is_rendering:
+            self.submit_button.setText("Rendering" + "." * self.dots)
+
+    def startAnimating(self):
+        QMetaObject.invokeMethod(self.dottimer, "start", Qt.QueuedConnection)
+
+    def stopAnimating(self):
+        QMetaObject.invokeMethod(self.dottimer, "stop", Qt.QueuedConnection)
+
 
     def initial_load(self):
         database_connection = sqlite3.connect("queries.db")

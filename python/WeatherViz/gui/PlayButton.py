@@ -26,6 +26,8 @@ class PlayButton(QWidget):
                     background-color: rgba(90, 90, 90, 255); font-weight: bold; color: white; border-radius: 3px }""")
         self.playButton.setCheckable(True)
         self.playButton.setFixedSize(35 * UIRescale.Scale, 35 * UIRescale.Scale)
+        if not self.slider.isEnabled():
+            self.playButton.setFixedWidth(0)
         self.playButton.toggled.connect(self.togglePlay)
         layout.addWidget(self.playButton)
         self.setLayout(layout)
@@ -35,7 +37,7 @@ class PlayButton(QWidget):
 
     def togglePlay(self, checked):
         self.is_checked = checked
-        if self.is_checked:
+        if self.is_checked and self.slider.isEnabled():
             self.playButton.setText("▢")
             self.timer.start(self.speed)
         else:
@@ -49,3 +51,9 @@ class PlayButton(QWidget):
             self.slider.setValue(self.slider.minimum())
         else:
             self.slider.setValue(current_value + 1)
+
+    def checkDisabled(self):
+        if not self.slider.isEnabled():
+            self.playButton.setFixedWidth(0)
+        else:
+            self.playButton.setFixedWidth(35 * UIRescale.Scale)
