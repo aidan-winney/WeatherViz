@@ -111,7 +111,7 @@ class DateRangeSlider(QWidget):
         self.end_date = end_date
         self.daily = daily
         date_range = self.end_date.toJulianDay() - self.start_date.toJulianDay()
-        if date_range > 0:
+        if date_range > 0 or daily == False:
             self.slider.setDisabled(False)
         else:
             self.slider.setDisabled(True)

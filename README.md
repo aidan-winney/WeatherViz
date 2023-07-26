@@ -16,17 +16,17 @@ https://github.com/SplatMudkip/WeatherViz
 	sudo snap install cmake --classic
 	```
 
-2. Create a Python 3.8 virtual environment.
+3. Create a Python 3.8 virtual environment.
 
-3. Activate the environment, clone the repository, and install the package (make sure it is installed outside the WeatherViz folder):
+4. Activate the environment, clone the repository, and install the package:
 
 	```
 	git clone https://github.com/SplatMudkip/WeatherViz
 	pip install ./WeatherViz
-	```
+ 	```
 
-Now the application can be run as `weatherviz`. It looks for a `config.toml` file in the current directory. Copy `config_example.toml` to get a starter configuration file:
+Now the application can be run as `weatherviz`. **Currently, this script only works in the parent directory of the repository**--i.e. the current directory after executing the above commands.
 
-    ```
-    cp config_example.toml config.toml
-    ```
+Additionally, it looks for a `config.toml` file in the current directory. Copy `config_example.toml` to get a starter configuration file:
+
+	cp WeatherViz/config_example.toml config.toml
