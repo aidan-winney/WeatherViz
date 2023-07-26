@@ -176,7 +176,7 @@ class MainWindow(QWidget):
 
         self.ren = Renderer()
         colors = [self.ren.color_at(position) for position in (1.00, 0.85, 0.55, 0.00)]
-        labels = ["100%", "85%", "55%", "0%"]
+        labels = ["", "", "", ""]
         title = "Legend"
 
         self.legend_widget = MapLegend(colors, labels, title, self)
