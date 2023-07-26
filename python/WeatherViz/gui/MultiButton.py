@@ -4,7 +4,7 @@ from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBu
 from WeatherViz.UIRescale import UIRescale
 from WeatherViz.gui.TransparentRectangle import TransparentRectangle
 
-class TriButton(QWidget):
+class MultiButton(QWidget):
     checkedStateChanged = Signal(int)
 
     def __init__(self, states, height, parent=None):
