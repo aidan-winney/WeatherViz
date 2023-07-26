@@ -101,7 +101,8 @@ class MainWindow(QWidget):
         self.slider = DateRangeSlider(self.start_date, self.end_date, self)
         self.slider.playback_speed.get_button(0).clicked.connect(lambda: self.changePlaybackSpeed("1x"))
         self.slider.playback_speed.get_button(1).clicked.connect(lambda: self.changePlaybackSpeed("2x"))
-        self.slider.playback_speed.get_button(2).clicked.connect(lambda: self.changePlaybackSpeed("3x"))
+        self.slider.playback_speed.get_button(2).clicked.connect(lambda: self.changePlaybackSpeed("4x"))
+        self.slider.playback_speed.get_button(3).clicked.connect(lambda: self.changePlaybackSpeed("8x"))
         self.slider.get_slider().valueChanged.connect(lambda: self.update_overlay(True))
         self.date_selector = DateRangeChooser(self.start_date, self.end_date, self.slider, self)
         # self.date_selector.setStyleSheet("background-color: rgba(90, 90, 90, 255);  border-radius: 3px;")
@@ -198,8 +199,10 @@ class MainWindow(QWidget):
             self.play_button.speed = 1000
         elif state == "2x":
             self.play_button.speed = 500
+        elif state == "4x":
+            self.play_button.speed = 250
         else:
-            self.play_button.speed = 16
+            self.play_button.speed = 125
 
         if self.play_button.is_checked:
             self.play_button.timer.stop()

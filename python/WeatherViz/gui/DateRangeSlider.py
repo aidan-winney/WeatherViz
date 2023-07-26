@@ -74,7 +74,7 @@ class DateRangeSlider(QWidget):
         self.date_label.setStyleSheet("background-color: transparent; font-weight: bold; color: white")
         self.update_date_label()
 
-        self.playback_speed = TriButton(["1x", "2x", "3x"], 20 * UIRescale.Scale)
+        self.playback_speed = TriButton(["1x", "2x", "4x", "8x"], 20 * UIRescale.Scale)
 
         control_layout.addWidget(self.date_label)
         control_layout.addStretch(1)
