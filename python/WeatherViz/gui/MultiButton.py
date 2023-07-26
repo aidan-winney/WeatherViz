@@ -8,7 +8,7 @@ class MultiButton(QWidget):
     checkedStateChanged = Signal(int)
 
     def __init__(self, states, height, parent=None):
-        super(TriButton, self).__init__(parent)
+        super(MultiButton, self).__init__(parent)
         self.states = states
         self.initUI(states, height)
 
