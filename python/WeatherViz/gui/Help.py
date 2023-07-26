@@ -11,8 +11,9 @@ from WeatherViz.gui.ScrollableContent import ScrollableContent
 
 
 class Help(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, widget, parent=None):
         super(Help, self).__init__(parent)
+        self.widget = widget
         self.initUI()
 
     def initUI(self):
@@ -144,8 +145,7 @@ class Help(QWidget):
         self.setMaximumWidth(1100 * UIRescale.Scale)
         resize_event = QResizeEvent(QSize(800 * UIRescale.Scale, 400 * UIRescale.Scale), QSize(800 * UIRescale.Scale, 100 * UIRescale.Scale))
         QApplication.sendEvent(self, resize_event)
-        screen_geometry = QApplication.desktop().availableGeometry(self)
-        self.move(self.pos().x(), screen_geometry.height() - self.height() - 300 * UIRescale.Scale)
+        self.move(self.pos().x(), self.widget.rect().height() - self.rect().height() - 48 * UIRescale.Scale)
         self.help_box.setHidden(not self.help_box.isHidden())
         self.close_button.setHidden(not self.close_button.isHidden())
         self.help_button.setDisabled(True)
@@ -153,8 +153,7 @@ class Help(QWidget):
     def close_help_box(self):
         self.setMaximumHeight(100 * UIRescale.Scale)
         self.setMaximumWidth(100 * UIRescale.Scale)
-        screen_geometry = QApplication.desktop().availableGeometry(self)
-        self.move(self.pos().x(), screen_geometry.height() - self.height() - 300 * UIRescale.Scale)
+        self.move(self.pos().x(), self.widget.rect().height() - self.rect().height() - 48 * UIRescale.Scale)
         self.help_box.setHidden(True)
         self.close_button.setHidden(True)
         self.help_button.setDisabled(False)

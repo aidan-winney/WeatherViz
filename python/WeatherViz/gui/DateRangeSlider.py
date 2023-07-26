@@ -54,6 +54,9 @@ class DateRangeSlider(QWidget):
                     QSlider::sub-page:horizontal:disabled {
                         background: gray;
                     }
+                    QSlider::groove:horizontal:disabled {
+                        height: 2px;
+                    }
                 """)
         self.slider.valueChanged.connect(self.update_date_label)
 
