@@ -4,7 +4,11 @@ A desktop application for displaying historical weather data on an interactive m
 
 ![WeatherViz](https://raw.githubusercontent.com/aidan-winney/WeatherViz/main/weatherviz.png "application launch")
 
-![Demo](https://raw.githubusercontent.com/aidan-winney/WeatherViz/main/demo.gif =250x169)
+<p>
+<img src="https://raw.githubusercontent.com/aidan-winney/WeatherViz/main/demo.gif" height="250" width="169" align="right">
+
+Example: Hurricane Irma Timelapse
+</p>
 
 ## Repository
 
