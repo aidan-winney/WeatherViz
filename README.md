@@ -2,6 +2,10 @@
 
 A desktop application for displaying historical weather data on an interactive map.
 
+![WeatherViz](https://raw.githubusercontent.com/aidan-winney/WeatherViz/main/weatherviz.png "application launch")
+
+![Demo](https://raw.githubusercontent.com/aidan-winney/WeatherViz/main/demo.gif "Demo")
+
 ## Repository
 
 https://github.com/SplatMudkip/WeatherViz
