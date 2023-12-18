@@ -7,9 +7,18 @@ A desktop application for displaying historical weather data on an interactive m
 ## Major Features
 
 <p>
-<img src="https://raw.githubusercontent.com/aidan-winney/WeatherViz/main/demo.gif" width="250" height="169" align="right">
+<img src="https://raw.githubusercontent.com/aidan-winney/WeatherViz/main/demo.gif" width="317" height="214" align="right">
 
 ### Heatmap interpolation
+### Smooth timelapse
+1. Ability to select time frame and parameters (temp, rain, wind) and query/render data in real time
+2. Adjustable playback feature allows the user to view the weather trend for their selection
+### Custom UI
+- Reworked, more intuitive UI, that scales according to the window size, required no external tools in its creation
+### Caching
+- Queries save in local database
+- Will load up the saved queries when the program is opened
+- Can add and delete from the saved queries
 
 Example: Hurricane Irma Timelapse
 </p>
